@@ -71,7 +71,16 @@ if not firebase_admin._apps:
     cred = credentials.Certificate("firebase-key.json") 
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://alphabet-7d14c-default-rtdb.firebaseio.com/'
+    
     })
+    
+    SITE_PREFIX = os.getenv("SITE_PREFIX", "C1_")
+
+# دالة مساعدة لإزالة الـ Prefix عند استلام الطلبات من المزود
+def get_actual_username(provider_user_code: str) -> str:
+    if provider_user_code and str(provider_user_code).startswith(SITE_PREFIX):
+        return str(provider_user_code)[len(SITE_PREFIX):]
+    return str(provider_user_code)
 
 # 2. دالة جلب البيانات من السحابة
 def load_db():
@@ -85,6 +94,7 @@ def load_db():
     users = data.get("users", [])
     if isinstance(users, dict):
         users = list(users.values())
+        
         
     class MagicDB(list):
         def __init__(self, users_list, full_data):
@@ -1365,16 +1375,20 @@ async def get_games_paged(provider: str = "PRAGMATIC", page: int = 1, limit: int
 async def launch_casino(request: Request):
     try:
         data = await request.json()
+        user_code = str(data.get("user_code", "test_user"))
+        provider_user_code = f"{SITE_PREFIX}{user_code}" # 👈 دمج الـ Prefix
+
         payload = {
             "method": "game_launch",
             "agent_code": AGENT_CODE,      
             "agent_token": AGENT_TOKEN,    
-            "user_code": data.get("user_code", "test_user"),
+            "user_code": provider_user_code, # 👈 إرسال الاسم المدمج
             "provider_code": data.get("provider_code"),
             "game_code": data.get("game_code"),
             "lang": "fr",
             "lobby_url": "https://alphabet216.com/#casino"
         }
+        
         headers = {"Content-Type": "application/json"}
         endpoint = PROVIDER_ENDPOINT.rstrip('/')
         response = requests.post(endpoint, json=payload, headers=headers)
@@ -1728,11 +1742,13 @@ async def seamless_wallet_handler(request: Request):
     try:
         data = await request.json()
         method, user_code = data.get("method"), data.get("user_code")
+        provider_user_code = f"{SITE_PREFIX}{user_code}"
+        actual_username = get_actual_username(provider_user_code)
         
         # --- جلب الرصيد الحقيقي من قاعدة البيانات ---
         db = load_db()
         # التعديل السحري: توحيد الحروف لمنع أخطاء التطابق
-        target_user = next((u for u in db if str(u.get("username", "")).lower().strip() == str(user_code).lower().strip()), None)
+        target_user = next((u for u in db if str(u.get("username", "")).lower().strip() == str(actual_username).lower().strip()), None)
         
         if not target_user:
             return JSONResponse(content={"status": 0, "msg": "USER_NOT_FOUND"})
@@ -1902,6 +1918,7 @@ async def eurovirtuals_bet(request: Request):
 
         # 💡 البحث عن المتغيرات في الغلاف الخارجي أولاً، ثم في المصفوفة الداخلية كبديل
         player_id = str(payload.get("player_id") or payload.get("user_code") or bet_data.get("player_id") or bet_data.get("user_code") or "").strip()
+        actual_username = get_actual_username(player_id)
         currency = str(payload.get("currency") or bet_data.get("currency") or "TND").strip()
         transaction_id = str(payload.get("transaction_id") or payload.get("txn_id") or bet_data.get("transaction_id") or bet_data.get("txn_id") or "").strip()
         current_time = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -1918,7 +1935,7 @@ async def eurovirtuals_bet(request: Request):
         amount = safe_float(payload.get("amount") or payload.get("bet_amount") or bet_data.get("amount") or bet_data.get("bet_amount"))
         async with db_lock:
             db = load_db()
-            target_user = next((u for u in db if str(u.get("username", "")).lower().strip() == player_id.lower()), None)
+            target_user = next((u for u in db if str(u.get("username", "")).lower().strip() == actual_username.lower()), None)
             if not target_user:
                 return JSONResponse(content={"status_code": 500, "status_description": "Player not found"}, status_code=200)
 
@@ -1954,7 +1971,7 @@ async def eurovirtuals_bet(request: Request):
 
         db_session = SessionLocal()
         try:
-            new_tx = Transaction(admin_username="EUROVIRTUALS_API", target_username=player_id, action="bet", amount=amount, date=current_time, tx_id=transaction_id)
+            new_tx = Transaction(admin_username="EUROVIRTUALS_API", target_username=actual_username, action="bet", amount=amount, date=current_time, tx_id=transaction_id)
             db_session.add(new_tx)
             db_session.commit()
         except:
@@ -2425,21 +2442,18 @@ async def launch_sportsbook(request: Request):
         data = await request.json()
         provider_code = str(data.get("provider_code", "")).lower()
         user_code = str(data.get("user_code", "test_user"))
+        provider_user_code = f"{SITE_PREFIX}{user_code}" # 👈 دمج الـ Prefix
         
-        print(f"DEBUG: Unified Sportsbook Launch -> Provider: {provider_code}, User: {user_code}")
-        
-        # ====================================================
-        # 1. إذا كان الطلب يخص الرياضة الجديدة (SMPL)
-        # ====================================================
         if provider_code == "smpl":
             payload = {
                 "sportsbook_uuid": "YOUR_SPORTSBOOK_UUID_HERE", 
                 "currency": "TND",
                 "session_id": f"sess_{uuid.uuid4().hex[:10]}",
-                "player_id": user_code,
-                "player_name": user_code,
+                "player_id": provider_user_code, # 👈 إرسال الاسم المدمج
+                "player_name": provider_user_code,
                 "return_url": "https://alphabet216.com/"
             }
+            
             headers = get_smpl_headers_and_sign(payload)
             headers['Content-Type'] = 'application/json'
             
@@ -2466,7 +2480,7 @@ async def launch_sportsbook(request: Request):
                 "agent_token": AGENT_TOKEN,
                 "provider_code": str(data.get("provider_code", "SPORTSBOOK")), 
                 "game_code": str(data.get("game_code", "SPORTSBOOK")),
-                "user_code": user_code,
+                "user_code": provider_user_code, # 👈 إرسال الاسم المدمج
                 "lang": "fr",
                 "lobby_url": "https://alphabet216.com/"
             }
