@@ -274,8 +274,9 @@ app.add_middleware(
         "https://alpha-player-frontend.onrender.com",
         "https://www.admin-alphabets.com",
         "https://admin-alphabets.com",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500"
+        "http://localhost:5500",  # منفذ VS Code Live Server
+        "http://127.0.0.1:5500",  
+        "https://https://xdanous.onrender.com" # أضف رابط المنصة الجديدة هنا
     ],
     allow_credentials=True,
     allow_methods=["*"],
