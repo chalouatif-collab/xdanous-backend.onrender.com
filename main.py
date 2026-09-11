@@ -270,13 +270,10 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://alphabet216.com",
-        "https://alpha-player-frontend.onrender.com",
-        "https://www.admin-alphabets.com",
-        "https://admin-alphabets.com",
+        "https://xdanous-player-frontend.onrender.com",
         "http://localhost:5500",  # منفذ VS Code Live Server
         "http://127.0.0.1:5500",  
-        "https://https://xdanous.onrender.com" # أضف رابط المنصة الجديدة هنا
+        "https://xdanous-backend-onrender-com.onrender.com" # أضف رابط المنصة الجديدة هنا
     ],
     allow_credentials=True,
     allow_methods=["*"],
