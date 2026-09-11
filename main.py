@@ -46,7 +46,7 @@ import os
 # ==========================================
 # 🎮 إعدادات الكازينو (NexusGGR)
 # ==========================================
-AGENT_CODE = os.getenv("AGENT_CODE", "Alphabet1")
+AGENT_CODE = os.getenv("AGENT_CODE", "xdanous")
 AGENT_TOKEN = os.getenv("AGENT_TOKEN", "")
 NEXUS_SECRET_KEY = os.getenv("NEXUS_SECRET_KEY", "")
 PROVIDER_ENDPOINT = os.getenv("PROVIDER_ENDPOINT", "https://api.nexusggr.eu")
