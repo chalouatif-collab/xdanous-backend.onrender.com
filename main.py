@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends, Request, UploadFile, File, Form, Header, Body, Query,WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Depends, Request, UploadFile, File, Form, Header, Body, Query, WebSocket, WebSocketDisconnect
 from fastapi.security import OAuth2PasswordBearer
-import requests
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,72 +16,58 @@ from passlib.context import CryptContext
 from sqlalchemy import create_engine, Column, Integer, String, Float, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 import asyncio
-db_lock = asyncio.Lock()
 import shutil
 from fastapi.staticfiles import StaticFiles
 import httpx
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse, RedirectResponse, StreamingResponse
 from dotenv import load_dotenv
-import pyotp
-import qrcode
 import io
 import html
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 import uuid
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from starlette.middleware.sessions import SessionMiddleware
 
-
+db_lock = asyncio.Lock()
 PROCESSED_TRANSACTIONS = set()
-from pydantic import BaseModel
 
 class SportsLaunchRequest(BaseModel):
     provider_code: str
     game_code: str
     user_code: str
 
-import os
+load_dotenv()
 
-# ==========================================
-# 🎮 إعدادات الكازينو (NexusGGR)
-# ==========================================
 AGENT_CODE = os.getenv("AGENT_CODE", "Xdanous")
 AGENT_TOKEN = os.getenv("AGENT_TOKEN", "")
 NEXUS_SECRET_KEY = os.getenv("NEXUS_SECRET_KEY", "")
 PROVIDER_ENDPOINT = os.getenv("PROVIDER_ENDPOINT", "https://api.nexusggr.eu")
 
-# ==========================================
-# ⚽ إعدادات الألعاب الافتراضية (EuroVirtuals)
-# ==========================================
 EURO_API_KEY = os.getenv("EURO_API_KEY", "RDWR6e0f1DF1ylzpxEpXzMFi.l3m1aebuSmiH6KGjiGzJf9BoQdMH37F63lGmY4TnXnLlPA3d")
 EURO_APP_KEY = os.getenv("EURO_APP_KEY", "e0c39ac6-2d70-4ba8-a918-cb2a3fedd029")
 EURO_BASE_URL = os.getenv("EURO_BASE_URL", "https://api.betkraft.co.uk/")
 
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
 ADMIN_USER = os.getenv("ADMIN_USERNAME")
 ADMIN_PASS = os.getenv("ADMIN_PASSWORD")
 SECRET_KEY = os.getenv("SECRET_KEY", "alpha-secure-key-2026")
 
-# 1. إعداد الاتصال بـ Firebase
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase-key.json") 
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://alphabet-7d14c-default-rtdb.firebaseio.com/'
-    
     })
     
-    SITE_PREFIX = os.getenv("SITE_PREFIX", "C1_")
+SITE_PREFIX = os.getenv("SITE_PREFIX", "C1_")
 
-# دالة مساعدة لإزالة الـ Prefix عند استلام الطلبات من المزود
 def get_actual_username(provider_user_code: str) -> str:
     if provider_user_code and str(provider_user_code).startswith(SITE_PREFIX):
         return str(provider_user_code)[len(SITE_PREFIX):]
     return str(provider_user_code)
 
-# 2. دالة جلب البيانات من السحابة
 def load_db():
     ref = db.reference('/') 
     data = ref.get()
@@ -90,11 +75,9 @@ def load_db():
     if data is None:
         return {"users": [], "shop_withdrawals": [], "tickets": []}
     
-    # 3. كائن سحري يجمع بين خصائص القائمة والقاموس
     users = data.get("users", [])
     if isinstance(users, dict):
         users = list(users.values())
-        
         
     class MagicDB(list):
         def __init__(self, users_list, full_data):
@@ -114,7 +97,6 @@ def load_db():
 
     return MagicDB(users, data)
 
-# 3. دالة الحفظ السحابي الفوري
 def save_db(data):
     ref = db.reference('/')
     if hasattr(data, 'full_data'):
@@ -125,13 +107,9 @@ def save_db(data):
     else:
         ref.set(data)
 
-# اسم ملف التخزين الموجود في مشروعك
 DB_FILE = "tickets_database.json"
 TICKETS_FILE = "tickets_database.json" 
 
-# ==========================================
-# إعدادات قاعدة البيانات والتشفير
-# ==========================================
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./local_test.db")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
@@ -152,7 +130,6 @@ class User(Base):
     created_by = Column(String)
     last_spin_date = Column(String, default="")
     daily_deposits = Column(Float, default=0.0)
-    two_factor_secret = Column(String, nullable=True)
 
 class Transaction(Base):
     __tablename__ = "transactions"
@@ -163,7 +140,7 @@ class Transaction(Base):
     amount = Column(Float)
     date = Column(String)  
     image_path = Column(String, nullable=True)
-    tx_id = Column(String, nullable=True) # 👈 السطر السحري الذي سيحفظ بيانات D17 و Wafacash
+    tx_id = Column(String, nullable=True) 
 
 try:
     with engine.begin() as conn:
@@ -171,7 +148,6 @@ try:
 except Exception:
     pass
 
-# 👈 أمر إجباري لتحديث الجداول القديمة
 try:
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE transactions ADD COLUMN tx_id VARCHAR"))
@@ -187,7 +163,6 @@ def verify_password(plain_password, hashed_password):
     try:
         return pwd_context.verify(plain_password, hashed_password)
     except Exception:
-        # 🛡️ تم إغلاق ثغرة تخطي التشفير
         return False
 
 ALGORITHM = "HS256"
@@ -211,52 +186,9 @@ async def get_admin_user(current_user: str = Depends(get_current_user)):
     user = next((u for u in db if u["username"] == current_user), None)
     
     if not user or user.get("role") not in ["owner","manager", "super_admin", "admin","shop"]:
-        raise HTTPException(status_code=403, detail="Access Denied: Admin privileges required")
+        raise HTTPException(status_code=403, detail="Access Denied")
     
     return current_user
-
-def send_whatsapp_2fa(phone_number: str, username: str, password: str, secret_key: str):
-    INSTANCE_ID = "instance185867"
-    TOKEN = "76jnhy79la7a5bxx"
-    
-    message = f"""*مرحباً بك في نظام Alpha Core 🔐*
-
-تم إنشاء حساب الإدارة الخاص بك بنجاح.
-
-👤 *اسم المستخدم:* {username}
-🔑 *كلمة المرور:* {password}
-
-🛡️ *خطوات تفعيل الحماية (Google Authenticator):*
-1️⃣ افتح تطبيق Google Authenticator.
-2️⃣ اختر (إدخال مفتاح الإعداد).
-3️⃣ اسم الحساب: AlphaCore - {username}
-4️⃣ المفتاح السري:
-*{secret_key}*
-
-⚠️ _يرجى حذف هذه الرسالة بعد التفعيل للحفاظ على سرية بياناتك._"""
-
-    if not phone_number.startswith("+"):
-        phone_number = f"+{phone_number}"
-
-    url = f"https://api.ultramsg.com/{INSTANCE_ID}/messages/chat"
-    payload = {"token": TOKEN, "to": phone_number, "body": message}
-    headers = {'content-type': 'application/x-www-form-urlencoded'}
-
-    try:
-        response = httpx.post(url, data=payload, headers=headers)
-        if response.status_code == 200:
-            print(f"✅ تم إرسال رسالة الواتساب بنجاح إلى: {phone_number}")
-        else:
-            print(f"❌ خطأ في إرسال الواتساب: {response.text}")
-    except Exception as e:
-        print(f"❌ حدث خطأ في الاتصال: {e}")
-
-# ==========================================
-# إعدادات تطبيق FastAPI الأساسية
-# ==========================================
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -264,21 +196,21 @@ app = FastAPI()
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-from starlette.middleware.sessions import SessionMiddleware
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://xdanous-player-frontend.onrender.com",
-        "http://localhost:5500",  # منفذ VS Code Live Server
+        "http://localhost:5500", 
         "http://127.0.0.1:5500",  
-        "https://xdanous-backend-onrender-com.onrender.com" # أضف رابط المنصة الجديدة هنا
+        "https://xdanous-backend-onrender-com.onrender.com" 
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -291,7 +223,6 @@ async def add_security_headers(request: Request, call_next):
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# 🚨 إعدادات الإنذار المبكر (Telegram)
 TELEGRAM_TOKEN = "8879806026:AAEB64RCPW4KzsUXUlDeztP_PzjtxkJv_4g"
 TELEGRAM_CHAT_ID = "7700782611"
 
@@ -306,11 +237,9 @@ async def send_telegram_alert(message: str):
         async with httpx.AsyncClient() as client:
             await client.post(url, json=payload)
     except Exception as e:
-        print(f"Telegram Alert Error: {e}")
+        pass
 
-ALLOWED_NEXUS_IPS = [
-    "127.0.0.1",       
-]
+ALLOWED_NEXUS_IPS = ["127.0.0.1"]
 
 def verify_nexus_ip(request: Request):
     forwarded_for = request.headers.get("X-Forwarded-For")
@@ -320,7 +249,6 @@ def verify_nexus_ip(request: Request):
         client_ip = request.client.host
     return client_ip
 
-# --- التوجيه الذكي اليدوي لإجبار الروابط القديمة على العمل بالروابط النظيفة ---
 @app.get("/owner.html")
 async def redirect_owner():
     return RedirectResponse(url="/panel/owner/", status_code=303)
@@ -337,7 +265,6 @@ async def redirect_admin():
 async def redirect_shop():
     return RedirectResponse(url="/panel/shop/", status_code=303)
 
-# --- مسارات لوحات الإدارة النظيفة ---
 @app.get("/panel/owner", response_class=HTMLResponse)
 @app.get("/panel/owner/", response_class=HTMLResponse)
 async def get_owner_panel():
@@ -381,7 +308,7 @@ async def resettle_ticket(req: ResettleTicketRequest, current_user: str = Depend
     if req.amount <= 0:
             raise HTTPException(status_code=400, detail="Le montant doit être supérieur à zéro")
     if not ticket:
-        raise HTTPException(status_code=404, detail="التذكرة غير موجودة")
+        raise HTTPException(status_code=404, detail="Le ticket n'existe pas")
     
     old_status = ticket.get("status")
     player_username = ticket.get("username")
@@ -389,7 +316,7 @@ async def resettle_ticket(req: ResettleTicketRequest, current_user: str = Depend
 
     target_user = next((u for u in db if u["username"] == player_username), None)
     if not target_user:
-        raise HTTPException(status_code=404, detail="اللاعب غير موجود")
+        raise HTTPException(status_code=404, detail="Le joueur n'existe pas")
 
     if old_status == "gagne" and req.new_status != "gagne":
         target_user["balance"] = float(target_user.get("balance", 0)) - win_amount
@@ -401,14 +328,14 @@ async def resettle_ticket(req: ResettleTicketRequest, current_user: str = Depend
     save_db(db)
     log_admin_action(current_user, "RESET_TICKET", f"Ticket ID {req.ticket_id} changed to {req.new_status}")
     
-    return {"status": "success", "message": f"تم تعديل التذكرة بنجاح إلى {req.new_status}"}    
+    return {"status": "success", "message": f"Le ticket a été modifié avec succès en {req.new_status}"}    
 
 class DepositRequest(BaseModel):
     player: str
     method: str
     amount: float
     code: str
-    receipt_image: Optional[str] = None # 👈 السطر السحري لاستقبال لقطة الشاشة
+    receipt_image: Optional[str] = None
 
 @app.post("/api/deposit")
 @limiter.limit("1/minute")
@@ -428,29 +355,26 @@ async def create_deposit(request: Request, req: DepositRequest):
         }
         db.append(new_ticket)
         
-        alert_msg = f"🚨 <b>عملية إيداع جديدة!</b>\n👤 اللاعب: <code>{new_ticket['username']}</code>\n💰 المبلغ: <b>{new_ticket['amount']}</b>\n💳 الطريقة: {new_ticket['method']}"
+        alert_msg = f"🚨 <b>Nouvelle demande de dépôt!</b>\n👤 Joueur: <code>{new_ticket['username']}</code>\n💰 Montant: <b>{new_ticket['amount']}</b>\n💳 Méthode: {new_ticket['method']}"
         asyncio.create_task(send_telegram_alert(alert_msg))
  
         with open(TICKETS_FILE, "w", encoding="utf-8") as f:
             json.dump(db, f, indent=4, ensure_ascii=False)
             
-        return {"status": "success", "message": "تم إرسال طلب الإيداع بنجاح"}
+        return {"status": "success", "message": "Demande de dépôt envoyée avec succès"}
     except Exception as e:
-        print(f"Error in create_deposit: {e}")
-        return {"status": "error", "message": "حدث خطأ أثناء معالجة الطلب"}
+        return {"status": "error", "message": "Une erreur s'est produite lors du traitement de la demande"}
 
 @app.get("/api/admin/get-pending-withdrawals")
 async def get_pending_withdrawals(current_user: str = Depends(get_admin_user)):
-    """جلب جميع طلبات السحب المعلقة (القديمة والجديدة)"""
     db_session = SessionLocal()
     try:
         txs = db_session.query(Transaction).filter(
     Transaction.admin_username == "PENDING",
-    Transaction.action.ilike("%withdraw%") # 👈 اجعله مرناً هكذا
+    Transaction.action.ilike("%withdraw%")
 ).order_by(Transaction.id.desc()).all()
         result = []
         for t in txs:
-            # استخراج التفاصيل بأمان تام لعرضها للأونر
             tx_id_val = getattr(t, "tx_id", None)
             if not tx_id_val and t.action and "Details:" in t.action:
                 tx_id_val = t.action.split("Details: ")[-1]
@@ -462,26 +386,23 @@ async def get_pending_withdrawals(current_user: str = Depends(get_admin_user)):
                 "tx_id": tx_id_val,
                 "target_username": t.target_username,
                 "amount": float(t.amount or 0),
-                "action": "withdraw_request", # إرجاع الاسم النظيف للوحة
+                "action": "withdraw_request",
                 "date": str(t.date)
             })
         return result
     except Exception as e:
-        print(f"Error GET withdrawals: {e}")
         return []
     finally:
         db_session.close()
 
 @app.post("/api/admin/process-withdrawal")
 async def process_withdrawal(request: Request):
-    """معالجة طلب السحب (موافقة أو رفض)"""
     data = await request.json()
     request_id = data.get("request_id")
     action_type = data.get("action")
     
     db_session = SessionLocal()
     try:
-        # البحث عن الطلب سواء بـ id أو tx_id
         tx = db_session.query(Transaction).filter(
             (Transaction.id == request_id) | (Transaction.tx_id == str(request_id))
         ).first()
@@ -495,14 +416,10 @@ async def process_withdrawal(request: Request):
             return JSONResponse(status_code=400, content={"detail": "Cette demande a déjà été traitée"})
             
         if action_type == "approve":
-            # تمت الموافقة وإرسال الأموال
             tx.admin_username = "APPROVED"
             
         elif action_type == "reject":
-            # تم الرفض، نعيد الرصيد للاعب
             tx.admin_username = "REJECTED"
-            
-            # (تأكد أن جدول المستخدمين اسمه User في ملفك)
             user = db_session.query(User).filter(User.username == tx.target_username).first()
             if user:
                 user.balance = float(user.balance or 0) + float(tx.amount or 0)
@@ -521,7 +438,6 @@ async def process_withdrawal(request: Request):
 async def get_pending_deposits(current_user: str = Depends(get_admin_user)):
     db_session = SessionLocal()
     try:
-        # جلب طلبات الشحن من قاعدة بيانات SQL
         sql_deposits = db_session.query(Transaction).filter(
             Transaction.admin_username == "PENDING",
             Transaction.action == "deposit_request"
@@ -529,7 +445,6 @@ async def get_pending_deposits(current_user: str = Depends(get_admin_user)):
         
         result = []
         for t in sql_deposits:
-            # استخراج اسم الطريقة والكود من حقل tx_id
             tx_parts = str(t.tx_id).split('-') if t.tx_id else ["N/A", "N/A"]
             method_name = tx_parts[0]
             code_val = tx_parts[1] if len(tx_parts) > 1 else "N/A"
@@ -539,7 +454,7 @@ async def get_pending_deposits(current_user: str = Depends(get_admin_user)):
                 "username": t.target_username,
                 "method": method_name, 
                 "amount": float(t.amount or 0),
-                "code": code_val if code_val != "FILE" else "مرفق صورة",
+                "code": code_val if code_val != "FILE" else "Image jointe",
                 "receipt_image": t.image_path,
                 "status": "pending",
                 "date": str(t.date)
@@ -547,10 +462,11 @@ async def get_pending_deposits(current_user: str = Depends(get_admin_user)):
         return result
     finally:
         db_session.close()
+
 class ApproveDepositRequest(BaseModel):
     ticket_id: str
     amount: float
-
+	
 @app.post("/api/admin/approve-deposit")
 async def approve_deposit(req: ApproveDepositRequest, current_user: str = Depends(get_admin_user)):
     try:
@@ -558,33 +474,29 @@ async def approve_deposit(req: ApproveDepositRequest, current_user: str = Depend
         ticket = next((t for t in db if str(t.get("ticket_id")) == str(req.ticket_id)), None)
         
         if not ticket:
-            raise HTTPException(status_code=404, detail="التذكرة غير موجودة")
+            raise HTTPException(status_code=404, detail="Ticket introuvable")
             
         if ticket.get("status") != "pending":
-            raise HTTPException(status_code=400, detail="هذه التذكرة تمت معالجتها مسبقاً")
+            raise HTTPException(status_code=400, detail="Ce ticket a déjà été traité")
 
         real_amount = req.amount
         ticket["status"] = "approuvé"
         ticket["amount"] = real_amount
         
-        # 1. جلب اللاعب وتحديث رصيده وإيداعاته اليومية للكاش باك
         db_users = load_db()
         target_username = ticket.get("username") or ticket.get("player") or ""
         target_user = next((u for u in db_users if str(u.get("username", "")).lower() == str(target_username).lower()), None)
         
         if target_user:
             target_user["balance"] = float(target_user.get("balance", 0)) + real_amount
-            # 👈 السطر المطلوب وضعه هنا لتسجيل المبلغ في الكاش باك اليومي:
             target_user["daily_deposits"] = float(target_user.get("daily_deposits", 0)) + real_amount
             save_db(db_users)
 
-        # 2. حفظ التذاكر
         with open(TICKETS_FILE, "w", encoding="utf-8") as f:
             json.dump(db, f, indent=4, ensure_ascii=False)
 
-        # --- بداية مشغل البونص التلقائي ---
         promo = load_promo()
-        current_day = datetime.now().strftime("%A") # يجلب اسم اليوم بالإنجليزية
+        current_day = datetime.now().strftime("%A") 
         
         if promo.get("is_active") and real_amount >= promo.get("min_amount", 50) and current_day == promo.get("day_of_week"):
             if target_user:
@@ -612,12 +524,11 @@ async def approve_deposit(req: ApproveDepositRequest, current_user: str = Depend
                         try: await client.post(GOLD_API_URL, json=fs_payload, timeout=10.0)
                         except: pass
                 asyncio.create_task(send_auto_fs())
-        # --- نهاية مشغل البونص ---
 
-        return {"status": "success", "message": f"تمت الموافقة وإضافة {real_amount} بنجاح"}
+        return {"status": "success", "message": f"Approuvé et {real_amount} ajouté avec succès"}
     except Exception as e:
         print(f"Error approving deposit: {e}")
-        raise HTTPException(status_code=500, detail="حدث خطأ داخلي أثناء الموافقة")
+        raise HTTPException(status_code=500, detail="Erreur interne lors de l'approbation")
 
 @app.get("/api/admin/get-all-tickets")
 async def get_all_tickets_api(current_user: str = Depends(get_admin_user)):
@@ -645,20 +556,17 @@ async def get_all_tickets_api(current_user: str = Depends(get_admin_user)):
     allowed_tickets = []
     for t in tickets_db:
         t_user = t.get("username") or t.get("user")
-        # فلترة التذاكر لتعرض فقط تذاكر شبكة المانجر
         if t_user in allowed_users:
             allowed_tickets.append(t)
             
     allowed_tickets.reverse()
     return allowed_tickets
-# ==========================================
-# الوظائف الخلفية وقاعدة البيانات (Background & DB)
-# ==========================================
+
 async def auto_settle_tickets():
     await asyncio.sleep(10) 
     while True:
         try:
-            print("⏳ [Auto-Settler] جاري فحص التذاكر المعلقة...")
+            print("⏳ [Auto-Settler] Vérification des tickets en attente...")
             tickets_db = load_tickets_db()
             db = load_db()
             changes_made = False
@@ -679,7 +587,7 @@ async def auto_settle_tickets():
                 save_tickets_db(tickets_db)
                 save_db(db)
         except Exception as e:
-            print(f"❌ [Auto-Settler] حدث خطأ: {e}")
+            print(f"❌ [Auto-Settler] Erreur: {e}")
         await asyncio.sleep(60) 
 
 @app.on_event("startup")
@@ -708,9 +616,8 @@ async def daily_cashback_system():
         try:
             now = datetime.now()
             if now.hour == 0 and now.minute < 10:
-                print("⏳ [Cashback] جاري فحص وتوزيع الكاش باك اليومي...")
+                print("⏳ [Cashback] Vérification et distribution du cashback quotidien...")
                 
-                # استخدام القفل لمنع تضارب الأرصدة أثناء لعب المستخدمين
                 async with db_lock:
                     db = load_db()
                     changes_made = False
@@ -718,8 +625,6 @@ async def daily_cashback_system():
                     for u in db:
                         current_balance = float(u.get("balance", 0.0))
                         daily_deps = float(u.get("daily_deposits", 0.0))
-                        
-                        # يمكن لاحقاً إضافة حقل daily_withdrawals لخصمه من الإيداع لمعرفة الخسارة الصافية
                         net_loss = daily_deps - current_balance 
                         
                         if daily_deps > 0:
@@ -727,7 +632,6 @@ async def daily_cashback_system():
                                 cashback_amount = daily_deps * 0.10
                                 u["balance"] = round(current_balance + cashback_amount, 2)
                                 
-                                # 🛡️ توثيق الكاش باك في SQL لمنع تضارب الحسابات
                                 db_session = SessionLocal()
                                 try:
                                     new_tx = Transaction(
@@ -750,18 +654,15 @@ async def daily_cashback_system():
                             
                     if changes_made:
                         save_db(db)
-                        print("✅ [Cashback] تم الانتهاء من التوزيع وتصفير العدادات بنجاح!")
+                        print("✅ [Cashback] Distribution terminée et compteurs réinitialisés avec succès!")
                 
                 await asyncio.sleep(3600)
             else:
                 await asyncio.sleep(300)
         except Exception as e:
-            print(f"❌ [Cashback] حدث خطأ: {e}")
+            print(f"❌ [Cashback] Erreur: {e}")
             await asyncio.sleep(300) 
 
-# ==========================================
-# النماذج (Models)
-# ==========================================
 class LoginRequest(BaseModel): username: str; password: str
 class RegisterRequest(BaseModel): username: str; password: str; role: str; created_by: str; phone: str = ""
 class ConfigureAccountRequest(BaseModel): admin_username: str; target_username: str; rtp: int; is_blocked: int
@@ -773,20 +674,14 @@ class HandleRequestModel(BaseModel): transaction_id: int; decision: str; admin_u
 class DeleteAccountRequest(BaseModel): admin_username: str; target_username: str
 class ProviderRequest(BaseModel): provider_code: str
 class ChangeMyPasswordRequest(BaseModel): username: str; new_password: str
-class Verify2FARequest(BaseModel): 
-    username: str
-    totp_code: str = "000000"
-
 
 @app.post("/api/register")
 @limiter.limit("1/minute")
 async def register_user(request: Request, req: RegisterRequest):
     uname = req.username.lower().strip()
     
-    # ====== 🛡️ جدار حماية: منع استخدام أسماء الإدارة الحساسة ======
     if uname in ["fethi", "admin", "owner", "system", "boss", "super_admin"]:
         raise HTTPException(status_code=400, detail="Ce nom d'utilisateur est réservé au système!")
-    # ==============================================================
 
     db = load_db()
     
@@ -795,7 +690,6 @@ async def register_user(request: Request, req: RegisterRequest):
             raise HTTPException(status_code=400, detail="Nom d'utilisateur déjà pris")
             
     hashed_pwd = hash_password(req.password)
-    new_secret_key = pyotp.random_base32()
     new_id = max([int(u.get("id", 0)) for u in db]) + 1 if db else 1
     
     new_user = {
@@ -809,7 +703,6 @@ async def register_user(request: Request, req: RegisterRequest):
         "created_by": req.created_by, 
         "last_spin_date": "", 
         "daily_deposits": 0.0,
-        "two_factor_secret": new_secret_key,
         "phone": req.phone
     }
     
@@ -817,7 +710,7 @@ async def register_user(request: Request, req: RegisterRequest):
     save_db(db)
     log_admin_action(req.created_by, "CREATE_USER", f"Created {uname} with role {req.role}")
     
-    return {"status": "success", "message": "Compte créé", "secret_key": new_secret_key, "user_id": new_id}
+    return {"status": "success", "message": "Compte créé", "user_id": new_id}
     
 @app.get("/api/admin/fix-user-ids")
 async def fix_missing_user_ids(current_user: str = Depends(get_admin_user)):
@@ -839,9 +732,9 @@ async def fix_missing_user_ids(current_user: str = Depends(get_admin_user)):
         if updated_count > 0:
             save_db(db)
             
-        return {"status": "success", "message": f"عملية ناجحة! تم منح ID جديد لـ {updated_count} حساب/حسابات قديمة."}
+        return {"status": "success", "message": f"Opération réussie ! Un nouvel ID a été attribué à {updated_count} anciens comptes."}
     except Exception as e:
-        return {"status": "error", "message": f"حدث خطأ: {str(e)}"}
+        return {"status": "error", "message": f"Erreur: {str(e)}"}
 
 class HandleHugeWinRequest(BaseModel):
     tx_id: int
@@ -864,13 +757,13 @@ async def handle_huge_win(req: HandleHugeWinRequest, current_user: str = Depends
     db = load_db()
     admin = next((u for u in db if u["username"] == current_user), None)
     if not admin or admin.get("role") not in ["owner", "super_admin"]:
-        raise HTTPException(status_code=403, detail="صلاحية الأونر مطلوبة")
+        raise HTTPException(status_code=403, detail="Privilèges de propriétaire requis")
 
     db_session = SessionLocal()
     try:
         tx = db_session.query(Transaction).filter(Transaction.id == req.tx_id).first()
         if not tx or tx.admin_username != "PENDING_HUGE_WIN":
-            return JSONResponse(status_code=404, content={"detail": "الطلب غير موجود أو تمت معالجته مسبقاً"})
+            return JSONResponse(status_code=404, content={"detail": "Demande introuvable ou déjà traitée"})
 
         if req.decision == "approve":
             async with db_lock:
@@ -883,7 +776,7 @@ async def handle_huge_win(req: HandleHugeWinRequest, current_user: str = Depends
             tx.admin_username = f"REJECTED_BY_{current_user.upper()}"
 
         db_session.commit()
-        return {"status": "success", "message": "تمت معالجة الربح الضخم بنجاح"}
+        return {"status": "success", "message": "Gain massif traité avec succès"}
     except Exception as e:
         db_session.rollback()
         return JSONResponse(status_code=500, content={"detail": str(e)})
@@ -897,12 +790,9 @@ async def get_all_network_users(current_user: str = Depends(get_admin_user)):
     current_admin = next((u for u in db if u["username"] == current_user), None)
     current_role = current_admin.get("role", "player")
 
-    # 1. الأونر فقط (المالك) هو من يرى جميع الحسابات في الشبكة
     if current_role in ["owner", "system"]:
         allowed_users = {u["username"] for u in db}
     else:
-        # 2. المانجر، السوبر أدمن، الأدمن، والشوب يخضعون لشجرة الصلاحيات
-        # (يرى فقط نفسه ومن تم إنشاؤه تحته في الشجرة)
         allowed_users = {current_user}
         to_process = [current_user]
         
@@ -921,7 +811,7 @@ async def get_all_network_users(current_user: str = Depends(get_admin_user)):
             
         safe_user = dict(u)
         safe_user.pop("password", None)
-        safe_user.pop("two_factor_secret", None) # 🛡️ تم التفعيل لمنع تسريب المفتاح
+        safe_user.pop("two_factor_secret", None) 
         safe_users.append(safe_user)
         
     return safe_users
@@ -949,12 +839,10 @@ async def update_balance(req: UpdateBalanceRequest, current_user: str = Depends(
         is_global_admin = (current_user.lower() == "system" or current_role == "owner")
         admin = current_user.lower().strip()
 
-        # 🛡️ جدار الأمان: منع التحكم في حسابات تابعة لآخرين
         safe_creator = str(target_user.get("created_by", "")).lower().strip()
         if not is_global_admin and safe_creator != admin:
             raise HTTPException(status_code=403, detail="Accès refusé. Ce compte ne vous appartient pas.")
 
-        # 1. تجهيز الأرصدة في الذاكرة (بدون حفظ نهائي)
         if req.action == "charge":
             if not is_global_admin:
                 if float(admin_user.get("balance", 0)) < amount: 
@@ -975,7 +863,6 @@ async def update_balance(req: UpdateBalanceRequest, current_user: str = Depends(
             if not is_global_admin:
                 admin_user["balance"] = round(float(admin_user.get("balance", 0)) + amount, 2)
 
-        # 2. توثيق العملية في سجل SQL أولاً (الجدار الواقي)
         db_session = SessionLocal()
         try:
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -994,12 +881,10 @@ async def update_balance(req: UpdateBalanceRequest, current_user: str = Depends(
         except Exception as e:
             db_session.rollback()
             print(f"Error saving transaction history: {e}")
-            # إذا فشل التوثيق في SQL، نلغي العملية بالكامل ولا نحفظ الأرصدة
             raise HTTPException(status_code=500, detail="Erreur base de données. L'opération a été annulée de manière sécurisée.")
         finally:
             db_session.close()
 
-        # 3. الحفظ النهائي للأرصدة (يُنفذ فقط إذا نجح التوثيق في SQL)
         save_db(db)
         
     log_admin_action(current_user, "BALANCE_UPDATE", f"Target: {target}, Action: {req.action}, Amount: {amount}")
@@ -1031,7 +916,6 @@ async def get_tx_history(username: str = None, current_user: str = Depends(get_a
         result = []
         for t in txs:
             target = t.target_username or t.target
-            # التأكد من أن المعاملة تخص حساباً ضمن شجرة المانجر
             if target in allowed_users or t.username in allowed_users:
                 result.append({
                     "id": t.id,
@@ -1045,12 +929,10 @@ async def get_tx_history(username: str = None, current_user: str = Depends(get_a
         return result
     finally:
         db_session.close()
-
 @app.get("/api/user/transactions-history")
 async def get_user_transactions(current_user: str = Depends(get_current_user)):
     history = []
     
-    # 1. جلب الإيداعات (Dépôt) من ملف التذاكر
     tickets = load_tickets_db()
     user_deposits = [t for t in tickets if t.get("type") == "deposit" and str(t.get("username", "")).lower() == current_user.lower()]
     
@@ -1072,10 +954,8 @@ async def get_user_transactions(current_user: str = Depends(get_current_user)):
             "timestamp": d.get("date", "")
         })
 
-    # 2. جلب جميع العمليات (سحوبات وشحن يدوي) من قاعدة بيانات SQL
     db_session = SessionLocal()
     try:
-        # جلب كل العمليات الخاصة بهذا اللاعب
         sql_txs = db_session.query(Transaction).filter(
             Transaction.target_username == current_user.lower()
         ).all()
@@ -1083,22 +963,18 @@ async def get_user_transactions(current_user: str = Depends(get_current_user)):
         for w in sql_txs:
             action_lower = str(w.action).lower()
             
-            # إخفاء رهانات الألعاب وأرباحها لكي لا تزحم سجل الشحن والسحب
             if action_lower in ["bet", "win", "rollback", "adjustment"]:
                 continue
             
-            # تحديد النوع: إيداع أم سحب
             tx_type = "Retrait"
             if "dépôt" in action_lower or "charge" in action_lower or "deposit" in action_lower:
                 tx_type = "Dépôt"
             
-            # استنتاج الطريقة
             method = "Virement"
             if "d17" in action_lower: method = "D17"
             elif "mandat" in action_lower: method = "Mandat"
-            else: method = "Agent/Shop" # هذا سيميز الشحن اليدوي من الإدارة
+            else: method = "Agent/Shop"
 
-            # تحديد الحالة
             status = "Approuvé" if w.admin_username.lower() != "pending" else "En attente"
 
             history.append({
@@ -1114,10 +990,10 @@ async def get_user_transactions(current_user: str = Depends(get_current_user)):
     finally:
         db_session.close()
 
-    # 3. الترتيب من الأحدث للأقدم وإرسال النتيجة
     history.sort(key=lambda x: x["timestamp"], reverse=True)
     
     return {"status": "success", "data": history}
+
 @app.post("/api/admin/request-transaction")
 async def request_transaction(request: Request):
     db_session = SessionLocal()
@@ -1133,7 +1009,6 @@ async def request_transaction(request: Request):
         amount = float(form.get("amount", 0))
         tx_id = form.get("tx_id", str(uuid.uuid4()))
 
-        # 🛡️ الحارس الأمني 1: منع المبالغ السالبة والصفرية
         if amount <= 0:
             from fastapi.responses import JSONResponse
             return JSONResponse(status_code=400, content={"detail": "Le montant doit être supérieur à zéro"})
@@ -1141,7 +1016,6 @@ async def request_transaction(request: Request):
         file_path = ""
         file = form.get("file")
         if file and isinstance(file, UploadFile) and file.filename:
-            # 🛡️ الحارس الأمني 2: فحص الامتداد ونوع المحتوى معاً لمنع الملفات الخبيثة
             allowed_extensions = ['.png', '.jpg', '.jpeg', '.webp']
             allowed_mimes = ['image/png', 'image/jpeg', 'image/webp']
             
@@ -1176,7 +1050,7 @@ async def request_transaction(request: Request):
         db_session.add(new_tx)
         db_session.commit()
 
-        return {"status": "success", "message": "طلبك قيد المراجعة"}
+        return {"status": "success", "message": "Votre demande est en cours d'examen"}
 
     except Exception as e:
         db_session.rollback()
@@ -1199,7 +1073,6 @@ async def handle_pending_request(req: HandleRequestModel, current_user: str = De
             db_session.commit()
             return {"status": "success", "message": "Demande rejetée"}
 
-        # 🛡️ قفل قاعدة البيانات لتأمين تعديل الرصيد
         async with db_lock:
             db = load_db()
             target_user = next((u for u in db if u["username"] == tx.target_username), None)
@@ -1234,28 +1107,6 @@ async def change_player_password(req: ChangePlayerPasswordRequest):
             return {"status": "success", "message": "Mot de passe modifié avec succès"}
     raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
 
-class Reset2FARequest(BaseModel):
-    admin_username: str
-    target_username: str
-
-@app.post("/api/admin/reset-2fa")
-async def reset_2fa(req: Reset2FARequest, current_user: str = Depends(get_admin_user)):
-    target = req.target_username.lower().strip()
-    db = load_db()
-    
-    target_user = next((u for u in db if str(u.get("username", "")).lower() == target), None)
-    if not target_user:
-        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
-        
-    # توليد مفتاح جديد كلياً
-    import pyotp
-    new_secret = pyotp.random_base32()
-    target_user["two_factor_secret"] = new_secret
-    save_db(db)
-    
-    log_admin_action(current_user, "RESET_2FA", f"Reset 2FA for {target}")
-    
-    return {"status": "success", "message": "2FA réinitialisé avec succès", "new_secret": new_secret}
 
 @app.post("/api/admin/configure-account")
 async def configure_account(req: ConfigureAccountRequest):
@@ -1281,7 +1132,6 @@ async def delete_account(req: DeleteAccountRequest):
 async def change_my_password(req: ChangeMyPasswordRequest, current_user: str = Depends(get_current_user)):
     target_username = req.username.lower().strip()
     
-    # 🛡️ الحارس الأمني: يمنع أي مستخدم من تغيير كلمة مرور حساب آخر
     if current_user != target_username and current_user not in ["fethi","manager", "admin", "owner", "super_admin","shop"]:
         raise HTTPException(status_code=403, detail="Non autorisé: Vous ne pouvez pas modifier le mot de passe d'un autre utilisateur")
         
@@ -1294,9 +1144,6 @@ async def change_my_password(req: ChangeMyPasswordRequest, current_user: str = D
             
     raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
 
-# ==========================================
-# دمج مزود الألعاب الحقيقي (NexusGGR API)
-# ==========================================
 @app.get("/api/get-providers")
 async def get_real_providers():
     payload = {
@@ -1309,7 +1156,7 @@ async def get_real_providers():
             response = await client.post(PROVIDER_ENDPOINT, json=payload, timeout=15)
             return response.json()
         except Exception as e:
-            print(f"⚠️ خطأ في جلب المزودين: {e}")
+            print(f"⚠️ Erreur de récupération des fournisseurs: {e}")
             return {"status": 0, "msg": "Error connecting to provider"}
 
 GAMES_CACHE = {}
@@ -1341,7 +1188,7 @@ async def get_real_games(request: ProviderRequest):
             return response_data
             
         except Exception as e:
-            print(f"⚠️ خطأ في الاتصال بالمزود: {e}")
+            print(f"⚠️ Erreur de connexion au fournisseur: {e}")
             if provider_code in GAMES_CACHE: 
                 return GAMES_CACHE[provider_code]['data']
             return {"status": 0, "msg": "Error connecting to games API"}
@@ -1374,13 +1221,13 @@ async def launch_casino(request: Request):
     try:
         data = await request.json()
         user_code = str(data.get("user_code", "test_user"))
-        provider_user_code = f"{SITE_PREFIX}{user_code}" # 👈 دمج الـ Prefix
+        provider_user_code = f"{SITE_PREFIX}{user_code}" 
 
         payload = {
             "method": "game_launch",
             "agent_code": AGENT_CODE,      
             "agent_token": AGENT_TOKEN,    
-            "user_code": provider_user_code, # 👈 إرسال الاسم المدمج
+            "user_code": provider_user_code, 
             "provider_code": data.get("provider_code"),
             "game_code": data.get("game_code"),
             "lang": "fr",
@@ -1394,34 +1241,30 @@ async def launch_casino(request: Request):
         try:
             response_data = response.json()
         except Exception:
-            return {"error": "المزود لم يرْسل رد JSON صالح", "details": response.text}
+            return {"error": "Le fournisseur n'a pas renvoyé de réponse JSON valide", "details": response.text}
             
         if response.status_code == 200:
             game_url = response_data.get("url") or response_data.get("launch_url") or (response_data.get("data", {}).get("url"))
             if game_url:
                 return {"launch_url": game_url}
             else:
-                return {"error": "لم يتم العثور على رابط اللعبة", "details": response_data}
+                return {"error": "Lien du jeu introuvable", "details": response_data}
         else:
-            return {"error": "المزود رفض الطلب", "details": response_data}
+            return {"error": "Demande refusée par le fournisseur", "details": response_data}
             
     except Exception as e:
         return {"error": str(e)}
 
-
-# ==========================================
-# الجدار الأمني الثاني: حماية لوحة المالك
-# ==========================================
 @app.get("/owner-login", response_class=HTMLResponse)
 async def show_login_page():
     return """
     <html>
         <body style="text-align:center; margin-top:100px; font-family:Arial; background-color:#1e1e2f; color:white;">
-            <h2>تسجيل الدخول للإدارة</h2>
+            <h2>Connexion d'Administration</h2>
             <form action="/owner-login" method="post" style="background:#2a2a40; padding:20px; width:300px; margin:auto; border-radius:10px;">
-                <input type="text" name="username" placeholder="اسم المستخدم" required style="width:90%; padding:10px; margin-bottom:15px; border-radius:5px; border:none;"><br>
-                <input type="password" name="password" placeholder="كلمة المرور" required style="width:90%; padding:10px; margin-bottom:15px; border-radius:5px; border:none;"><br>
-                <button type="submit" style="width:95%; padding:10px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px;">دخول</button>
+                <input type="text" name="username" placeholder="Nom d'utilisateur" required style="width:90%; padding:10px; margin-bottom:15px; border-radius:5px; border:none;"><br>
+                <input type="password" name="password" placeholder="Mot de passe" required style="width:90%; padding:10px; margin-bottom:15px; border-radius:5px; border:none;"><br>
+                <button type="submit" style="width:95%; padding:10px; background-color:#4CAF50; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px;">Connexion</button>
             </form>
         </body>
     </html>
@@ -1433,7 +1276,7 @@ async def process_login(request: Request, username: str = Form(...), password: s
     if username == ADMIN_USER and password == ADMIN_PASS:
         request.session["is_admin"] = True
         return RedirectResponse(url="/secure-owner", status_code=303)
-    return HTMLResponse("<h3 style='text-align:center; margin-top:100px; color:red;'>بيانات خاطئة!</h3><div style='text-align:center;'><a href='/owner-login'>العودة للمحاولة</a></div>")
+    return HTMLResponse("<h3 style='text-align:center; margin-top:100px; color:red;'>Données incorrectes!</h3><div style='text-align:center;'><a href='/owner-login'>Retourner et réessayer</a></div>")
 
 @app.get("/secure-owner")
 async def open_owner_panel(request: Request):
@@ -1446,9 +1289,6 @@ async def logout_owner(request: Request):
     request.session.clear()
     return RedirectResponse(url="/owner-login")
 
-# ==========================================
-# نظام التوجيه الذكي والروابط النظيفة للإدارة
-# ==========================================
 @app.get("/", response_class=HTMLResponse)
 async def admin_home(request: Request):
     role = request.session.get("role")
@@ -1457,7 +1297,6 @@ async def admin_home(request: Request):
     elif role == "super_admin": return RedirectResponse(url="/panel/super_admin", status_code=303)
     elif role == "admin": return RedirectResponse(url="/panel/admin", status_code=303)
     elif role == "shop": return RedirectResponse(url="/panel/shop", status_code=303)
-    
     
     with open("index.html", "r", encoding="utf-8") as f:
         return f.read()
@@ -1471,52 +1310,19 @@ async def process_login_router(request: Request, username: str = Form(...), pass
     user = next((u for u in db if u["username"] == uname), None)
 
     if not user or not verify_password(password, user.get("password", "")):
-        return HTMLResponse("<h3 style='text-align:center; margin-top:100px; color:red;'>اسم المستخدم أو كلمة المرور غير صحيحة!</h3><div style='text-align:center;'><a href='/' style='color:blue;'>العودة</a></div>")
+        return HTMLResponse("<h3 style='text-align:center; margin-top:100px; color:red;'>Nom d'utilisateur ou mot de passe incorrect!</h3><div style='text-align:center;'><a href='/' style='color:blue;'>Retourner</a></div>")
 
     if user.get("is_blocked") == 1:
-        return HTMLResponse("<h3 style='text-align:center; margin-top:100px; color:red;'>هذا الحساب محظور!</h3>")
+        return HTMLResponse("<h3 style='text-align:center; margin-top:100px; color:red;'>Ce compte est bloqué!</h3>")
 
     role = user.get("role")
     
-    # فرض التحقق الثنائي (2FA) بصرامة على جميع الإداريين دون استثناء
-    if role in ["owner", "super_admin", "admin"]:
-        request.session["pending_user"] = uname
-        request.session["pending_role"] = role
-        
-        html_form = """
-        <html dir="rtl">
-        <head><title>التحقق الثنائي</title></head>
-        <body style="background-color: #1a1a1a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Tahoma, sans-serif;">
-            <div style="background-color: #2d2d2d; padding: 40px; border-radius: 10px; text-align: center; border: 1px solid #444;">
-                <h2 style="color: #00d2ff;">التحقق الثنائي (2FA) 🔐</h2>
-                <p style="color: #ccc;">أدخل الكود من تطبيق Google Authenticator</p>
-                <form action="/verify-2fa" method="post">
-                    <input type="text" name="totp_code" placeholder="أدخل 6 أرقام" required style="padding: 10px; font-size: 20px; text-align: center; letter-spacing: 5px; border-radius: 5px; border: none; outline: none; margin-bottom: 20px; font-weight: bold;"><br>
-                    <button type="submit" style="padding: 10px 30px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold;">دخول آمن</button>
-                </form>
-            </div>
-        </body>
-        </html>
-        """
-        return HTMLResponse(content=html_form)
-
     request.session["username"] = user["username"]
     request.session["role"] = user["role"]
     
     if role == "shop": return RedirectResponse(url="/panel/shop", status_code=303)
-    else: return HTMLResponse("<h3 style='text-align:center; color:orange;'>ليس لديك صلاحية.</h3>")
+    else: return HTMLResponse("<h3 style='text-align:center; color:orange;'>Vous n'avez pas l'autorisation.</h3>")
     
-# -----------------------------------------
-# مسارات الدخول والحماية الثنائية
-# -----------------------------------------
-class LoginRequest(BaseModel): 
-    username: str
-    password: str
-
-class Verify2FARequest(BaseModel): 
-    username: str
-    totp_code: str = "000000"
-
 @app.post("/api/login")
 @limiter.limit("5/minute")
 async def login_user(request: Request, req: LoginRequest):
@@ -1527,9 +1333,9 @@ async def login_user(request: Request, req: LoginRequest):
         user = next((u for u in db if u["username"] == uname), None)
 
         if not user or not verify_password(req.password, user.get("password", "")):
-            bad_alert = f"⚠️ <b>محاولة دخول فاشلة للإدارة!</b>\n👤 اسم المستخدم: <code>{req.username}</code>\n❌ السبب: كلمة المرور خاطئة"
+            bad_alert = f"⚠️ <b>Échec de connexion de l'administration!</b>\n👤 Nom d'utilisateur: <code>{req.username}</code>\n❌ Raison: Mot de passe incorrect"
             asyncio.create_task(send_telegram_alert(bad_alert))
-            return JSONResponse(status_code=401, content={"detail": "اسم المستخدم أو كلمة المرور غير صحيحة"})
+            return JSONResponse(status_code=401, content={"detail": "Nom d'utilisateur ou mot de passe incorrect"})
         user["last_ip"] = verify_nexus_ip(request)
         save_db(db)
         access_token = create_access_token(data={"sub": user["username"], "role": user["role"]})
@@ -1544,69 +1350,7 @@ async def login_user(request: Request, req: LoginRequest):
     except Exception as e:
         print(f"Login Crash: {e}")
         
-        return JSONResponse(status_code=500, content={"detail": f"خطأ داخلي: {str(e)}"})
-
-@app.post("/api/verify-2fa")
-@limiter.limit("5/minute")
-async def verify_2fa_api(request: Request, req: Verify2FARequest):
-    db = load_db()
-    user = next((u for u in db if u["username"] == req.username), None)
-    
-    if not user:
-        raise HTTPException(status_code=401, detail="Nom d'utilisateur incorrect")
-        
-    secret = user.get("two_factor_secret")
-    if not secret:
-        raise HTTPException(status_code=400, detail="لم يتم تفعيل المصادقة الثنائية!")
-        
-    totp = pyotp.TOTP(secret)
-    if totp.verify(req.totp_code):
-        access_token = create_access_token(data={"sub": user["username"], "role": user["role"]})
-        
-        # 👈 التعديل هنا: إرجاع الرد بنفس صيغة الدخول العادي تماماً ليحفظه المتصفح
-        return JSONResponse(status_code=200, content={
-            "message": "success", 
-            "username": user["username"],
-            "role": user["role"],
-            "access_token": access_token,
-            "balance": float(user.get("balance", 0.0))
-        })
-    else:
-        raise HTTPException(status_code=400, detail="كود Google Authenticator غير صحيح!")
-@app.get("/setup-2fa/{username}")
-async def setup_2fa(username: str):
-    db = load_db()
-    user = next((u for u in db if u["username"] == username), None)
-    if not user: return HTMLResponse("<h3 style='text-align:center; color:red;'>المستخدم غير موجود!</h3>")
-    
-    secret = pyotp.random_base32()
-    user["two_factor_secret"] = secret
-    
-    totp = pyotp.TOTP(secret)
-    uri = totp.provisioning_uri(name=username, issuer_name="Alpha Casino")
-    
-    img = qrcode.make(uri)
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    buf.seek(0)
-    
-    return StreamingResponse(buf, media_type="image/png")
-
-# ==========================================
-# دمج نظام BSW Aggregator Callbacks
-# ==========================================
-SALT_TOKEN = os.getenv("SALT_TOKEN", "NEXUS_SECRET_KEY")
-
-def verify_hash(data: dict, received_hash: str) -> bool:
-  filtered_data = {k: v for k, v in data.items() if k != "hash" and v is not None}
-  sorted_params = sorted(filtered_data.items())
-  query_string = urllib.parse.urlencode(sorted_params)
-  string_to_hash = query_string + SALT_TOKEN
-  calculated_hash = hashlib.md5(string_to_hash.encode("utf-8")).hexdigest()
-  return calculated_hash == received_hash
-
-
-
+        return JSONResponse(status_code=500, content={"detail": f"Erreur interne: {str(e)}"})
 
 class ShopWithdrawRequest(BaseModel): admin_username: str; shop_username: str; amount: float
 class HandleShopWithdrawModel(BaseModel): request_id: int; decision: str; shop_username: str
@@ -1617,7 +1361,7 @@ async def request_shop_withdrawal(req: ShopWithdrawRequest):
     try:
         db = load_db()
         admin_username = req.admin_username.lower()
-        shop_username = req.shop_username.strip().lower() # 👈 تحويل لحروف صغيرة وإزالة الفراغات
+        shop_username = req.shop_username.strip().lower() 
         amount = float(req.amount)
         if amount <= 0:
             raise HTTPException(status_code=400, detail="Montant invalide")
@@ -1638,7 +1382,7 @@ async def request_shop_withdrawal(req: ShopWithdrawRequest):
         new_req = {
             "id": int(datetime.now().timestamp()),
             "admin_username": admin_username,
-            "shop_username": shop_username, # 👈 يحفظ دائماً بحروف صغيرة مطابقة
+            "shop_username": shop_username, 
             "amount": amount,
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "status": "pending"
@@ -1652,21 +1396,19 @@ async def request_shop_withdrawal(req: ShopWithdrawRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur interne: {str(e)}")
     
-    
 @app.get("/api/shop/pending-withdrawals")
 async def get_pending_withdrawals(username: str, current_user: str = Depends(get_current_user)):
     db = load_db()
     if isinstance(db, list):
-        return [] # إذا كانت القاعدة قديمة، لا يوجد طلبات
+        return [] 
         
     withdrawals = db.get("shop_withdrawals", [])
     
-    # جلب الطلبات المعلقة فقط وتجاهل حالة الأحرف
     pending_reqs = [
         w for w in withdrawals 
         if str(w.get("shop_username")).lower() == username.lower() and w.get("status") == "pending"
     ]
-    pending_reqs.reverse() # الأحدث في الأعلى
+    pending_reqs.reverse() 
     return pending_reqs
 
 
@@ -1677,7 +1419,7 @@ async def get_shop_withdraw_requests(username: str, current_user: str = Depends(
         return []
         
     withdrawals = db.get("shop_withdrawals", [])
-    target_shop = username.strip().lower() # 👈 توحيد الصيغة
+    target_shop = username.strip().lower() 
     
     all_my_reqs = [
         w for w in withdrawals 
@@ -1686,9 +1428,8 @@ async def get_shop_withdraw_requests(username: str, current_user: str = Depends(
     all_my_reqs.reverse()
     return all_my_reqs
 
-
-@app.post("/api/admin/handle-shop-withdrawal") # 🛡️ المسار يجب أن يكون تحت /api/admin/
-async def handle_shop_withdrawal(req: HandleShopWithdrawModel, current_user: str = Depends(get_admin_user)): # 🛡️ استخدام get_admin_user
+@app.post("/api/admin/handle-shop-withdrawal") 
+async def handle_shop_withdrawal(req: HandleShopWithdrawModel, current_user: str = Depends(get_admin_user)): 
     db = load_db()
     if isinstance(db, list):
         raise HTTPException(status_code=500, detail="Database format is outdated")
@@ -1714,7 +1455,6 @@ async def handle_shop_withdrawal(req: HandleShopWithdrawModel, current_user: str
     save_db(db)
     return {"status": "success", "message": "Traité avec succès"}
 
-
 @app.get("/api/admin/my-withdrawal-requests")
 async def get_my_withdrawal_requests(username: str):
     db = load_db()
@@ -1730,81 +1470,6 @@ async def get_server_ip():
     except Exception as e:
         return {"error": str(e)}
     
-
-# ==========================================
-# محفظة اللاعب (Seamless Wallet - API) الحقيقية
-# ==========================================
-@app.post("/gold_api")
-@app.post("/gold_api/gold_api")
-async def seamless_wallet_handler(request: Request):
-    try:
-        data = await request.json()
-        method, user_code = data.get("method"), data.get("user_code")
-        provider_user_code = f"{SITE_PREFIX}{user_code}"
-        actual_username = get_actual_username(provider_user_code)
-        
-        # --- جلب الرصيد الحقيقي من قاعدة البيانات ---
-        db = load_db()
-        # التعديل السحري: توحيد الحروف لمنع أخطاء التطابق
-        target_user = next((u for u in db if str(u.get("username", "")).lower().strip() == str(actual_username).lower().strip()), None)
-        
-        if not target_user:
-            return JSONResponse(content={"status": 0, "msg": "USER_NOT_FOUND"})
-        
-        player_balance = float(target_user.get("balance", 0))
-
-        if method == "user_balance":
-            return JSONResponse(content={"status": 1, "user_balance": player_balance})
-
-        elif method == "transaction":
-            game_type = data.get("game_type")
-            tx_data = data.get(game_type, {})
-            bet_money = float(tx_data.get("bet_money", 0))
-            win_money = float(tx_data.get("win_money", 0))
-            print(f"🚨 NEXUS WIN DETECTED: Amount={win_money}")
-            txn_type = tx_data.get("txn_type")
-
-            if txn_type in ["debit", "debit_credit"]:
-                if player_balance < bet_money:
-                    return JSONResponse(content={"status": 0, "msg": "INSUFFICIENT_USER_FUNDS"})
-                player_balance -= bet_money
-
-            if txn_type in ["credit", "debit_credit"]:
-                # 🛑 الجدار الأمني للربح الضخم (30 ألف أو أكثر)
-                if win_money >= 30000:
-                    db_session = SessionLocal()
-                    try:
-                        new_tx = Transaction(
-                            admin_username="PENDING_HUGE_WIN",
-                            target_username=target_user["username"],
-                            action="huge_win (Nexus)",
-                            amount=win_money,
-                            date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            tx_id=tx_data.get("txn_id", str(uuid.uuid4()))
-                        )
-                        db_session.add(new_tx)
-                        db_session.commit()
-                    except Exception as e:
-                        db_session.rollback()
-                    finally:
-                        db_session.close()
-                else:
-                    player_balance += win_money # الإضافة الطبيعية للأرباح العادية
-
-            target_user["balance"] = player_balance
-            save_db(db)
-            return JSONResponse(content={"status": 1, "user_balance": round(player_balance, 2)})
-
-        else:
-            return JSONResponse(content={"status": 0, "msg": "UNKNOWN_METHOD"})
-            
-    except Exception as e:
-        import traceback
-        print(f"🔥 GOLD API EXCEPTION: {e}")
-        return JSONResponse(content={"status": 0, "msg": "INTERNAL_ERROR"})
-# ==========================================
-# 🔐 EuroVirtuals Security & Hashing (الإصدار الذهبي النهائي)
-# ==========================================
 import json
 import hashlib
 import uuid
@@ -1815,16 +1480,24 @@ def hash_create(request_data: dict, key: str) -> str:
     hashkey = ""
     for k in keys:
         value = request_data[k]
+        
+        if value is None:
+            continue
+            
         if isinstance(value, dict):
             nested_keys = sorted(value.keys())
             for nested_key in nested_keys:
                 nested_value = value[nested_key]
+                if nested_value is None:
+                    continue
                 serialized = json.dumps(nested_value, separators=(',', ':'), sort_keys=True)
                 md5_hash = hashlib.md5(serialized.encode('utf-8')).hexdigest()
                 hashkey += f"&{nested_key}={md5_hash}"
         elif isinstance(value, list):
             for index in range(len(value)):
                 array_value = value[index]
+                if array_value is None:
+                    continue
                 serialized = json.dumps(array_value, separators=(',', ':'), sort_keys=True)
                 md5_hash = hashlib.md5(serialized.encode('utf-8')).hexdigest()
                 hashkey += f"&{index}={md5_hash}"
@@ -1843,7 +1516,6 @@ def check_eurovirtuals_security(request: Request, payload: dict):
     token = str(request.headers.get("x-token-key") or request.headers.get("x-token") or "").strip()
     signature = str(request.headers.get("x-signature-key") or request.headers.get("x-signature") or "").strip()
     
-    # 1. إفشال الاختبارات الخاطئة المتعمدة من المزود للحصول على العلامة الخضراء
     if token == "invalid-token-key":
         return {"status_code": 401, "status_description": "Invalid Token Key"}
         
@@ -1853,7 +1525,6 @@ def check_eurovirtuals_security(request: Request, payload: dict):
     if not token or not signature:
         return {"status_code": 401, "status_description": "Missing Security Headers"}
 
-    # 2. الجدار الأمني الحقيقي: فحص التوقيع باستخدام التوكن المُستلم كـ Salt
     expected_signature = hash_create(payload, token)
     
     if signature != expected_signature:
@@ -1861,6 +1532,7 @@ def check_eurovirtuals_security(request: Request, payload: dict):
         return {"status_code": 401, "status_description": "Invalid Signature"}
 
     return None
+
 import time
 
 @app.post("/api/eurovirtuals/callback/player_info")
@@ -1872,7 +1544,6 @@ async def eurovirtuals_player_info(request: Request):
         if sec_err:
             return JSONResponse(content=sec_err, status_code=200)
 
-        # 🛑 السر هنا: البحث يجب أن يكون بـ player_id وليس player_token
         player_id = str(payload.get("player_id", ""))
         
         db = load_db()
@@ -1910,11 +1581,9 @@ async def eurovirtuals_bet(request: Request):
         sec_err = check_eurovirtuals_security(request, payload)
         if sec_err: return JSONResponse(content=sec_err, status_code=200)
 
-        # 💡 استخراج بيانات المصفوفة الداخلية لاستخدامها كبديل
         bet_data_list = payload.get("data", [])
         bet_data = bet_data_list[0] if bet_data_list and isinstance(bet_data_list, list) else {}
 
-        # 💡 البحث عن المتغيرات في الغلاف الخارجي أولاً، ثم في المصفوفة الداخلية كبديل
         player_id = str(payload.get("player_id") or payload.get("user_code") or bet_data.get("player_id") or bet_data.get("user_code") or "").strip()
         actual_username = get_actual_username(player_id)
         currency = str(payload.get("currency") or bet_data.get("currency") or "TND").strip()
@@ -1929,7 +1598,6 @@ async def eurovirtuals_bet(request: Request):
             except:
                 return 0.0
 
-        # 💡 البحث عن المبلغ في الغلاف الخارجي أولاً، ثم في المصفوفة الداخلية كبديل
         amount = safe_float(payload.get("amount") or payload.get("bet_amount") or bet_data.get("amount") or bet_data.get("bet_amount"))
         async with db_lock:
             db = load_db()
@@ -2236,49 +1904,7 @@ async def eurovirtuals_adjustment(request: Request):
         return {"status_code": 200, "status_description": "Success", "data": {"balance": new_balance, "currency": "TND", "reference_id": tx_id, "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
     except Exception as e:
         return {"status_code": 500, "status_description": str(e)}
-    
-    
-def hash_create(request_data: dict, key: str) -> str:
-    keys = sorted(request_data.keys())
-    hashkey = ""
-    for k in keys:
-        value = request_data[k]
-        
-        # 🛑 السر هنا: تجاهل القيم الفارغة (null) تماماً لكي لا تدمر التوقيع
-        if value is None:
-            continue
-            
-        if isinstance(value, dict):
-            nested_keys = sorted(value.keys())
-            for nested_key in nested_keys:
-                nested_value = value[nested_key]
-                if nested_value is None:
-                    continue
-                serialized = json.dumps(nested_value, separators=(',', ':'), sort_keys=True)
-                md5_hash = hashlib.md5(serialized.encode('utf-8')).hexdigest()
-                hashkey += f"&{nested_key}={md5_hash}"
-        elif isinstance(value, list):
-            for index in range(len(value)):
-                array_value = value[index]
-                if array_value is None:
-                    continue
-                serialized = json.dumps(array_value, separators=(',', ':'), sort_keys=True)
-                md5_hash = hashlib.md5(serialized.encode('utf-8')).hexdigest()
-                hashkey += f"&{index}={md5_hash}"
-        else:
-            if isinstance(value, bool):
-                val_str = str(value).lower()
-            else:
-                val_str = str(value)
-            hashkey += f"&{k}={val_str}"
 
-    hashkey = hashkey.lstrip('&')
-    final_string = hashkey + str(key)
-    return hashlib.md5(final_string.encode('utf-8')).hexdigest()
-
-# ==========================================
-# 📡 دالة الهيدر المحدثة
-# ==========================================
 def get_eurovirtuals_headers(payload=None):
     if payload is None:
         payload = {
@@ -2286,7 +1912,6 @@ def get_eurovirtuals_headers(payload=None):
             
         }
     timestamp = str(int(time.time()))
-    # 👈 استخدام دالة كلفن (hash_create) مع الـ App Key السري
     signature = hash_create(payload, EURO_APP_KEY)
     
     return {
@@ -2298,8 +1923,6 @@ def get_eurovirtuals_headers(payload=None):
         "x-timestamp": timestamp
     }
    
-
-# 3. دالة جلب قائمة الألعاب وعرضها في المنصة
 @app.api_route("/api/get-eurovirtuals-games", methods=["GET"])
 async def get_virtual_games():
     try:
@@ -2320,7 +1943,6 @@ async def get_virtual_games():
         print(f"🔗 CONNECTING TO URL: {games_endpoint}")
         print(f"🔑 USING API KEY: {EURO_API_KEY[:10]}...")
         
-        
         try:
             response = requests.get(games_endpoint, headers=headers, timeout=20)
             data = response.json()
@@ -2339,7 +1961,6 @@ async def get_virtual_games():
                     game["image"] = image_url
                     game["img"] = image_url
                 
-                # 💡 السطر السحري: توحيد اسم المعرف لكي يقرأه الفرونت إند بشكل صحيح
                 game["game_code"] = game.get("uuid") or game.get("game_uuid") or game.get("id")
                     
             return {"status": "success", "games": games_list}
@@ -2348,8 +1969,7 @@ async def get_virtual_games():
 
     except Exception as e:
         return {"status": "error", "error": str(e)}
-    
-    
+
 @app.post("/api/provider/launch-eurovirtuals")
 async def launch_eurovirtuals(request: Request):
     try:
@@ -2360,22 +1980,21 @@ async def launch_eurovirtuals(request: Request):
         print(f"🎯 2. EXTRACTED game_uuid: '{game_uuid}'")
         
         if not game_uuid or game_uuid == "undefined":
-            return {"error": "Game UUID is missing"}
+            return {"error": "Game UUID manquant"}
             
         user_code = str(data.get("user_code", "test_user"))
         print(f"👤 3. USER CODE: {user_code}")
         
-        # 🛡️ استخراج رصيد اللاعب
         async with db_lock:
             db = load_db()
             target_user = next((u for u in db if str(u.get("username", "")).lower().strip() == user_code.lower().strip()), None)
             
             if not target_user:
                 print("❌ 4. ERROR: Player not found in DB")
-                return {"error": "Player not found"}
+                return {"error": "Joueur introuvable"}
             if target_user.get("is_blocked") == 1:
                 print("❌ 4. ERROR: Player is blocked")
-                return {"error": "Player blocked"}
+                return {"error": "Joueur bloqué"}
                 
             current_balance = float(target_user.get("balance", 0.0))
             print(f"💰 5. BALANCE FOUND: {current_balance}")
@@ -2418,7 +2037,7 @@ async def launch_eurovirtuals(request: Request):
             try:
                 response_data = response.json()
             except Exception:
-                return {"error": "Invalid JSON from provider", "details": response.text}
+                return {"error": "JSON non valide du fournisseur", "details": response.text}
 
             if response_data.get("status_code") == 200:
                 game_url = response_data.get("data", {}).get("url")
@@ -2440,14 +2059,14 @@ async def launch_sportsbook(request: Request):
         data = await request.json()
         provider_code = str(data.get("provider_code", "")).lower()
         user_code = str(data.get("user_code", "test_user"))
-        provider_user_code = f"{SITE_PREFIX}{user_code}" # 👈 دمج الـ Prefix
+        provider_user_code = f"{SITE_PREFIX}{user_code}" 
         
         if provider_code == "smpl":
             payload = {
                 "sportsbook_uuid": "YOUR_SPORTSBOOK_UUID_HERE", 
                 "currency": "TND",
                 "session_id": f"sess_{uuid.uuid4().hex[:10]}",
-                "player_id": provider_user_code, # 👈 إرسال الاسم المدمج
+                "player_id": provider_user_code, 
                 "player_name": provider_user_code,
                 "return_url": "https://alphabet216.com/"
             }
@@ -2468,9 +2087,6 @@ async def launch_sportsbook(request: Request):
                 else:
                     return {"error": "Erreur d'initialisation SMPL", "details": res_data}
 
-        # ====================================================
-        # 2. إذا كان الطلب يخص الرياضة الأصلية (Nexus / Nexustrike)
-        # ====================================================
         else:
             payload = {
                 "method": "game_launch",
@@ -2478,7 +2094,7 @@ async def launch_sportsbook(request: Request):
                 "agent_token": AGENT_TOKEN,
                 "provider_code": str(data.get("provider_code", "SPORTSBOOK")), 
                 "game_code": str(data.get("game_code", "SPORTSBOOK")),
-                "user_code": provider_user_code, # 👈 إرسال الاسم المدمج
+                "user_code": provider_user_code, 
                 "lang": "fr",
                 "lobby_url": "https://alphabet216.com/"
             }
@@ -2491,39 +2107,38 @@ async def launch_sportsbook(request: Request):
                 try:
                     response_data = response.json()
                 except Exception:
-                    return {"error": "المزود لم يرْسل رد JSON صالح", "details": response.text}
+                    return {"error": "Le fournisseur n'a pas renvoyé de réponse JSON valide", "details": response.text}
                     
                 game_url = response_data.get("url") or response_data.get("launch_url") or (response_data.get("data", {}).get("url"))
                 
                 if game_url:
                     return {"launch_url": game_url}
                 else:
-                    return {"error": "المزود رفض الطلب", "details": response_data}
+                    return {"error": "Demande refusée par le fournisseur", "details": response_data}
                 
     except Exception as e:
         print(f"❌ [CRITICAL ERROR IN LAUNCH SPORTSBOOK]: {str(e)}")
         return {"error": str(e)}
-    @app.get("/api/get-sportsbook-uuid")
-    async def fetch_sportsbook_uuid():
-            # نستخدم دالة التشفير الجاهزة لديك
-            headers = get_smpl_headers_and_sign()
-            
-            async with httpx.AsyncClient() as client:
-                try:
-                    # نرسل الطلب لمسار الرياضات حسب التوثيق
-                    response = await client.get(
-                        f"{SMPL_BASE_URL}/sportsbooks", 
-                        headers=headers,
-                        timeout=15
-                    )
-                    data = response.json()
-                    return {"status": "success", "data_from_smpl": data}
-                except Exception as e:
-                    return {"status": "error", "details": str(e)}
+
+@app.get("/api/get-sportsbook-uuid")
+async def fetch_sportsbook_uuid():
+        headers = get_smpl_headers_and_sign()
+        
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(
+                    f"{SMPL_BASE_URL}/sportsbooks", 
+                    headers=headers,
+                    timeout=15
+                )
+                data = response.json()
+                return {"status": "success", "data_from_smpl": data}
+            except Exception as e:
+                return {"status": "error", "details": str(e)}
                 
 class HandleHugeWinRequest(BaseModel):
     tx_id: int
-    decision: str # 'approve' or 'reject'
+    decision: str 
 
 @app.get("/api/admin/pending-huge-wins")
 async def get_pending_huge_wins(current_user: str = Depends(get_admin_user)):
@@ -2536,17 +2151,16 @@ async def get_pending_huge_wins(current_user: str = Depends(get_admin_user)):
 
 @app.post("/api/admin/handle-huge-win")
 async def handle_huge_win(req: HandleHugeWinRequest, current_user: str = Depends(get_admin_user)):
-    # حماية إضافية: الأونر أو السوبر أدمن فقط من يوافق
     db = load_db()
     admin = next((u for u in db if u["username"] == current_user), None)
     if not admin or admin.get("role") not in ["owner", "super_admin"]:
-        raise HTTPException(status_code=403, detail="صلاحية الأونر مطلوبة")
+        raise HTTPException(status_code=403, detail="Privilèges de propriétaire requis")
 
     db_session = SessionLocal()
     try:
         tx = db_session.query(Transaction).filter(Transaction.id == req.tx_id).first()
         if not tx or tx.admin_username != "PENDING_HUGE_WIN":
-            return JSONResponse(status_code=404, content={"detail": "الطلب غير موجود أو تمت معالجته"})
+            return JSONResponse(status_code=404, content={"detail": "Demande introuvable ou déjà traitée"})
 
         if req.decision == "approve":
             async with db_lock:
@@ -2559,9 +2173,10 @@ async def handle_huge_win(req: HandleHugeWinRequest, current_user: str = Depends
             tx.admin_username = f"REJECTED_BY_{current_user.upper()}"
 
         db_session.commit()
-        return {"status": "success", "message": "تمت معالجة الربح الضخم بنجاح"}
+        return {"status": "success", "message": "Gain massif traité avec succès"}
     finally:
         db_session.close()           
+
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 import uuid
@@ -2579,15 +2194,14 @@ async def grant_free_spins(req: FreeSpinRequest, current_user: str = Depends(get
     db = load_db()
     admin = next((u for u in db if u["username"] == current_user), None)
     if not admin or admin.get("role") not in ["owner", "super_admin"]:
-        raise HTTPException(status_code=403, detail="صلاحية الأونر مطلوبة")
+        raise HTTPException(status_code=403, detail="Privilèges de propriétaire requis")
 
-    # تحديد انتهاء الصلاحية (بعد 7 أيام من الآن) وتحويله لصيغة ISO المطلوبة
     expiration = (datetime.utcnow() + timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     tour_id = f"fs_{uuid.uuid4().hex[:10]}"
 
     payload = {
         "method": "tour_create",
-        "agent_code": AGENT_CODE, # تأكد أن هذه المتغيرات معرفة في أعلى ملفك
+        "agent_code": AGENT_CODE, 
         "agent_token": AGENT_TOKEN,
         "user_code": req.target_username,
         "provider_code": req.provider_code,
@@ -2606,12 +2220,12 @@ async def grant_free_spins(req: FreeSpinRequest, current_user: str = Depends(get
             
             if res_data.get("status") == 1:
                 real_win = res_data.get("real_win", 0)
-                return {"status": "success", "message": f"تم إرسال {req.spin_count} لفة!", "real_win": real_win}
+                return {"status": "success", "message": f"{req.spin_count} tours envoyés !", "real_win": real_win}
             else:
-                error_msg = res_data.get("detail") or res_data.get("msg") or "رفض المزود الطلب"
-                return JSONResponse(status_code=400, content={"detail": f"خطأ المزود: {error_msg}"})
+                error_msg = res_data.get("detail") or res_data.get("msg") or "Le fournisseur a rejeté la demande"
+                return JSONResponse(status_code=400, content={"detail": f"Erreur du fournisseur : {error_msg}"})
         except Exception as e:
-            return JSONResponse(status_code=500, content={"detail": f"خطأ في الاتصال: {str(e)}"}) 
+            return JSONResponse(status_code=500, content={"detail": f"Erreur de connexion : {str(e)}"}) 
         
 class CancelTourRequest(BaseModel):
             tour_id: str
@@ -2621,7 +2235,7 @@ async def cancel_free_spins(req: CancelTourRequest, current_user: str = Depends(
     db = load_db()
     admin = next((u for u in db if u["username"] == current_user), None)
     if not admin or admin.get("role") not in ["owner", "super_admin"]:
-        raise HTTPException(status_code=403, detail="صلاحية الأونر مطلوبة")
+        raise HTTPException(status_code=403, detail="Privilèges de propriétaire requis")
 
     payload = {
         "method": "tour_cancel",
@@ -2638,16 +2252,17 @@ async def cancel_free_spins(req: CancelTourRequest, current_user: str = Depends(
             if res_data.get("status") == 1:
                 refund = res_data.get("canceled_money", 0)
                 rest = res_data.get("rest_count", 0)
-                return {"status": "success", "message": f"تم الإلغاء! استرجاع: {refund} TND (تبقى {rest} لفة غير ملعوبة)."}
+                return {"status": "success", "message": f"Annulé ! Remboursement : {refund} TND (reste {rest} tours non joués)."}
             else:
-                error_msg = res_data.get("detail") or res_data.get("msg") or "رفض المزود الطلب"
-                return JSONResponse(status_code=400, content={"detail": f"خطأ المزود: {error_msg}"})
+                error_msg = res_data.get("detail") or res_data.get("msg") or "Le fournisseur a rejeté la demande"
+                return JSONResponse(status_code=400, content={"detail": f"Erreur du fournisseur : {error_msg}"})
         except Exception as e:
-            return JSONResponse(status_code=500, content={"detail": f"خطأ في الاتصال: {str(e)}"})   
-        
+            return JSONResponse(status_code=500, content={"detail": f"Erreur de connexion : {str(e)}"})
+			
 import json
 import os
 from pydantic import BaseModel
+from typing import Optional
 
 PROMO_FILE = "promo_config.json"
 
@@ -2674,10 +2289,10 @@ async def set_promo(data: PromoModel, current_user: str = Depends(get_admin_user
     db = load_db()
     admin = next((u for u in db if u["username"] == current_user), None)
     if not admin or admin.get("role") not in ["owner", "super_admin"]:
-        raise HTTPException(status_code=403, detail="مرفوض")
+        raise HTTPException(status_code=403, detail="Refusé")
     
     with open(PROMO_FILE, "w") as f: json.dump(data.dict(), f)
-    return {"status": "success", "message": "تم حفظ إعدادات العرض بنجاح"}    
+    return {"status": "success", "message": "Paramètres de la promotion enregistrés avec succès"}    
 
 @app.get("/api/admin/fraud-detection")
 async def fraud_detection(current_user: str = Depends(get_admin_user)):
@@ -2695,7 +2310,6 @@ async def fraud_detection(current_user: str = Depends(get_admin_user)):
         if phone and phone != "00000000" and phone != "":
             phone_map.setdefault(phone, []).append(uname)
             
-    # تصفية الحسابات التي تشترك في نفس الـ IP أو الهاتف (أكثر من حساب)
     suspicious_ips = {ip: users for ip, users in ip_map.items() if len(users) > 1}
     suspicious_phones = {phone: users for phone, users in phone_map.items() if len(users) > 1}
     
@@ -2705,8 +2319,6 @@ async def fraud_detection(current_user: str = Depends(get_admin_user)):
         "shared_phones": suspicious_phones
     }
     
-from typing import Optional
-
 @app.get("/api/admin/analytics/ggr")
 async def get_ggr_analytics(
     year: Optional[int] = Query(None), 
@@ -2724,7 +2336,6 @@ async def get_ggr_analytics(
             if not t.date:
                 continue
             try:
-                # استخراج السنة والشهر من تاريخ العملية (تنسيق: YYYY-MM-DD...)
                 date_part = str(t.date).split(" ")[0]
                 parts = date_part.split("-")
                 if len(parts) >= 2:
@@ -2764,7 +2375,6 @@ async def get_casino_history(current_user: str = Depends(get_admin_user)):
     current_admin = next((u for u in db if u["username"] == current_user), None)
     current_role = current_admin.get("role", "player")
 
-    # 1. تحديد من المسموح برؤيتهم بناءً على الرتبة وشجرة الوكلاء
     if current_role in ["owner", "system"]:
         allowed_users = {u["username"] for u in db}
     else:
@@ -2780,7 +2390,6 @@ async def get_casino_history(current_user: str = Depends(get_admin_user)):
 
     db_session = SessionLocal()
     try:
-        # 2. جلب حركات الكازينو فقط (الرهانات والأرباح)
         txs = db_session.query(Transaction).filter(
             Transaction.action.in_(["bet", "win", "rollback"])
         ).all()
@@ -2788,7 +2397,6 @@ async def get_casino_history(current_user: str = Depends(get_admin_user)):
         result = []
         for t in txs:
             username = t.username or t.target_username
-            # فلترة: هل اللاعب ينتمي لشبكة هذا المدير؟
             if username in allowed_users:
                 result.append({
                     "id": t.id,
@@ -2798,13 +2406,11 @@ async def get_casino_history(current_user: str = Depends(get_admin_user)):
                     "date": str(t.date)
                 })
                 
-        result.reverse() # الأحدث أولاً
-        return result[:500] # نكتفي بآخر 500 عملية لتسريع الأداء
+        result.reverse() 
+        return result[:500] 
     finally:
         db_session.close()
         
-        
-        # نموذج جدول التدقيق والمتابعة
 class AuditLog(Base):
     __tablename__ = "audit_logs"
     id = Column(Integer, primary_key=True, index=True)
@@ -2829,14 +2435,12 @@ def log_admin_action(admin_username: str, action_type: str, details: str):
     finally:
         db_session.close()
         
-        
 @app.get("/api/admin/audit-logs")
 async def get_audit_logs(current_user: str = Depends(get_admin_user)):
     db = load_db()
     current_admin = next((u for u in db if u["username"] == current_user), None)
     current_role = current_admin.get("role", "player")
 
-    # تحديد نطاق الشبكة المسموح برؤيته
     if current_role in ["owner", "system"]:
         allowed_users = {u["username"] for u in db}
     else:
@@ -2855,7 +2459,6 @@ async def get_audit_logs(current_user: str = Depends(get_admin_user)):
         logs = db_session.query(AuditLog).order_by(AuditLog.id.desc()).all()
         result = []
         for l in logs:
-            # إظهار السجل فقط إذا كان صاحب الفعل ينتمي لشبكة هذا المدير
             if l.admin_username in allowed_users:
                 result.append({
                     "id": l.id,
@@ -2864,24 +2467,15 @@ async def get_audit_logs(current_user: str = Depends(get_admin_user)):
                     "details": l.details,
                     "date": l.date
                 })
-        return result[:300] # أحدث 300 سجل
+        return result[:300] 
     finally:
         db_session.close()
         
-
 import random
 from datetime import datetime, timedelta
-
-import random
 import asyncio
-from datetime import datetime, timedelta
 import uuid
 
-# ==========================================
-# 🎁 محرك الجاكبوت الزمني (Time-Based Jackpot Engine)
-# ==========================================
-
-# 1. الإعدادات الأساسية (البداية والأيام)
 JACKPOTS_BASE = {
     "mini":  {"start": 20.0, "days": 1},
     "minor": {"start": 40.0, "days": 2},
@@ -2889,13 +2483,11 @@ JACKPOTS_BASE = {
     "grand": {"start": 500.0, "days": 30},
 }
 
-# دالة لتحديد موعد السقوط العشوائي بدقة
 def generate_drop_time(days):
     now = datetime.now()
     random_seconds = random.randint(1, int(timedelta(days=days).total_seconds()))
     return now + timedelta(seconds=random_seconds)
 
-# 2. حالة الجاكبوت الحالية في الذاكرة
 jackpots_state = {
     "mini":  {"current_amount": 20.0, "drop_time": generate_drop_time(1)},
     "minor": {"current_amount": 40.0, "drop_time": generate_drop_time(2)},
@@ -2903,35 +2495,29 @@ jackpots_state = {
     "grand": {"current_amount": 500.0, "drop_time": generate_drop_time(30)},
 }
 
-# 3. محرك الجاكبوت الذي يعمل في الخلفية كل دقيقة
 async def time_based_jackpot_engine():
-    await asyncio.sleep(10) # انتظار إقلاع السيرفر
+    await asyncio.sleep(10) 
     while True:
         try:
             now = datetime.now()
             for level in jackpots_state:
-                # زيادة 0.03 دينار كل دقيقة
                 jackpots_state[level]["current_amount"] += 0.03
                 
-                # التحقق مما إذا حان وقت السقوط العشوائي
                 if now >= jackpots_state[level]["drop_time"]:
                     await trigger_jackpot_drop(level, jackpots_state[level]["current_amount"])
                     
-                    # إعادة ضبط الجاكبوت لدورة جديدة
                     jackpots_state[level]["current_amount"] = JACKPOTS_BASE[level]["start"]
                     jackpots_state[level]["drop_time"] = generate_drop_time(JACKPOTS_BASE[level]["days"])
                     
         except Exception as e:
             print(f"❌ Jackpot Engine Error: {e}")
         
-        await asyncio.sleep(60) # تكرار العملية كل 60 ثانية (دقيقة)
+        await asyncio.sleep(60) 
 
-# 4. دالة سقوط الجاكبوت وتوزيع الأرباح
 async def trigger_jackpot_drop(level, total_amount):
     async with db_lock:
         db = load_db()
         
-        # استخراج اللاعبين النشطين فعلياً (غير محظورين + لديهم رصيد أكبر من 0 أو قاموا باللعب مسبقاً)
         eligible_users = [
             u for u in db 
             if str(u.get("role")) == "player" 
@@ -2942,17 +2528,14 @@ async def trigger_jackpot_drop(level, total_amount):
         if not eligible_users:
             return 
         
-        # اختيار 5 لاعبين عشوائياً (أو أقل إذا كان عدد اللاعبين في الموقع أقل من 5)
         winners = random.sample(eligible_users, min(5, len(eligible_users)))
         win_per_user = round(total_amount / len(winners), 2)
         
         db_session = SessionLocal()
         try:
             for winner in winners:
-                # 1. إضافة الرصيد للاعب
                 winner["balance"] = round(float(winner.get("balance", 0.0)) + win_per_user, 2)
                 
-                # 2. تسجيل العملية في جدول المعاملات
                 new_tx = Transaction(
                     admin_username="SYSTEM_JACKPOT",
                     target_username=winner["username"],
@@ -2963,7 +2546,6 @@ async def trigger_jackpot_drop(level, total_amount):
                 )
                 db_session.add(new_tx)
                 
-                # 3. إرسال إشعار فوري للاعب الفائز
                 if "notifications" not in db.full_data:
                     db.full_data["notifications"] = []
                 new_notif = {
@@ -2979,11 +2561,8 @@ async def trigger_jackpot_drop(level, total_amount):
                 
             db_session.commit()
             save_db(db)
-            db_session.commit()
-            save_db(db)
             print(f"🎉 JACKPOT {level.upper()} DROP! {total_amount} TND divided among {len(winners)} players.")
             
-            # 🌟 الكود الجديد: بث إشعار السقوط الفوري لجميع المتصلين
             try:
                 masked_winners = [f"{str(w['username'])[:4]}***" for w in winners]
                 drop_data = {
@@ -2993,21 +2572,16 @@ async def trigger_jackpot_drop(level, total_amount):
                     "win_per_user": win_per_user,
                     "winners": masked_winners
                 }
-                # نستخدم نفس مدير الـ WebSocket لإرسال الإشعار
                 asyncio.create_task(jackpot_manager.broadcast(json.dumps(drop_data)))
             except Exception as e:
                 print(f"Error broadcasting jackpot drop: {e}")
                 
         except Exception as e:
             db_session.rollback()
-            print(f"🎉 JACKPOT {level.upper()} DROP! {total_amount} TND divided among {len(winners)} players.")
-        except Exception as e:
-            db_session.rollback()
             print(f"❌ Error distributing jackpot: {e}")
         finally:
             db_session.close()
-
-# 🛡️ مدير اتصالات WebSockets
+			
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
@@ -3029,7 +2603,6 @@ class ConnectionManager:
 
 jackpot_manager = ConnectionManager()
 
-# 🌐 مسار الـ WebSocket الخاص بالجاكبوت
 @app.websocket("/ws/jackpot")
 async def websocket_jackpot(websocket: WebSocket):
     await jackpot_manager.connect(websocket)
@@ -3039,7 +2612,6 @@ async def websocket_jackpot(websocket: WebSocket):
     except WebSocketDisconnect:
         jackpot_manager.disconnect(websocket)
 
-# 🔄 مهمة خلفية تبث أرقام الجاكبوت للواجهة
 async def broadcast_jackpots():
     while True:
         live_data = {
@@ -3051,15 +2623,12 @@ async def broadcast_jackpots():
         await jackpot_manager.broadcast(json.dumps(live_data))
         await asyncio.sleep(2)
 
-# تشغيل البث ومحرك الجاكبوت تلقائياً عند الإقلاع
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(broadcast_jackpots())
-    asyncio.create_task(time_based_jackpot_engine()) # 👈 المحرك الجديد
-  
+    asyncio.create_task(time_based_jackpot_engine()) 
 
 
-# 🛡️ مدير اتصالات WebSockets
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
@@ -3081,17 +2650,15 @@ class ConnectionManager:
 
 jackpot_manager = ConnectionManager()
 
-# 🌐 مسار الـ WebSocket الخاص بالجاكبوت
 @app.websocket("/ws/jackpot")
 async def websocket_jackpot(websocket: WebSocket):
     await jackpot_manager.connect(websocket)
     try:
         while True:
-            await websocket.receive_text() # إبقاء الاتصال مفتوحاً
+            await websocket.receive_text() 
     except WebSocketDisconnect:
         jackpot_manager.disconnect(websocket)
 
-# 🔄 مهمة خلفية تبث أرقام الجاكبوت الحقيقية باستمرار
 async def broadcast_jackpots():
     while True:
         live_data = {
@@ -3101,18 +2668,17 @@ async def broadcast_jackpots():
             "grand": jackpots_state["grand"]["current_amount"]
         }
         await jackpot_manager.broadcast(json.dumps(live_data))
-        await asyncio.sleep(2) # بث التحديث كل ثانيتين للواجهة
+        await asyncio.sleep(2) 
 
-# تشغيل البث تلقائياً عند إقلاع السيرفر
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(broadcast_jackpots())
     
 class NotificationModel(BaseModel):
-    target_user: str  # اكتب 'all' لإرسالها للجميع، أو اسم المستخدم لشخص محدد
+    target_user: str  
     title: str
     message: str
-    icon: str = "fa-bell" # fa-gift, fa-wallet, fa-trophy
+    icon: str = "fa-bell" 
 
 @app.post("/api/admin/send-notification")
 async def send_notification(req: NotificationModel, current_user: str = Depends(get_admin_user)):
@@ -3131,7 +2697,7 @@ async def send_notification(req: NotificationModel, current_user: str = Depends(
     }
     db.full_data["notifications"].append(new_notif)
     save_db(db)
-    return {"status": "success", "message": "تم إرسال الإشعار بنجاح"}
+    return {"status": "success", "message": "Notification envoyée avec succès"}
 
 @app.get("/api/user/notifications")
 async def get_user_notifications(current_user: str = Depends(get_current_user)):
@@ -3141,7 +2707,6 @@ async def get_user_notifications(current_user: str = Depends(get_current_user)):
     unread_count = 0
     
     for n in notifs:
-        # 🛡️ تخطي الإشعار إذا قام هذا اللاعب بحذفه مسبقاً
         if current_user.lower() in n.get("deleted_by", []):
             continue
             
@@ -3151,7 +2716,6 @@ async def get_user_notifications(current_user: str = Depends(get_current_user)):
                 unread_count += 1
             user_notifs.append({**n, "is_read": is_read})
             
-    # إرجاع آخر 15 إشعار من الأحدث للأقدم
     return {"unread": unread_count, "notifications": user_notifs[::-1][:15]}
 
 class MarkReadModel(BaseModel):
@@ -3178,12 +2742,10 @@ async def delete_notification(req: DeleteNotifModel, current_user: str = Depends
     notifs = db.full_data.get("notifications", [])
     
     for n in notifs:
-        # إذا طلب مسح الكل
         if req.notif_id == "all":
             if n.get("target") in ["all", current_user.lower()]:
                 if current_user.lower() not in n.get("deleted_by", []):
                     n.setdefault("deleted_by", []).append(current_user.lower())
-        # إذا طلب مسح إشعار محدد
         else:
             if n["id"] == req.notif_id:
                 if current_user.lower() not in n.get("deleted_by", []):
