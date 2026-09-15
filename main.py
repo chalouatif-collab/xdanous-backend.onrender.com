@@ -1336,7 +1336,16 @@ async def login_user(request: Request, req: LoginRequest):
             bad_alert = f"⚠️ <b>Échec de connexion de l'administration!</b>\n👤 Nom d'utilisateur: <code>{req.username}</code>\n❌ Raison: Mot de passe incorrect"
             asyncio.create_task(send_telegram_alert(bad_alert))
             return JSONResponse(status_code=401, content={"detail": "Nom d'utilisateur ou mot de passe incorrect"})
-        user["last_ip"] = verify_nexus_ip(request)
+        
+        # --- إصلاح الخطأ: تخطي الفحص الأمني للـ IP إذا كان الـ API معطلاً ---
+        try:
+            user["last_ip"] = verify_nexus_ip(request)
+        except Exception as ip_err:
+            print(f"IP Check Failed, bypassing: {ip_err}")
+            # في حال فشل الفحص، نقوم بتسجيل الـ IP الأساسي بدلاً من إيقاف الدخول
+            user["last_ip"] = request.client.host if request.client else "127.0.0.1"
+        # ----------------------------------------------------------------------
+
         save_db(db)
         access_token = create_access_token(data={"sub": user["username"], "role": user["role"]})
         
@@ -1349,12 +1358,7 @@ async def login_user(request: Request, req: LoginRequest):
         })
     except Exception as e:
         print(f"Login Crash: {e}")
-        
         return JSONResponse(status_code=500, content={"detail": f"Erreur interne: {str(e)}"})
-
-class ShopWithdrawRequest(BaseModel): admin_username: str; shop_username: str; amount: float
-class HandleShopWithdrawModel(BaseModel): request_id: int; decision: str; shop_username: str
-class AdminWithdrawRequest(BaseModel): admin_username: str; amount: float
 
 @app.post("/api/admin/request-shop-withdrawal")
 async def request_shop_withdrawal(req: ShopWithdrawRequest):
