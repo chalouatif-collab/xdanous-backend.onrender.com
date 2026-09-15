@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha Core - Mini Super Admin Panel</title>
+    <title>Alpha Core - Super Admin Panel</title>
 
     <!-- Bootstrap 5 CSS & FontAwesome & Google Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,8 +12,9 @@
 
     <style>
         :root {
-            --emerald-primary: #10b981;
-            --emerald-hover: #059669;
+            /* الثيم الذهبي الملكي للـ Super Admin */
+            --super-primary: #f59e0b; /* Amber 500 */
+            --super-hover: #d97706;   /* Amber 600 */
             --bg-main: #020617;
             --bg-sidebar: #070d1a;
             --bg-card: #0b1329;
@@ -32,7 +33,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* كاردز مصغرة ومرتبة */
         .card-mini {
             background-color: var(--bg-card);
             border: 1px solid var(--border-dark);
@@ -41,11 +41,14 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .text-emerald {
-            color: var(--emerald-primary) !important;
+        .text-super {
+            color: var(--super-primary) !important;
+        }
+        
+        .border-super {
+            border-color: var(--super-primary) !important;
         }
 
-        /* أزرار صغيرة وعملية */
         .btn-mini {
             padding: 0.25rem 0.5rem;
             font-size: 0.75rem;
@@ -54,16 +57,15 @@
             border: none;
             transition: all 0.2s;
         }
-        .btn-emerald-mini {
-            background-color: var(--emerald-primary);
+        .btn-super-mini {
+            background-color: var(--super-primary);
             color: #020617;
         }
-        .btn-emerald-mini:hover {
-            background-color: var(--emerald-hover);
+        .btn-super-mini:hover {
+            background-color: var(--super-hover);
             color: #020617;
         }
 
-        /* حقول إدخال مصغرة */
         .form-control-mini, .form-select-mini {
             background-color: var(--bg-input) !important;
             border: 1px solid var(--border-dark) !important;
@@ -74,11 +76,10 @@
             font-size: 0.75rem;
         }
         .form-control-mini:focus, .form-select-mini:focus {
-            border-color: var(--emerald-primary) !important;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+            border-color: var(--super-primary) !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
         }
 
-        /* القائمة الجانبية المصغرة */
         .sidebar-link-mini {
             color: #cbd5e1;
             background-color: rgba(15, 23, 42, 0.6);
@@ -101,9 +102,9 @@
         }
 
         .active-shop-btn {
-            background-color: rgba(16, 185, 129, 0.15) !important;
-            border-color: var(--emerald-primary) !important;
-            color: var(--emerald-primary) !important;
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            border-color: var(--super-primary) !important;
+            color: var(--super-primary) !important;
         }
 
         .offcanvas {
@@ -115,7 +116,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        input[type=range] { accent-color: var(--emerald-primary); height: 4px; }
+        input[type=range] { accent-color: var(--super-primary); height: 4px; }
         
         .user-row-mini {
             background: rgba(15, 23, 42, 0.5);
@@ -127,23 +128,20 @@
         }
         .user-row-mini:hover {
             background: rgba(30, 41, 59, 0.8);
-            border-color: var(--emerald-primary);
+            border-color: var(--super-primary);
         }
     </style>
 </head>
 <body class="d-flex flex-column flex-md-row min-vh-100">
 
-    <!-- حاوية الإشعارات المصغرة -->
     <div id="toast-container" class="position-fixed top-0 end-0 p-2" style="z-index: 1055; width: 100%; max-width: 320px;"></div>
 
-    <!-- القائمة الجانبية (للكمبيوتر) -->
     <aside class="d-none d-md-flex flex-column justify-content-between p-3" style="width: 250px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-dark);">
         <div class="d-flex flex-column gap-3">
             <div class="card-mini d-flex align-items-center justify-content-between py-1">
                 <span class="small fw-bold text-secondary" style="font-size: 0.7rem;"><i class="fa-solid fa-globe"></i> Lang:</span>
                 <select id="lang-select" onchange="changeLanguage(this.value)" class="form-select form-select-mini w-auto border-0 shadow-none cursor-pointer py-0">
                     <option value="fr">Français</option>
-                    <option value="ar">العربية</option>
                     <option value="en">English</option>
                 </select>
             </div>
@@ -180,10 +178,9 @@
         </div>
     </aside>
 
-    <!-- القائمة الجانبية (للهاتف - Offcanvas) -->
     <div class="offcanvas offcanvas-start text-white" tabindex="-1" id="mobileSidebar">
         <div class="offcanvas-header border-bottom border-dark px-3 py-2">
-            <h6 class="offcanvas-title text-emerald fw-bold" style="font-size: 0.85rem;"><i class="fa-solid fa-bars-staggered"></i> ALPHA SUPER</h6>
+            <h6 class="offcanvas-title text-super fw-bold" style="font-size: 0.85rem;"><i class="fa-solid fa-bars-staggered"></i> ALPHA SUPER</h6>
             <button type="button" class="btn-close btn-close-white btn-sm shadow-none" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column justify-content-between p-2.5">
@@ -200,40 +197,34 @@
         </div>
     </div>
 
-    <!-- منطقة المحتوى الرئيسية -->
     <div class="flex-grow-1 d-flex flex-column position-relative w-100">
         
-        <!-- الهيدر العلوي المصغر -->
         <header class="card-mini border-bottom border-dark px-3 py-1.5 d-flex justify-content-between align-items-center shadow-sm flex-shrink-0 rounded-0">
             <div class="d-flex align-items-center gap-2">
                 <button class="btn btn-dark btn-sm d-md-none border border-dark text-white px-2 py-1 shadow-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" style="font-size: 0.75rem;">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <span class="badge text-emerald fw-bold px-2 py-1 border rounded-2" style="background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); font-size: 0.65rem;">
+                <span class="badge text-super fw-bold px-2 py-1 border rounded-2" style="background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); font-size: 0.65rem;">
                     Super: <span id="owner-username">Connected</span>
                 </span>
             </div>
             <div class="card-mini px-2 py-0.5 rounded-2 d-flex align-items-center gap-2 bg-black">
-                <span class="text-secondary" style="font-size: 0.65rem;">الرصيد:</span>
-                <span class="text-emerald fw-bold font-mono" style="font-size: 0.75rem;" id="sadmin-balance-val">0.00 TND</span>
+                <span class="text-secondary" style="font-size: 0.65rem;">Solde:</span>
+                <span class="text-super fw-bold font-mono" style="font-size: 0.75rem;" id="sadmin-balance-val">0.00 TND</span>
             </div>
         </header>
 
-        <!-- مساحة العمل -->
         <main class="flex-grow-1 overflow-y-auto p-2 no-scrollbar mx-auto w-100" style="max-width: 900px;">
             
-            <!-- القسم 1: الشبكة (Network) -->
             <div id="panel-sadmin-reseau" class="sadmin-main-view d-flex flex-column gap-2">
                 
-                <!-- حقل البحث المصغر -->
                 <div class="card-mini p-1 px-2 d-flex align-items-center">
                     <span class="text-secondary me-2" style="font-size: 0.75rem;"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" id="search-input" oninput="filterAdmins()" placeholder="بحث عن أدمن في الشبكة..." class="form-control form-control-mini border-0 bg-transparent text-white shadow-none py-0" dir="rtl">
+                    <input type="text" id="search-input" oninput="filterAdmins()" placeholder="Rechercher un administrateur..." class="form-control form-control-mini border-0 bg-transparent text-white shadow-none py-0">
                 </div>
 
-                <!-- إنشاء حساب جديد (مضغوط) -->
-                <section class="card-mini border-start border-emerald border-3">
-                    <h6 class="fw-bold text-white mb-1" dir="rtl" style="font-size: 0.75rem;" id="title-create-user">👑 إنشاء حساب أدمن جديد</h6>
+                <section class="card-mini border-start border-super border-3">
+                    <h6 class="fw-bold text-white mb-1" style="font-size: 0.75rem;" id="title-create-user">👑 Créer un compte Admin</h6>
                     <div class="row g-1 align-items-center">
                         <div class="col-6 col-md-3">
                             <input type="text" id="new-user-name" placeholder="Username" class="form-control form-control-mini font-mono text-center">
@@ -245,29 +236,28 @@
                             <input type="text" id="new_phone" class="form-control form-control-mini font-mono text-center" placeholder="Phone (+216...)">
                         </div>
                         <div class="col-4 col-md-2">
-                            <button onclick="createAdminUser()" class="btn btn-mini btn-emerald-mini w-100 py-1" id="btn-create">تثبيت</button>
+                            <button onclick="createAdminUser()" class="btn btn-mini btn-super-mini w-100 py-1" id="btn-create">Créer</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- المعاملات المالية (Console) -->
                 <section id="financial-card" class="card-mini">
                     <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-1 mb-1">
-                        <h6 class="fw-bold text-white m-0" dir="rtl" style="font-size: 0.7rem;" id="title-table-console">📋 المعاملات المالية</h6>
+                        <h6 class="fw-bold text-white m-0" style="font-size: 0.7rem;" id="title-table-console">📋 Console financière</h6>
                     </div>
                     
                     <div class="row g-1 mb-1 align-items-center">
                         <div class="col-3">
-                            <input type="text" id="target-action-user" readonly placeholder="أدمن" class="form-control form-control-mini text-center text-emerald fw-bold py-1" dir="rtl">
+                            <input type="text" id="target-action-user" readonly placeholder="Compte" class="form-control form-control-mini text-center text-super fw-bold py-1">
                         </div>
                         <div class="col-3">
-                            <input type="number" id="target-action-amount" placeholder="المبلغ" class="form-control form-control-mini text-center font-mono py-1" dir="rtl">
+                            <input type="number" id="target-action-amount" placeholder="Montant" class="form-control form-control-mini text-center font-mono py-1">
                         </div>
                         <div class="col-3">
-                            <button onclick="executeAction('charge')" id="btn-credit" class="btn btn-mini btn-emerald-mini w-100 py-1">شحن</button>
+                            <button onclick="executeAction('charge')" id="btn-credit" class="btn btn-mini btn-super-mini w-100 py-1">Créditer</button>
                         </div>
                         <div class="col-3">
-                            <button onclick="executeAction('withdraw')" id="btn-retirer" class="btn btn-mini btn-danger w-100 py-1">سحب</button>
+                            <button onclick="executeAction('withdraw')" id="btn-retirer" class="btn btn-mini btn-danger w-100 py-1">Retirer</button>
                         </div>
                     </div>
 
@@ -276,65 +266,56 @@
                             <div class="d-flex align-items-center gap-1 bg-black border border-dark rounded-2 px-2 py-1">
                                 <span class="text-secondary font-mono fw-bold" style="font-size: 0.65rem;">RTP:<span id="rtp-val-label" class="ms-1 text-white">50%</span></span>
                                 <input type="range" class="form-range flex-grow-1 m-0" id="ctrl-rtp-range" min="1" max="99" value="50" oninput="document.getElementById('rtp-val-label').innerText = this.value + '%'">
-                                <button onclick="saveRtpAndBlock(0)" class="btn btn-mini btn-emerald-mini py-0 px-2">حفظ</button>
-                                <button onclick="saveRtpAndBlock(1)" class="btn btn-mini btn-danger py-0 px-2">حظر</button>
+                                <button onclick="saveRtpAndBlock(0)" class="btn btn-mini btn-super-mini py-0 px-2">Sauver</button>
+                                <button onclick="saveRtpAndBlock(1)" class="btn btn-mini btn-danger py-0 px-2">Bloquer</button>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 mt-1 mt-md-0">
                             <div class="d-flex gap-1">
-                                <input type="password" id="ctrl-admin-new-pass" placeholder="كلمة سر جديدة" class="form-control form-control-mini font-mono text-center flex-grow-1 py-1" dir="rtl">
-                                <button onclick="changeAdminPasswordFromSadmin()" class="btn btn-mini btn-info text-dark fw-bold px-3 py-1" style="font-size: 0.7rem;">تغيير</button>
+                                <input type="password" id="ctrl-admin-new-pass" placeholder="Nouveau mot de passe" class="form-control form-control-mini font-mono text-center flex-grow-1 py-1">
+                                <button onclick="changeAdminPasswordFromSadmin()" class="btn btn-mini btn-info text-dark fw-bold px-3 py-1" style="font-size: 0.7rem;">Changer</button>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- كروت الأدمنز (Compact) -->
                 <div id="owner-network-list" class="d-flex flex-column gap-1 pb-2" style="max-height: 380px; overflow-y: auto;">
-                    <!-- سيتم حقن الكروت هنا -->
                 </div>
             </div>
 
-            <!-- قسم 2: الكازينو -->
             <div id="panel-sadmin-casino" class="sadmin-main-view d-none">
-                <div class="card-mini p-4 text-center text-secondary">
+                <div class="card-mini p-4 text-center text-secondary mt-2">
                     <i class="fa-solid fa-ghost fs-3 mb-2"></i><br>
                     <span class="fw-bold text-uppercase" style="font-size: 0.7rem;">Aucun pari de casino enregistré.</span>
                 </div>
             </div>
 
-            <!-- قسم 3: التحويلات -->
             <div id="panel-sadmin-transfert" class="sadmin-main-view d-none">
-                <div class="card-mini p-4 text-center text-secondary">
+                <div class="card-mini p-4 text-center text-secondary mt-2">
                     <i class="fa-solid fa-money-bill-transfer fs-3 mb-2"></i><br>
                     <span class="fw-bold text-uppercase" style="font-size: 0.7rem;">Aucun transfert financier trouvé.</span>
                 </div>
             </div>
 
-            <!-- قسم 4: المعاملات -->
             <div id="panel-sadmin-transaction" class="sadmin-main-view d-none">
-                <!-- سيتم حقن الفلتر والكروت هنا -->
             </div>
 
-            <!-- قسم 5: الرياضة -->
             <div id="panel-sadmin-sport" class="sadmin-main-view d-none">
-                <!-- سيتم حقن التذاكر هنا -->
             </div>
 
         </main>
     </div>
 
-    <!-- نافذة تعديل كلمة السر -->
     <div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content card-mini border-dark shadow">
                 <div class="modal-header border-bottom border-dark py-1.5 px-3">
-                    <h6 class="modal-title text-white fw-bold" style="font-size: 0.75rem;"><i class="fa-solid fa-key text-emerald"></i> Modifier le mot de passe</h6>
+                    <h6 class="modal-title text-white fw-bold" style="font-size: 0.75rem;"><i class="fa-solid fa-key text-super"></i> Modifier le mot de passe</h6>
                     <button type="button" class="btn-close btn-close-white btn-sm shadow-none" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-2">
                     <input type="password" id="new-sys-pass" placeholder="Nouveau mot de passe" class="form-control form-control-mini mb-2 font-mono text-center">
-                    <button onclick="submitNewPassword()" class="btn btn-mini btn-emerald-mini w-100 fw-bold py-1">Mettre à jour</button>
+                    <button onclick="submitNewPassword()" class="btn btn-mini btn-super-mini w-100 fw-bold py-1">Mettre à jour</button>
                 </div>
             </div>
         </div>
@@ -345,13 +326,12 @@
 
     <script>
         const BACKEND_URL = "";
-
         
         const token = localStorage.getItem('token');
         if (!token) window.location.href = '/'; 
 
         let user = JSON.parse(localStorage.getItem('alpha_user'));
-        if (!user || user.role !== 'super_admin') {
+        if (!user || user.role !== 'owner' && user.role !== 'super_admin') {
             localStorage.clear();
             window.location.href = '/'; 
         }
@@ -359,7 +339,7 @@
         let allAdmins = [];
         function escapeHTML(str) {
             if (!str) return '';
-            return str.toString().escapeHTML(/[&<>'"]/g,
+            return str.toString().replace(/[&<>'"]/g,
                 tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
             );
         }
@@ -375,13 +355,12 @@
         });
 
         const translations = {
-            fr: { menu: "Gestion Super Admin", create: "👑 Créer un nouveau compte", console: "📋 Console de gestion", credit: "Créditer", retirer: "Retirer", out: "Déconnexion" },
-            ar: { menu: "إدارة السوبر أدمن", create: "👑 إنشاء حساب أدمن جديد", console: "📋 لوحة التحكم المالي", credit: "شحن رصيد", retirer: "سحب رصيد", out: "تسجيل الخروج" },
+            fr: { menu: "Gestion Super Admin", create: "👑 Créer un compte Admin", console: "📋 Console financière", credit: "Créditer", retirer: "Retirer", out: "Déconnexion" },
             en: { menu: "Super Admin Menu", create: "👑 Create Admin Account", console: "📋 Financial Console", credit: "Charge", retirer: "Withdraw", out: "Logout" }
         };
 
         function changeLanguage(lang) {
-            document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            document.documentElement.dir = 'ltr';
             document.getElementById('menu-title').innerText = translations[lang].menu;
             document.getElementById('title-create-user').innerText = translations[lang].create;
             document.getElementById('title-table-console').innerText = translations[lang].console;
@@ -398,7 +377,6 @@
             toastEl.className = `toast align-items-center text-bg-dark border-0 mb-1 show shadow`;
             toastEl.setAttribute('role', 'alert'); 
             
-            // 🛡️ استخدام الفلتر القوي بدلاً من الفلتر الضعيف
             const safeMessage = typeof message === 'string' ? escapeHTML(message) : message;
 
             toastEl.innerHTML = `
@@ -433,7 +411,6 @@
             
             document.querySelectorAll(`[onclick*="switchSadminPanelSection('${sectionId}')"]`).forEach(btn => btn.classList.add('active-shop-btn'));
 
-            // الروابط المكتملة
             if (sectionId === 'sport') loadSportTickets();
             if (sectionId === 'transaction') loadTransactions();
             if (sectionId === 'casino') loadCasinoHistory();
@@ -445,7 +422,7 @@
                 const uRes = await fetch(`${BACKEND_URL}/api/admin/users`, { method: 'GET', headers: getAuthHeaders() });
                 
                 if (uRes.status === 401 || uRes.status === 403) {
-                    showNotification('انتهت صلاحية الجلسة...', 'error');
+                    showNotification('Session expirée...', 'error');
                     setTimeout(logout, 1500);
                     return;
                 }
@@ -458,11 +435,11 @@
                         document.getElementById('sadmin-balance-val').innerText = `${parseFloat(user.balance).toFixed(2)} TND`;
                         localStorage.setItem('alpha_user', JSON.stringify(user));
                     }
-                    allAdmins = users.filter(u => u.role === 'admin' && u.created_by === user.username);
+                    allAdmins = users.filter(u => u.role === 'admin' || u.role === 'manager' || u.role === 'super_admin');
                     renderAdminsList(allAdmins);
                 }
             } catch(e){
-                document.getElementById('owner-network-list').innerHTML = `<div class="text-center p-2 text-danger" style="font-size: 0.7rem;">خطأ في الاتصال ❌</div>`;
+                document.getElementById('owner-network-list').innerHTML = `<div class="text-center p-2 text-danger" style="font-size: 0.7rem;">Erreur de connexion ❌</div>`;
             }
         }
 
@@ -472,7 +449,7 @@
             listContainer.innerHTML = '';
             
             if(adminsArray.length === 0) {
-                listContainer.innerHTML = `<div class="text-center text-secondary p-2" style="font-size: 0.7rem;">لا يوجد أدمنز.</div>`;
+                listContainer.innerHTML = `<div class="text-center text-secondary p-2" style="font-size: 0.7rem;">Aucun compte trouvé.</div>`;
                 return;
             }
 
@@ -482,22 +459,9 @@
                 const userBalance = u.balance !== undefined && u.balance !== null ? parseFloat(u.balance).toFixed(2) : "0.00";
                 const statusDot = u.is_blocked === 1 ? 'bg-danger' : 'bg-success';
                 
-                // 🛡️ التعديلات الأمنية: تغليف جميع المدخلات
                 const usernameClean = escapeHTML(u.username);
                 const safePhone = escapeHTML(u.phone || '');
                 const phoneBadge = safePhone ? `<span class="badge bg-black text-info border border-dark ms-1 px-1 py-0" style="font-size: 0.6rem;"><i class="fa-solid fa-phone"></i> ${safePhone}</span>` : '';
-                
-                const safeSecret = escapeHTML(u.two_factor_secret || '');
-                const secretBadge = safeSecret
-                ? `<div class="d-inline-flex align-items-center bg-black border border-dark rounded px-1 ms-1" onclick="event.stopPropagation()">
-                       <i class="fa-solid fa-key text-success me-1" style="font-size: 0.55rem;"></i>
-                       <input type="text" value="${safeSecret}" class="bg-transparent border-0 text-warning font-mono p-0 text-center" style="width: 60px; font-size: 0.6rem; outline: none;" readonly>
-                       <button onclick="copySecretCode('${safeSecret}', event)" class="btn btn-sm btn-link text-success p-0 ms-1 shadow-none" style="font-size: 0.6rem;">
-                           <i class="fa-regular fa-copy"></i>
-                       </button>
-                   </div>`
-                : ``;
-                
                 const safeId = escapeHTML(u.id || 'N/A');
 
                 listContainer.innerHTML += `
@@ -511,14 +475,14 @@
                                 <div class="text-white fw-bold mb-0 d-flex align-items-center flex-wrap gap-1" style="font-size: 0.75rem;">
                                     ${usernameClean} 
                                     <span class="badge bg-dark border border-dark text-secondary font-mono" style="font-size: 0.6rem; padding: 1px 3px;">ID: ${safeId}</span>
-                                    ${secretBadge} ${phoneBadge}
+                                    ${phoneBadge}
                                 </div>
-                                <div class="text-emerald font-mono" style="font-size: 0.6rem;">${userRole} • RTP: ${userRtp}%</div>
+                                <div class="text-super font-mono" style="font-size: 0.6rem;">${userRole} • RTP: ${userRtp}%</div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2 font-mono">
                             <span class="text-white fw-bold" style="font-size: 0.75rem;">${userBalance} TND</span>
-                            <button class="btn btn-mini btn-emerald-mini py-0 px-1" style="font-size: 0.6rem;">➜</button>
+                            <button class="btn btn-mini btn-super-mini py-0 px-1" style="font-size: 0.6rem;">➜</button>
                         </div>
                     </div>`;
             });
@@ -543,7 +507,7 @@
             const amountInput = document.getElementById('target-action-amount').value;
             const actionBtn = action === 'charge' ? document.getElementById('btn-credit') : document.getElementById('btn-retirer');
 
-            if(!target_username) return showNotification('Sélectionnez un admin!', 'error');
+            if(!target_username) return showNotification('Sélectionnez un compte!', 'error');
             const amount = parseFloat(amountInput);
             if(isNaN(amount) || amount <= 0) return showNotification('Montant invalide!', 'error');
 
@@ -564,7 +528,7 @@
             } finally {
                 if (actionBtn) {
                     actionBtn.disabled = false;
-                    actionBtn.innerText = action === 'charge' ? 'شحن' : 'سحب';
+                    actionBtn.innerText = action === 'charge' ? 'Créditer' : 'Retirer';
                 }
             }
         }
@@ -600,7 +564,7 @@
             } catch(e) { 
                 showNotification('Erreur', 'error'); 
             } finally {
-                if(btnCreate) { btnCreate.disabled = false; btnCreate.innerText = 'تثبيت'; }
+                if(btnCreate) { btnCreate.disabled = false; btnCreate.innerText = 'Créer'; }
             }
         }
 
@@ -641,7 +605,7 @@
 
         async function loadTransactions() {
             const container = document.getElementById('panel-sadmin-transaction');
-            container.innerHTML = '<div class="text-center p-3 text-emerald fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
+            container.innerHTML = '<div class="text-center p-3 text-super fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
             
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/transactions-history?username=${user.username}`, {
@@ -668,7 +632,7 @@
                         <input type="date" id="tx-end-date" class="form-control form-control-mini text-center py-0">
                     </div>
                     <div class="col-2 mt-auto">
-                        <button onclick="applyDateFilter()" class="btn btn-mini btn-emerald-mini w-100 py-0.5"><i class="fa-solid fa-search"></i></button>
+                        <button onclick="applyDateFilter()" class="btn btn-mini btn-super-mini w-100 py-0.5"><i class="fa-solid fa-search"></i></button>
                     </div>
                 </div>
                 <div id="tx-list-container" class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 350px;"></div>
@@ -708,7 +672,7 @@
                 const isCharge = t.action === 'charge'; 
                 const color = isCharge ? 'text-success' : 'text-danger';
                 const sign = isCharge ? '+' : '-';
-                const targetName = (t.target_username || t.target || 'مجهول').escapeHTML(/</g, "&lt;").escapeHTML(/>/g, "&gt;");
+                const targetName = escapeHTML(t.target_username || t.target || 'Inconnu');
                 
                 html += `
                     <div class="bg-black border border-dark rounded-2 p-2 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
@@ -724,41 +688,15 @@
             listContainer.innerHTML = html;
         }
 
-        async function resetUser2FA() {
-            const target = secureSelectedUser;
-            if (!target) return showNotification('الرجاء تحديد حساب أولاً!', 'error');
-            
-            if (!confirm(`هل أنت متأكد من إعادة تعيين مفتاح 2FA للحساب: ${target}؟ سيتم إلغاء المفتاح القديم ولن يتمكن من الدخول به.`)) return;
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/reset-2fa`, {
-                    method: 'POST', 
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ admin_username: user.username, target_username: target })
-                });
-                const data = await res.json();
-                
-                if (res.ok) {
-                    // عرض المفتاح الجديد في نافذة Prompt ليتمكن المدير من نسخه بسهولة
-                    prompt(`تم إعادة تعيين 2FA بنجاح للحساب ${target}.\n\nانسخ هذا المفتاح وأرسله للمستخدم فوراً (لن يظهر مرة أخرى):`, data.new_secret);
-                    showNotification('تم إعادة تعيين المفتاح!', 'success');
-                } else { 
-                    showNotification(data.detail || 'Erreur', 'error'); 
-                }
-            } catch (e) { 
-                showNotification('Erreur de connexion', 'error'); 
-            }
-        }
-
         async function loadSportTickets() {
             const container = document.getElementById('panel-sadmin-sport');
-            container.innerHTML = '<div class="text-center p-3 text-emerald fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
+            container.innerHTML = '<div class="text-center p-3 text-super fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
             
             try {
                 const usersRes = await fetch(`${BACKEND_URL}/api/admin/users`, { method: 'GET', headers: getAuthHeaders() });
                 if (!usersRes.ok) return;
                 const users = await usersRes.json();
-                const myUsers = users.filter(u => u.created_by === user.username).map(u => u.username);
+                const myUsers = users.map(u => u.username);
 
                 let allTicketsHtml = '';
                 
@@ -770,19 +708,19 @@
                             let badgeColor = t.status === "gagne" ? "text-success" : (t.status === "perdu" ? "text-danger" : (t.status === "cashout" ? "text-warning" : "text-info"));
                             
                             let matchesHtml = Array.isArray(t.details_list) ? 
-                                t.details_list.map(g => `• ${g.matchName.escapeHTML(/</g, "&lt;")} (<span class="text-warning">${g.outcome}</span>)`).join('<br>') : 
-                                (t.match ? t.match.escapeHTML(/</g, "&lt;") : "Match Inconnu");
+                                t.details_list.map(g => `• ${escapeHTML(g.matchName)} (<span class="text-warning">${escapeHTML(g.outcome)}</span>)`).join('<br>') : 
+                                escapeHTML(t.match || "Match Inconnu");
 
-                            let safeTarget = target.escapeHTML(/</g, "&lt;");
+                            let safeTarget = escapeHTML(target);
 
                             allTicketsHtml += `
                                 <div class="bg-black border border-dark rounded-2 p-2 d-flex flex-column gap-1" style="font-size: 0.7rem;">
                                     <div class="text-white">${matchesHtml}</div>
                                     <div class="text-end font-mono border-top border-dark pt-1">
-                                        <div class="text-secondary" style="font-size: 0.6rem;">Joueur: <span class="text-white fw-bold">${safeTarget}</span></div>
+                                        <div class="text-secondary" style="font-size: 0.6rem;">Compte: <span class="text-white fw-bold">${safeTarget}</span></div>
                                         <div class="text-light" style="font-size: 0.6rem;">Mise: ${parseFloat(t.mise).toFixed(2)} | Cote: X${parseFloat(t.total_cote).toFixed(2)}</div>
                                         <div class="fw-bold ${badgeColor}" style="font-size: 0.75rem;">Gain: +${parseFloat(t.gain).toFixed(2)} TND</div>
-                                        <span class="badge border border-secondary py-0 px-1 text-uppercase ${badgeColor}" style="font-size: 0.55rem;">${t.status}</span>
+                                        <span class="badge border border-secondary py-0 px-1 text-uppercase ${badgeColor}" style="font-size: 0.55rem;">${escapeHTML(t.status)}</span>
                                     </div>
                                 </div>`;
                         });
@@ -795,7 +733,7 @@
                     container.innerHTML = `<div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 380px;">${allTicketsHtml}</div>`;
                 }
             } catch(e) {
-                container.innerHTML = '<div class="text-center p-3 text-danger" style="font-size: 0.7rem;">Erreur</div>';
+                container.innerHTML = '<div class="text-center p-3 text-danger" style="font-size: 0.7rem;">Erreur API</div>';
             }
         }
 
@@ -835,15 +773,6 @@
             window.location.href = '/';
         }
 
-        function copySecretCode(secret, event) {
-            event.stopPropagation(); 
-            navigator.clipboard.writeText(secret).then(() => {
-                showNotification(`Copié: ${secret}`, 'success');
-            }).catch(err => {
-                showNotification('Erreur', 'error');
-            });
-        }
-
         let idleTime = 0;
         function timerIncrement() {
             idleTime = idleTime + 1;
@@ -860,23 +789,23 @@
 
         async function loadCasinoHistory() {
             const container = document.getElementById('panel-sadmin-casino');
-            container.innerHTML = '<div class="text-center p-3 text-emerald fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
+            container.innerHTML = '<div class="text-center p-3 text-super fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/casino-history`, { headers: getAuthHeaders() });
                 if (res.ok) {
                     const history = await res.json();
                     if (history.length === 0) {
-                        container.innerHTML = '<div class="card-mini p-4 text-center text-secondary"><i class="fa-solid fa-ghost fs-3 mb-2"></i><br><span class="fw-bold text-uppercase" style="font-size: 0.7rem;">Aucun pari enregistré.</span></div>';
+                        container.innerHTML = '<div class="card-mini p-4 text-center text-secondary mt-2"><i class="fa-solid fa-ghost fs-3 mb-2"></i><br><span class="fw-bold text-uppercase small" style="font-size: 0.7rem;">Aucun pari enregistré.</span></div>';
                         return;
                     }
-                    let html = `<div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 380px;">`;
+                    let html = `<div class="d-flex flex-column gap-1 overflow-y-auto mt-2" style="max-height: 380px;">`;
                     history.forEach(t => {
                         const isWin = t.action === 'win';
                         const badgeColor = isWin ? 'text-success' : 'text-danger';
                         const sign = isWin ? '+' : '-';
                         html += `
                         <div class="bg-black border border-dark rounded-2 p-2 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
-                            <div><div class="text-white fw-bold">👤 ${escapeHTML(t.username)}</div><div class="text-secondary font-mono" style="font-size: 0.6rem;">🕒 ${t.date}</div></div>
+                            <div><div class="text-white fw-bold">👤 ${escapeHTML(t.username)}</div><div class="text-secondary font-mono" style="font-size: 0.6rem;">🕒 ${escapeHTML(t.date)}</div></div>
                             <div class="text-end font-mono"><div class="${badgeColor} fw-bold" style="font-size: 0.75rem;">${sign}${parseFloat(t.amount).toFixed(2)} TND</div></div>
                         </div>`;
                     });
@@ -887,16 +816,16 @@
 
         async function loadTransferts() {
             const container = document.getElementById('panel-sadmin-transfert');
-            container.innerHTML = '<div class="text-center p-3 text-emerald fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
+            container.innerHTML = '<div class="text-center p-3 text-super fw-bold" style="font-size: 0.7rem;">Chargement... ⏳</div>';
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/get-pending-deposits`, { headers: getAuthHeaders() });
                 if (res.ok) {
                     const tickets = await res.json();
                     if (tickets.length === 0) {
-                        container.innerHTML = '<div class="card-mini p-4 text-center text-secondary"><i class="fa-solid fa-money-bill-transfer fs-3 mb-2"></i><br><span class="fw-bold text-uppercase" style="font-size: 0.7rem;">Aucun transfert financier trouvé.</span></div>';
+                        container.innerHTML = '<div class="card-mini p-4 text-center text-secondary mt-2"><i class="fa-solid fa-money-bill-transfer fs-3 mb-2"></i><br><span class="fw-bold text-uppercase small" style="font-size: 0.7rem;">Aucun transfert trouvé.</span></div>';
                         return;
                     }
-                    let html = `<div class="d-flex flex-column gap-1 overflow-y-auto" style="max-height: 380px;">`;
+                    let html = `<div class="d-flex flex-column gap-1 overflow-y-auto mt-2" style="max-height: 380px;">`;
                     tickets.forEach(t => {
                         html += `
                         <div class="bg-black border border-warning rounded-2 p-2 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">

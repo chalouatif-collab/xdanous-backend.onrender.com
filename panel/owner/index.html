@@ -4,19 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alpha Bet - Mini Owner Centre</title>
+    <title>Alpha Bet - Owner Centre</title>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --red-primary: #dc2626;
-            --red-hover: #b91c1c;
+            /* الثيم الأحمر المخصص للـ Owner */
+            --owner-primary: #dc2626; 
+            --owner-hover: #b91c1c;
             --bg-main: #020617;
             --bg-sidebar: #070d1a;
             --bg-card: #0b1329;
@@ -44,7 +43,7 @@
         }
 
         .text-owner {
-            color: var(--red-primary) !important;
+            color: var(--owner-primary) !important;
         }
 
         .btn-mini {
@@ -57,12 +56,12 @@
         }
 
         .btn-owner-mini {
-            background-color: var(--red-primary);
+            background-color: var(--owner-primary);
             color: white;
         }
 
         .btn-owner-mini:hover {
-            background-color: var(--red-hover);
+            background-color: var(--owner-hover);
             color: white;
         }
 
@@ -79,7 +78,7 @@
 
         .form-control-mini:focus,
         .form-select-mini:focus {
-            border-color: var(--red-primary) !important;
+            border-color: var(--owner-primary) !important;
             box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2) !important;
         }
 
@@ -111,19 +110,10 @@
             width: 260px !important;
         }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        input[type=range] {
-            accent-color: var(--red-primary);
-            height: 4px;
-        }
+        input[type=range] { accent-color: var(--owner-primary); height: 4px; }
 
         .user-row-mini {
             background: rgba(15, 23, 42, 0.5);
@@ -136,13 +126,13 @@
 
         .user-row-mini:hover {
             background: rgba(30, 41, 59, 0.8);
-            border-color: var(--red-primary);
+            border-color: var(--owner-primary);
         }
 
         .nav-pills .nav-link.active {
-            background-color: var(--red-primary) !important;
+            background-color: var(--owner-primary) !important;
             color: white !important;
-            border: 1px solid var(--red-primary);
+            border: 1px solid var(--owner-primary);
         }
 
         .nav-pills .nav-link {
@@ -154,44 +144,32 @@
 
 <body class="d-flex flex-column flex-md-row min-vh-100 position-relative">
 
-    <div id="toast-container" class="position-fixed bottom-0 end-0 p-2"
-        style="z-index: 1090; max-width: 300px; width: 100%;"></div>
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-2" style="z-index: 1090; max-width: 300px; width: 100%;"></div>
 
     <div class="offcanvas offcanvas-start text-white" tabindex="-1" id="sidebar-menu">
         <div class="offcanvas-header border-bottom border-dark px-3 py-2">
-            <h6 class="offcanvas-title text-owner fw-bold" style="font-size: 0.85rem;"><i class="fa-solid fa-crown"></i>
-                ALPHA OWNER</h6>
-            <button type="button" class="btn-close btn-close-white btn-sm shadow-none"
-                data-bs-dismiss="offcanvas"></button>
+            <h6 class="offcanvas-title text-owner fw-bold" style="font-size: 0.85rem;"><i class="fa-solid fa-crown"></i> ALPHA OWNER</h6>
+            <button type="button" class="btn-close btn-close-white btn-sm shadow-none" data-bs-dismiss="offcanvas"></button>
         </div>
 
         <div class="offcanvas-body d-flex flex-column p-2.5">
-            <div
-                class="d-flex align-items-center justify-content-between mb-2 border border-dark p-1.5 rounded-2 bg-black">
+            <div class="d-flex align-items-center justify-content-between mb-2 border border-dark p-1.5 rounded-2 bg-black">
                 <span class="text-secondary" style="font-size: 0.7rem;">🌐 Lang:</span>
-                <select id="lang-select" onchange="changeLanguage(this.value)"
-                    class="form-select form-select-mini bg-transparent text-white border-0 w-auto fw-bold shadow-none py-0">
+                <select id="lang-select" onchange="changeLanguage(this.value)" class="form-select form-select-mini bg-transparent text-white border-0 w-auto fw-bold shadow-none py-0">
                     <option value="fr">Français</option>
                     <option value="en">English</option>
                 </select>
             </div>
 
-            <div class="text-secondary fw-bold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 1px;"
-                id="menu-title">Menu</div>
+            <div class="text-secondary fw-bold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 1px;" id="menu-title">Menu</div>
 
             <nav class="d-flex flex-column gap-1 flex-grow-1">
-                <button onclick="fetchAndOpenHistory('casino')" class="sidebar-link-mini"><i
-                        class="fa-solid fa-dice text-danger"></i> Casino</button>
-                <button onclick="fetchAndOpenHistory('transfert')" class="sidebar-link-mini"><i
-                        class="fa-solid fa-right-left text-success"></i> Transferts</button>
-                <button onclick="fetchAndOpenHistory('sport')" class="sidebar-link-mini"><i
-                        class="fa-solid fa-futbol text-warning"></i> Sport</button>
-                <button onclick="fetchAndOpenHistory('compte')" class="sidebar-link-mini"><i
-                        class="fa-solid fa-chart-pie text-info"></i> Stats</button>
-                <button onclick="openPasswordModal()" class="sidebar-link-mini"><i
-                        class="fa-solid fa-key text-secondary"></i> Mot de passe</button>
-                <button onclick="fetchAndOpenHistory('audit')" class="sidebar-link-mini"><i
-                        class="fa-solid fa-file-alt text-muted"></i> Journaux d'audit</button>
+                <button onclick="fetchAndOpenHistory('casino')" class="sidebar-link-mini"><i class="fa-solid fa-dice text-danger"></i> Casino</button>
+                <button onclick="fetchAndOpenHistory('transfert')" class="sidebar-link-mini"><i class="fa-solid fa-right-left text-success"></i> Transferts</button>
+                <button onclick="fetchAndOpenHistory('sport')" class="sidebar-link-mini"><i class="fa-solid fa-futbol text-warning"></i> Sport</button>
+                <button onclick="fetchAndOpenHistory('compte')" class="sidebar-link-mini"><i class="fa-solid fa-chart-pie text-info"></i> Stats</button>
+                <button onclick="openPasswordModal()" class="sidebar-link-mini"><i class="fa-solid fa-key text-secondary"></i> Mot de passe</button>
+                <button onclick="fetchAndOpenHistory('audit')" class="sidebar-link-mini"><i class="fa-solid fa-file-alt text-muted"></i> Journaux d'audit</button>
 
                 <div class="my-1 border-top border-dark"></div>
 
@@ -201,14 +179,12 @@
                 <button onclick="fetchAndOpenHistory('withdrawals')" class="sidebar-link-mini text-danger">
                     <i class="fa-solid fa-wallet"></i> Retraits en attente
                 </button>
-                <button onclick="showResettlementPanel()" class="sidebar-link-mini text-owner fw-bold"
-                    data-bs-dismiss="offcanvas">
+                <button onclick="showResettlementPanel()" class="sidebar-link-mini text-owner fw-bold" data-bs-dismiss="offcanvas">
                     <i class="fas fa-tools"></i> Correction Tickets
                 </button>
             </nav>
 
-            <button onclick="logout()" id="btn-logout" class="btn btn-sm btn-outline-danger w-100 fw-bold py-1 mt-2"
-                style="font-size: 0.75rem;">
+            <button onclick="logout()" id="btn-logout" class="btn btn-sm btn-outline-danger w-100 fw-bold py-1 mt-2" style="font-size: 0.75rem;">
                 🚪 Déconnexion
             </button>
         </div>
@@ -216,52 +192,39 @@
 
     <div class="flex-grow-1 d-flex flex-column position-relative w-100">
 
-        <header
-            class="card-mini border-bottom border-dark px-3 py-1.5 d-flex justify-content-between align-items-center sticky-top rounded-0">
+        <header class="card-mini border-bottom border-dark px-3 py-1.5 d-flex justify-content-between align-items-center sticky-top rounded-0">
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-dark btn-sm border border-dark text-white px-2 py-1 rounded-2 shadow-none"
-                    type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar-menu" style="font-size: 0.75rem;">
+                <button class="btn btn-dark btn-sm border border-dark text-white px-2 py-1 rounded-2 shadow-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar-menu" style="font-size: 0.75rem;">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <span class="fw-bold text-owner tracking-wide d-none d-md-inline" style="font-size: 0.8rem;">ALPHA <span
-                        class="text-white fw-light">OWNER</span></span>
+                <span class="fw-bold text-owner tracking-wide d-none d-md-inline" style="font-size: 0.8rem;">ALPHA <span class="text-white fw-light">OWNER</span></span>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button id="audio-enable-btn" onclick="enableAudio()" class="btn btn-mini btn-outline-warning py-0 px-2"
-                    style="font-size: 0.65rem;">🔊 Audio</button>
-                <span class="badge bg-danger bg-opacity-25 text-owner border border-danger px-2 py-0.5"
-                    style="font-size: 0.65rem;" id="badge-role">Owner</span>
-                <span class="fw-bold text-white font-mono small" id="owner-username"
-                    style="font-size: 0.75rem;">fethi</span>
+                <button id="audio-enable-btn" onclick="enableAudio()" class="btn btn-mini btn-outline-warning py-0 px-2" style="font-size: 0.65rem;">🔊 Audio</button>
+                <span class="badge bg-danger bg-opacity-25 text-owner border border-danger px-2 py-0.5" style="font-size: 0.65rem;" id="badge-role">Owner</span>
+                <span class="fw-bold text-white font-mono small" id="owner-username" style="font-size: 0.75rem;">owner</span>
             </div>
         </header>
 
-        <main class="flex-grow-1 overflow-y-auto p-2 no-scrollbar mx-auto w-100" style="max-width: 900px;"
-            id="main-content">
+        <main class="flex-grow-1 overflow-y-auto p-2 no-scrollbar mx-auto w-100" style="max-width: 900px;" id="main-content">
 
             <div class="d-flex flex-column gap-2" id="default-dashboard-view">
 
-                <ul class="nav nav-pills justify-content-center gap-1 mb-1 bg-black p-1.5 rounded-3 border border-dark flex-nowrap overflow-x-auto no-scrollbar"
-                    id="ownerTabs" role="tablist">
+                <ul class="nav nav-pills justify-content-center gap-1 mb-1 bg-black p-1.5 rounded-3 border border-dark flex-nowrap overflow-x-auto no-scrollbar" id="ownerTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active btn-sm font-mono fw-bold px-3 py-1 text-nowrap" id="network-tab"
-                            data-bs-toggle="tab" data-bs-target="#network" type="button" role="tab"
-                            style="font-size: 0.75rem;">👥 Gestion & Réseau</button>
+                        <button class="nav-link active btn-sm font-mono fw-bold px-3 py-1 text-nowrap" id="network-tab" data-bs-toggle="tab" data-bs-target="#network" type="button" role="tab" style="font-size: 0.75rem;">👥 Gestion & Réseau</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link btn-sm font-mono fw-bold px-3 py-1 text-info text-nowrap"
-                            id="marketing-tab" data-bs-toggle="tab" data-bs-target="#marketing" type="button" role="tab"
-                            style="font-size: 0.75rem;">🎁 Marketing</button>
+                        <button class="nav-link btn-sm font-mono fw-bold px-3 py-1 text-info text-nowrap" id="marketing-tab" data-bs-toggle="tab" data-bs-target="#marketing" type="button" role="tab" style="font-size: 0.75rem;">🎁 Marketing</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link btn-sm font-mono fw-bold px-3 py-1 text-warning text-nowrap"
-                            id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab"
-                            style="font-size: 0.75rem;">🛡️ Sécurité & Analyse</button>
+                        <button class="nav-link btn-sm font-mono fw-bold px-3 py-1 text-warning text-nowrap" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" style="font-size: 0.75rem;">🛡️ Sécurité & Analyse</button>
                     </li>
                 </ul>
 
                 <div class="tab-content w-100 mt-2" id="ownerTabsContent">
 
+                    <!-- TAB: GESTION & RESEAU -->
                     <div class="tab-pane fade show active" id="network" role="tabpanel">
                         <div class="d-flex flex-column gap-2">
 
@@ -269,57 +232,39 @@
                                 <div class="row g-1 align-items-center">
                                     <div class="col-12 col-md-4">
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-text bg-black border-dark text-secondary py-0 px-2"
-                                                style="font-size: 0.65rem;" id="lbl-selected-user">Sélection:</span>
-                                            <input type="text" id="ctrl-target-user"
-                                                class="form-control form-control-mini text-owner fw-bold font-mono text-center py-0"
-                                                placeholder="Sélectionnez..." readonly>
+                                            <span class="input-group-text bg-black border-dark text-secondary py-0 px-2" style="font-size: 0.65rem;" id="lbl-selected-user">Sélection:</span>
+                                            <input type="text" id="ctrl-target-user" class="form-control form-control-mini text-owner fw-bold font-mono text-center py-0" placeholder="Sélectionnez..." readonly>
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-5">
-                                        <div
-                                            class="d-flex align-items-center gap-2 px-2 bg-black border border-dark rounded-2 py-1">
-                                            <span class="text-secondary font-mono small fw-bold"
-                                                style="font-size: 0.65rem;">RTP:<span id="rtp-val-label"
-                                                    class="text-white ms-1">50%</span></span>
-                                            <input type="range" id="ctrl-rtp-range" min="1" max="99" value="50"
-                                                oninput="document.getElementById('rtp-val-label').innerText = this.value + '%'"
-                                                class="form-range flex-grow-1 m-0">
-                                            <button onclick="saveRtpAndBlock(0)"
-                                                class="btn btn-mini btn-success py-0 px-2">Enregistrer</button>
-                                            <button onclick="saveRtpAndBlock(1)"
-                                                class="btn btn-mini btn-warning text-dark py-0 px-2">Bloquer</button>
+                                        <div class="d-flex align-items-center gap-2 px-2 bg-black border border-dark rounded-2 py-1">
+                                            <span class="text-secondary font-mono small fw-bold" style="font-size: 0.65rem;">RTP:<span id="rtp-val-label" class="text-white ms-1">50%</span></span>
+                                            <input type="range" id="ctrl-rtp-range" min="1" max="99" value="50" oninput="document.getElementById('rtp-val-label').innerText = this.value + '%'" class="form-range flex-grow-1 m-0">
+                                            <button onclick="saveRtpAndBlock(0)" class="btn btn-mini btn-success py-0 px-2">Enregistrer</button>
+                                            <button onclick="saveRtpAndBlock(1)" class="btn btn-mini btn-warning text-dark py-0 px-2">Bloquer</button>
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <button onclick="deleteAccountAction()"
-                                            class="btn btn-mini btn-outline-danger w-100 py-1"
-                                            style="font-size: 0.7rem;">
+                                        <button onclick="deleteAccountAction()" class="btn btn-mini btn-outline-danger w-100 py-1" style="font-size: 0.7rem;">
                                             <i class="fa-solid fa-trash-can"></i> Supprimer le compte
                                         </button>
                                     </div>
                                 </div>
                             </section>
 
-                            <section class="card-mini border-start border-danger border-3">
+                            <section class="card-mini border-start border-owner border-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-bold text-white" style="font-size: 0.75rem;"
-                                        id="title-create-user">👑 Créer un compte</span>
+                                    <span class="fw-bold text-white" style="font-size: 0.75rem;" id="title-create-user">👑 Créer un compte</span>
                                 </div>
                                 <div class="row g-1 align-items-center">
                                     <div class="col-6 col-md-3">
-                                        <input type="text" id="new-user-name"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Nom d'utilisateur">
+                                        <input type="text" id="new-user-name" class="form-control form-control-mini font-mono text-center" placeholder="Nom d'utilisateur">
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <input type="password" id="new-user-pass"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Mot de passe">
+                                        <input type="password" id="new-user-pass" class="form-control form-control-mini font-mono text-center" placeholder="Mot de passe">
                                     </div>
                                     <div class="col-4 col-md-2">
-                                        <select id="new-user-role"
-                                            class="form-select form-select-mini font-mono py-0.5">
+                                        <select id="new-user-role" class="form-select form-select-mini font-mono py-0.5">
                                             <option value="owner">Owner</option>
                                             <option value="manager">Manager</option>
                                             <option value="super_admin">Super Admin</option>
@@ -328,111 +273,81 @@
                                         </select>
                                     </div>
                                     <div class="col-4 col-md-2">
-                                        <input type="text" id="new_phone"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Téléphone">
+                                        <input type="text" id="new_phone" class="form-control form-control-mini font-mono text-center" placeholder="Téléphone">
                                     </div>
                                     <div class="col-4 col-md-2">
-                                        <button onclick="createNetworkUser()"
-                                            class="btn btn-mini btn-owner-mini w-100 py-1"
-                                            id="btn-create">Créer</button>
+                                        <button onclick="createNetworkUser()" class="btn btn-mini btn-owner-mini w-100 py-1" id="btn-create">Créer</button>
                                     </div>
                                 </div>
                             </section>
 
                             <section class="card-mini">
-                                <div
-                                    class="d-flex justify-content-between align-items-center border-bottom border-dark pb-1 mb-1">
-                                    <span class="fw-bold text-white small" id="title-table-console"
-                                        style="font-size: 0.7rem;">📋 Console financière</span>
+                                <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-1 mb-1">
+                                    <span class="fw-bold text-white small" id="title-table-console" style="font-size: 0.7rem;">📋 Console financière</span>
                                 </div>
                                 <div class="row g-1 mb-1 align-items-center">
                                     <div class="col-3">
-                                        <input type="text" id="target-action-user" readonly placeholder="Compte"
-                                            class="form-control form-control-mini text-center text-owner fw-bold font-mono py-1">
+                                        <input type="text" id="target-action-user" readonly placeholder="Compte" class="form-control form-control-mini text-center text-owner fw-bold font-mono py-1">
                                     </div>
                                     <div class="col-3">
-                                        <input type="number" id="target-action-amount" placeholder="TND"
-                                            class="form-control form-control-mini text-center font-mono py-1">
+                                        <input type="number" id="target-action-amount" placeholder="TND" class="form-control form-control-mini text-center font-mono py-1">
                                     </div>
                                     <div class="col-3">
-                                        <button onclick="executeAction('charge')" id="btn-credit"
-                                            class="btn btn-mini btn-success w-100 text-dark py-1">Créditer</button>
+                                        <button onclick="executeAction('charge')" id="btn-credit" class="btn btn-mini btn-success w-100 text-dark py-1">Créditer</button>
                                     </div>
                                     <div class="col-3">
-                                        <button onclick="executeAction('withdraw')" id="btn-retirer"
-                                            class="btn btn-mini btn-danger w-100 py-1">Retirer</button>
+                                        <button onclick="executeAction('withdraw')" id="btn-retirer" class="btn btn-mini btn-danger w-100 py-1">Retirer</button>
                                     </div>
                                 </div>
                                 <div class="d-flex gap-1 pt-1 border-top border-dark align-items-center">
-                                    <input type="password" id="ctrl-user-new-pass" placeholder="Nouveau mot de passe"
-                                        class="form-control form-control-mini font-mono text-center flex-grow-1 py-1"
-                                        dir="ltr">
-                                    <button onclick="changeUserPasswordFromOwner()"
-                                        class="btn btn-mini btn-info text-dark fw-bold px-2 py-1"
-                                        style="font-size: 0.7rem;">Changer MDP</button>
+                                    <input type="password" id="ctrl-user-new-pass" placeholder="Nouveau mot de passe" class="form-control form-control-mini font-mono text-center flex-grow-1 py-1" dir="ltr">
+                                    <button onclick="changeUserPasswordFromOwner()" class="btn btn-mini btn-info text-dark fw-bold px-2 py-1" style="font-size: 0.7rem;">Changer MDP</button>
                                 </div>
                             </section>
 
                             <section class="card-mini p-0 overflow-hidden">
                                 <div class="p-1.5 border-bottom border-dark bg-black">
                                     <div class="input-group input-group-sm">
-                                        <span class="input-group-text bg-transparent border-0 text-secondary py-0 px-2"
-                                            style="font-size: 0.7rem;"><i
-                                                class="fa-solid fa-magnifying-glass"></i></span>
-                                        <input type="text" id="search-input" oninput="renderFilteredUsers()"
-                                            placeholder="Rechercher un compte..."
-                                            class="form-control form-control-mini border-dark py-1">
+                                        <span class="input-group-text bg-transparent border-0 text-secondary py-0 px-2" style="font-size: 0.7rem;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                        <input type="text" id="search-input" oninput="renderFilteredUsers()" placeholder="Rechercher un compte..." class="form-control form-control-mini border-dark py-1">
                                     </div>
                                 </div>
-                                <div id="owner-network-tbody" class="p-1.5 d-flex flex-column gap-1"
-                                    style="max-height: 400px; overflow-y: auto;">
+                                <div id="owner-network-tbody" class="p-1.5 d-flex flex-column gap-1" style="max-height: 400px; overflow-y: auto;">
                                 </div>
                             </section>
                         </div>
                     </div>
 
+                    <!-- TAB: MARKETING -->
                     <div class="tab-pane fade" id="marketing" role="tabpanel">
                         <div class="d-flex flex-column gap-2">
                             <section class="card-mini border-start border-purple-500 border-3 mt-2">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
-                                    <span class="fw-bold text-purple-400 small" style="font-size: 0.75rem;"><i
-                                            class="fa-solid fa-bullhorn"></i> 📢 Envoyer une notification directe</span>
+                                <div class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
+                                    <span class="fw-bold text-purple-400 small" style="font-size: 0.75rem;"><i class="fa-solid fa-bullhorn"></i> 📢 Envoyer une notification directe</span>
                                 </div>
                                 <div class="row g-1 align-items-center mt-1">
                                     <div class="col-12 col-md-3">
-                                        <input type="text" id="notif-target"
-                                            class="form-control form-control-mini text-center"
-                                            placeholder="Nom du joueur (ou 'all')" value="all">
+                                        <input type="text" id="notif-target" class="form-control form-control-mini text-center" placeholder="Nom du joueur (ou 'all')" value="all">
                                     </div>
                                     <div class="col-12 col-md-3">
-                                        <input type="text" id="notif-title" class="form-control form-control-mini"
-                                            placeholder="Titre (ex: Nouveau tournoi!)">
+                                        <input type="text" id="notif-title" class="form-control form-control-mini" placeholder="Titre (ex: Nouveau tournoi!)">
                                     </div>
                                     <div class="col-12 col-md-4">
-                                        <input type="text" id="notif-msg" class="form-control form-control-mini"
-                                            placeholder="Message de la notification...">
+                                        <input type="text" id="notif-msg" class="form-control form-control-mini" placeholder="Message de la notification...">
                                     </div>
                                     <div class="col-12 col-md-2">
-                                        <button onclick="sendPushNotification()" id="btn-send-notif"
-                                            class="btn btn-mini btn-purple w-100 py-1 fw-bold bg-purple-600 text-white">Envoyer
-                                            🚀</button>
+                                        <button onclick="sendPushNotification()" id="btn-send-notif" class="btn btn-mini w-100 py-1 fw-bold" style="background-color: #9333ea; color: white;">Envoyer 🚀</button>
                                     </div>
                                 </div>
                             </section>
 
                             <section class="card-mini border-start border-info border-3">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
-                                    <span class="fw-bold text-info small" style="font-size: 0.75rem;"><i
-                                            class="fa-solid fa-gift"></i> 🎁 Envoyer des Free Spins (Manuel)</span>
+                                <div class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
+                                    <span class="fw-bold text-info small" style="font-size: 0.75rem;"><i class="fa-solid fa-gift"></i> 🎁 Envoyer des Free Spins (Manuel)</span>
                                 </div>
                                 <div class="row g-1 align-items-center mt-1">
                                     <div class="col-6 col-md-2">
-                                        <input type="text" id="fs-target-user"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Joueur" readonly>
+                                        <input type="text" id="fs-target-user" class="form-control form-control-mini font-mono text-center" placeholder="Joueur" readonly>
                                     </div>
                                     <div class="col-6 col-md-2">
                                         <select id="fs-provider" class="form-select form-select-mini font-mono py-0.5">
@@ -441,58 +356,40 @@
                                         </select>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <input type="text" id="fs-game-code"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Code jeu (ex: vs20doghouse)">
+                                        <input type="text" id="fs-game-code" class="form-control form-control-mini font-mono text-center" placeholder="Code jeu (ex: vs20doghouse)">
                                     </div>
                                     <div class="col-3 col-md-1">
-                                        <input type="number" id="fs-spin-count"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Tours" value="10">
+                                        <input type="number" id="fs-spin-count" class="form-control form-control-mini font-mono text-center" placeholder="Tours" value="10">
                                     </div>
                                     <div class="col-3 col-md-1">
-                                        <input type="number" id="fs-bet"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Mise" value="0.20" step="0.10">
+                                        <input type="number" id="fs-bet" class="form-control form-control-mini font-mono text-center" placeholder="Mise" value="0.20" step="0.10">
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <input type="number" id="fs-amount"
-                                            class="form-control form-control-mini font-mono text-center"
-                                            placeholder="Gain max" value="1000">
+                                        <input type="number" id="fs-amount" class="form-control form-control-mini font-mono text-center" placeholder="Gain max" value="1000">
                                     </div>
                                     <div class="col-12 col-md-2 mt-1 mt-md-0">
-                                        <button onclick="sendFreeSpins()" id="btn-send-fs"
-                                            class="btn btn-mini btn-info w-100 py-1 text-dark fw-bold">Envoyer
-                                            maintenant</button>
+                                        <button onclick="sendFreeSpins()" id="btn-send-fs" class="btn btn-mini btn-info w-100 py-1 text-dark fw-bold">Envoyer maintenant</button>
                                     </div>
                                 </div>
                                 <div class="row g-1 align-items-center mt-2 border-top border-dark pt-2">
                                     <div class="col-8 col-md-10">
-                                        <input type="text" id="fs-cancel-tour-id"
-                                            class="form-control form-control-mini font-mono"
-                                            placeholder="ID du Tour (Tour ID) pour annuler et rembourser...">
+                                        <input type="text" id="fs-cancel-tour-id" class="form-control form-control-mini font-mono" placeholder="ID du Tour (Tour ID) pour annuler et rembourser...">
                                     </div>
                                     <div class="col-4 col-md-2">
-                                        <button onclick="cancelFreeSpins()" id="btn-cancel-fs"
-                                            class="btn btn-mini btn-outline-danger w-100 py-1 fw-bold">Annuler
-                                            le tour</button>
+                                        <button onclick="cancelFreeSpins()" id="btn-cancel-fs" class="btn btn-mini btn-outline-danger w-100 py-1 fw-bold">Annuler le tour</button>
                                     </div>
                                 </div>
                             </section>
 
                             <section class="card-mini border-start border-success border-3">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
-                                    <span class="fw-bold text-success small" style="font-size: 0.75rem;"><i
-                                            class="fa-solid fa-robot"></i> 🤖 Système de promotion automatique (Dépôt = Tours)</span>
+                                <div class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
+                                    <span class="fw-bold text-success small" style="font-size: 0.75rem;"><i class="fa-solid fa-robot"></i> 🤖 Système de promotion automatique (Dépôt = Tours)</span>
                                     <div class="form-check form-switch m-0">
                                         <input class="form-check-input" type="checkbox" id="promo-active">
-                                        <label class="form-check-label text-white small" for="promo-active">Activer
-                                            la promotion</label>
+                                        <label class="form-check-label text-white small" for="promo-active">Activer la promotion</label>
                                     </div>
                                 </div>
-                                <div class="row g-1 align-items-end mt-1 text-center font-mono"
-                                    style="font-size: 0.7rem;">
+                                <div class="row g-1 align-items-end mt-1 text-center font-mono" style="font-size: 0.7rem;">
                                     <div class="col-4 col-md-2">
                                         <label class="text-secondary d-block mb-1">Jour</label>
                                         <select id="promo-day" class="form-select form-select-mini py-0.5">
@@ -507,23 +404,19 @@
                                     </div>
                                     <div class="col-4 col-md-2">
                                         <label class="text-secondary d-block mb-1">Dépôt (Min)</label>
-                                        <input type="number" id="promo-min"
-                                            class="form-control form-control-mini text-center" value="50">
+                                        <input type="number" id="promo-min" class="form-control form-control-mini text-center" value="50">
                                     </div>
                                     <div class="col-4 col-md-2">
                                         <label class="text-secondary d-block mb-1">Nombre de tours</label>
-                                        <input type="number" id="promo-spins"
-                                            class="form-control form-control-mini text-center" value="10">
+                                        <input type="number" id="promo-spins" class="form-control form-control-mini text-center" value="10">
                                     </div>
                                     <div class="col-4 col-md-2">
                                         <label class="text-secondary d-block mb-1">Mise</label>
-                                        <input type="number" id="promo-bet"
-                                            class="form-control form-control-mini text-center" value="0.20" step="0.10">
+                                        <input type="number" id="promo-bet" class="form-control form-control-mini text-center" value="0.20" step="0.10">
                                     </div>
                                     <div class="col-4 col-md-2">
                                         <label class="text-secondary d-block mb-1">Gain max</label>
-                                        <input type="number" id="promo-maxwin"
-                                            class="form-control form-control-mini text-center" value="1000">
+                                        <input type="number" id="promo-maxwin" class="form-control form-control-mini text-center" value="1000">
                                     </div>
                                     <div class="col-4 col-md-2">
                                         <label class="text-secondary d-block mb-1">Fournisseur</label>
@@ -535,30 +428,24 @@
                                 </div>
                                 <div class="row g-1 align-items-center mt-2">
                                     <div class="col-8 col-md-9">
-                                        <input type="text" id="promo-game"
-                                            class="form-control form-control-mini text-center font-mono"
-                                            value="vs20doghouse" placeholder="Code jeu (ex: vs20doghouse)">
+                                        <input type="text" id="promo-game" class="form-control form-control-mini text-center font-mono" value="vs20doghouse" placeholder="Code jeu (ex: vs20doghouse)">
                                     </div>
                                     <div class="col-4 col-md-3">
-                                        <button onclick="savePromoConfig()"
-                                            class="btn btn-mini btn-success w-100 py-1 fw-bold text-dark">Enregistrer le système
-                                            automatique</button>
+                                        <button onclick="savePromoConfig()" class="btn btn-mini btn-success w-100 py-1 fw-bold text-dark">Enregistrer le système automatique</button>
                                     </div>
                                 </div>
                             </section>
                         </div>
                     </div>
 
+                    <!-- TAB: SECURITE & ANALYSE -->
                     <div class="tab-pane fade" id="security" role="tabpanel">
                         <div class="d-flex flex-column gap-2">
 
                             <section class="card-mini border-start border-warning border-3" id="huge-wins-section">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
-                                    <span class="fw-bold text-warning small" style="font-size: 0.75rem;"><i
-                                            class="fa-solid fa-triangle-exclamation"></i> 🚨 Pas de gains</span>
-                                    <button onclick="fetchHugeWins()"
-                                        class="btn btn-mini btn-outline-warning py-0 px-2">🔄 Mise à jour</button>
+                                <div class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
+                                    <span class="fw-bold text-warning small" style="font-size: 0.75rem;"><i class="fa-solid fa-triangle-exclamation"></i> 🚨 Gains massifs (Vérification requise)</span>
+                                    <button onclick="fetchHugeWins()" class="btn btn-mini btn-outline-warning py-0 px-2">🔄 Mise à jour</button>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="w-full text-white w-100" style="font-size: 0.7rem;">
@@ -569,72 +456,57 @@
                             </section>
 
                             <section class="card-mini border-start border-danger border-3">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
-                                    <span class="fw-bold text-danger small" style="font-size: 0.75rem;"><i
-                                            class="fa-solid fa-user-shield"></i> 🛡️ Détection de fraude (Anti-Fraud)</span>
-                                    <button onclick="fetchFraudData()"
-                                        class="btn btn-mini btn-outline-danger py-0 px-2">🔍 Analyser le réseau</button>
+                                <div class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
+                                    <span class="fw-bold text-danger small" style="font-size: 0.75rem;"><i class="fa-solid fa-user-shield"></i> 🛡️ Détection de fraude (Anti-Fraud)</span>
+                                    <button onclick="fetchFraudData()" class="btn btn-mini btn-outline-danger py-0 px-2">🔍 Analyser le réseau</button>
                                 </div>
-                                <div id="fraud-results-container" class="text-white small p-1 font-mono"
-                                    style="font-size: 0.7rem; max-height: 150px; overflow-y: auto;">
+                                <div id="fraud-results-container" class="text-white small p-1 font-mono" style="font-size: 0.7rem; max-height: 150px; overflow-y: auto;">
                                     <span class="text-secondary">Cliquez sur le bouton "Analyser le réseau" pour détecter les comptes associés à la même adresse IP ou téléphone...</span>
                                 </div>
                             </section>
 
                             <section class="card-mini border-start border-warning border-3">
-                                <div
-                                    class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
-                                    <span class="fw-bold text-warning small" style="font-size: 0.75rem;"><i
-                                            class="fa-solid fa-chart-line"></i> 📊 Analyse des revenus nets
-                                        (GGR)</span>
+                                <div class="d-flex justify-content-between align-items-center mb-1 bg-black p-1 rounded">
+                                    <span class="fw-bold text-warning small" style="font-size: 0.75rem;"><i class="fa-solid fa-chart-line"></i> 📊 Analyse des revenus nets (GGR)</span>
                                     <div class="d-flex gap-1 align-items-center">
-                                        <select id="ggr-month" class="form-select form-select-mini py-0 px-1 font-mono"
-                                            style="font-size: 0.65rem; width: 85px;">
+                                        <select id="ggr-month" class="form-select form-select-mini py-0 px-1 font-mono" style="font-size: 0.65rem; width: 85px;">
                                             <option value="">Tous les mois</option>
-                                            <option value="1">Janvier (1)</option>
-                                            <option value="2">Février (2)</option>
-                                            <option value="3">Mars (3)</option>
-                                            <option value="4">Avril (4)</option>
-                                            <option value="5">Mai (5)</option>
-                                            <option value="6">Juin (6)</option>
-                                            <option value="7">Juillet (7)</option>
-                                            <option value="8">Août (8)</option>
-                                            <option value="9">Septembre (9)</option>
-                                            <option value="10">Octobre (10)</option>
-                                            <option value="11">Novembre (11)</option>
-                                            <option value="12">Décembre (12)</option>
+                                            <option value="1">Janvier</option>
+                                            <option value="2">Février</option>
+                                            <option value="3">Mars</option>
+                                            <option value="4">Avril</option>
+                                            <option value="5">Mai</option>
+                                            <option value="6">Juin</option>
+                                            <option value="7">Juillet</option>
+                                            <option value="8">Août</option>
+                                            <option value="9">Septembre</option>
+                                            <option value="10">Octobre</option>
+                                            <option value="11">Novembre</option>
+                                            <option value="12">Décembre</option>
                                         </select>
-                                        <select id="ggr-year" class="form-select form-select-mini py-0 px-1 font-mono"
-                                            style="font-size: 0.65rem; width: 70px;">
+                                        <select id="ggr-year" class="form-select form-select-mini py-0 px-1 font-mono" style="font-size: 0.65rem; width: 70px;">
                                             <option value="2026">2026</option>
                                             <option value="2025">2025</option>
                                             <option value="2024">2024</option>
                                         </select>
-                                        <button onclick="fetchGGRAnalytics()"
-                                            class="btn btn-mini btn-outline-warning py-0 px-2"
-                                            style="font-size: 0.65rem;">🔍 Filtrer</button>
+                                        <button onclick="fetchGGRAnalytics()" class="btn btn-mini btn-outline-warning py-0 px-2" style="font-size: 0.65rem;">🔍 Filtrer</button>
                                     </div>
                                 </div>
                                 <div class="row g-1 text-center font-mono mt-1" style="font-size: 0.7rem;">
                                     <div class="col-3 bg-dark p-1 rounded border border-secondary">
-                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Total des
-                                            mises</span>
+                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Total des mises</span>
                                         <span id="ggr-bets" class="fw-bold text-white">0.00 TND</span>
                                     </div>
                                     <div class="col-3 bg-dark p-1 rounded border border-secondary">
-                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Gains des
-                                            joueurs</span>
+                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Gains des joueurs</span>
                                         <span id="ggr-wins" class="fw-bold text-info">0.00 TND</span>
                                     </div>
                                     <div class="col-3 bg-dark p-1 rounded border border-secondary">
-                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Net
-                                            (GGR)</span>
+                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Net (GGR)</span>
                                         <span id="ggr-profit" class="fw-bold text-success">0.00 TND</span>
                                     </div>
                                     <div class="col-3 bg-dark p-1 rounded border border-secondary">
-                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Taux de retour
-                                            RTP</span>
+                                        <span class="text-secondary d-block" style="font-size: 0.60rem;">Taux de retour RTP</span>
                                         <span id="ggr-rtp" class="fw-bold text-warning">0.0%</span>
                                     </div>
                                 </div>
@@ -645,75 +517,58 @@
                 </div>
             </div>
 
+            <!-- TAB: RESETTLEMENT PANEL -->
+            <div id="admin-resettlement-panel" class="d-none">
+                <button onclick="hideResettlementPanel()" class="btn btn-mini btn-outline-secondary mb-2"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+
+                <div class="card-mini p-3">
+                    <h6 class="text-white fw-bold mb-1" style="font-size: 0.8rem;"><i class="fas fa-tools text-owner"></i> Correction des Tickets</h6>
+                    <p class="text-secondary mb-2" style="font-size: 0.65rem;">Recherchez un ticket par son ID.</p>
+
+                    <div class="input-group input-group-sm mb-2">
+                        <input type="text" id="ticket-search-input" class="form-control form-control-mini" placeholder="ID du Ticket">
+                        <button class="btn btn-mini btn-owner-mini px-3" onclick="searchTicket()"><i class="fas fa-search"></i></button>
+                    </div>
+
+                    <div id="ticket-details-section" class="d-none">
+                        <div class="bg-black rounded-2 p-2 border border-dark mb-2 d-flex justify-content-between flex-wrap gap-1 text-center font-mono" style="font-size: 0.65rem;">
+                            <div><span class="text-secondary d-block">ID</span><span class="text-white fw-bold">#TCK-98765</span></div>
+                            <div><span class="text-secondary d-block">Joueur</span><span class="text-white fw-bold">Karim***</span></div>
+                            <div><span class="text-secondary d-block">Mise</span><span class="text-white fw-bold">50 TND</span></div>
+                            <div><span class="text-secondary d-block">Gain</span><span class="text-success fw-bold">450 TND</span></div>
+                        </div>
+                        <div class="d-flex flex-column gap-1 mb-2">
+                            <div class="bg-black border border-dark rounded-2 p-2 d-flex justify-content-between align-items-center gap-2">
+                                <div>
+                                    <span class="text-owner fw-bold d-block" style="font-size: 0.6rem;">Football</span>
+                                    <p class="text-white fw-bold mb-0" style="font-size: 0.75rem;">Real Madrid vs Man City</p>
+                                </div>
+                                <select class="form-select form-select-mini w-auto font-mono py-0">
+                                    <option value="won" selected>Gagné ✅</option>
+                                    <option value="lost">Perdu ❌</option>
+                                    <option value="void">Annulé 🔄</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="resettleTicket()" class="btn btn-mini btn-success w-100 fw-bold py-1.5"><i class="fas fa-check-circle"></i> Soumettre</button>
+                    </div>
+
+                    <div class="mt-2 border-top border-dark pt-2">
+                        <h6 class="text-white fw-bold mb-1" style="font-size: 0.75rem;">📜 Derniers Tickets</h6>
+                        <div id="all-tickets-list" class="d-flex flex-column gap-1" style="max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
-    <div id="admin-resettlement-panel" class="d-none">
-        <button onclick="hideResettlementPanel()" class="btn btn-mini btn-outline-secondary mb-2"><i
-                class="fa-solid fa-arrow-left"></i> Retour</button>
-
-        <div class="card-mini p-3">
-            <h6 class="text-white fw-bold mb-1" style="font-size: 0.8rem;"><i class="fas fa-tools text-owner"></i>
-                Correction des Tickets</h6>
-            <p class="text-secondary mb-2" style="font-size: 0.65rem;">Recherchez un ticket par son ID.</p>
-
-            <div class="input-group input-group-sm mb-2">
-                <input type="text" id="ticket-search-input" class="form-control form-control-mini"
-                    placeholder="ID du Ticket">
-                <button class="btn btn-mini btn-owner-mini px-3" onclick="searchTicket()"><i
-                        class="fas fa-search"></i></button>
-            </div>
-
-            <div id="ticket-details-section" class="d-none">
-                <div class="bg-black rounded-2 p-2 border border-dark mb-2 d-flex justify-content-between flex-wrap gap-1 text-center font-mono"
-                    style="font-size: 0.65rem;">
-                    <div><span class="text-secondary d-block">ID</span><span
-                            class="text-white fw-bold">#TCK-98765</span></div>
-                    <div><span class="text-secondary d-block">Joueur</span><span
-                            class="text-white fw-bold">Karim***</span></div>
-                    <div><span class="text-secondary d-block">Mise</span><span class="text-white fw-bold">50 TND</span>
-                    </div>
-                    <div><span class="text-secondary d-block">Gain</span><span class="text-success fw-bold">450
-                            TND</span></div>
-                </div>
-
-                <div class="d-flex flex-column gap-1 mb-2">
-                    <div
-                        class="bg-black border border-dark rounded-2 p-2 d-flex justify-content-between align-items-center gap-2">
-                        <div>
-                            <span class="text-owner fw-bold d-block" style="font-size: 0.6rem;">Football</span>
-                            <p class="text-white fw-bold mb-0" style="font-size: 0.75rem;">Real Madrid vs Man City</p>
-                        </div>
-                        <select class="form-select form-select-mini w-auto font-mono py-0">
-                            <option value="won" selected>Gagné ✅</option>
-                            <option value="lost">Perdu ❌</option>
-                            <option value="void">Annulé 🔄</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button onclick="resettleTicket()" class="btn btn-mini btn-success w-100 fw-bold py-1.5"><i
-                        class="fas fa-check-circle"></i> Soumettre</button>
-            </div>
-
-            <div class="mt-2 border-top border-dark pt-2">
-                <h6 class="text-white fw-bold mb-1" style="font-size: 0.75rem;">📜 Derniers Tickets</h6>
-                <div id="all-tickets-list" class="d-flex flex-column gap-1"
-                    style="max-height: 200px; overflow-y: auto;"></div>
-            </div>
-        </div>
-    </div>
-    </main>
-    </div>
-
+    <!-- MODALS -->
     <div class="modal fade" id="historyModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content card-mini border-dark text-white shadow">
                 <div class="modal-header border-bottom border-dark py-1.5 px-3">
-                    <h6 class="modal-title fw-bold text-owner" style="font-size: 0.8rem;" id="modal-title">Historique
-                    </h6>
-                    <button type="button" class="btn-close btn-close-white btn-sm shadow-none"
-                        data-bs-dismiss="modal"></button>
+                    <h6 class="modal-title fw-bold text-owner" style="font-size: 0.8rem;" id="modal-title">Historique</h6>
+                    <button type="button" class="btn-close btn-close-white btn-sm shadow-none" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-2.5" id="modal-dynamic-content"></div>
             </div>
@@ -725,21 +580,20 @@
             <div class="modal-content card-mini border-dark text-white shadow">
                 <div class="modal-header border-bottom border-dark py-1.5 px-3">
                     <h6 class="modal-title fw-bold" style="font-size: 0.75rem;">🔑 Modifier le mot de passe</h6>
-                    <button type="button" class="btn-close btn-close-white btn-sm shadow-none"
-                        data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white btn-sm shadow-none" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-2">
-                    <input type="password" id="new-sys-pass" placeholder="Nouveau mot de passe"
-                        class="form-control form-control-mini mb-2 font-mono text-center">
-                    <button onclick="submitNewPassword()" class="btn btn-mini btn-owner-mini w-100 fw-bold py-1">Mettre
-                        à jour</button>
+                    <input type="password" id="new-sys-pass" placeholder="Nouveau mot de passe" class="form-control form-control-mini mb-2 font-mono text-center">
+                    <button onclick="submitNewPassword()" class="btn btn-mini btn-owner-mini w-100 fw-bold py-1">Mettre à jour</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- MAIN JAVASCRIPT -->
     <script>
         let isTransactionRunning = false;
         function escapeHTML(str) {
@@ -752,7 +606,7 @@
         const BACKEND_URL = "";
 
         const token = localStorage.getItem('token');
-        if (!token) window.location.href = '/owner-login';
+        if (!token) window.location.href = '/';
 
         let allUsers = [];
         let allTransactionsCache = [];
@@ -761,7 +615,7 @@
 
         if (!user || user.role !== 'owner') {
             localStorage.clear();
-            window.location.href = '/owner-login';
+            window.location.href = '/';
         }
 
         let secureSelectedUser = "";
@@ -775,6 +629,13 @@
             if (el) el.innerText = user.username;
             loadNetworkData();
             fetchAllTickets();
+            fetchPromoConfig();
+            fetchHugeWins();
+            
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('ggr-year');
+            if (yearSelect) yearSelect.value = currentYear;
+            fetchGGRAnalytics();
         });
 
         const translations = {
@@ -783,7 +644,7 @@
         };
 
         function changeLanguage(lang) {
-            document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            document.documentElement.dir = 'ltr';
             document.getElementById('menu-title').innerText = translations[lang].menu;
             document.getElementById('lbl-selected-user').innerText = translations[lang].selected;
             document.getElementById('title-create-user').innerText = translations[lang].create;
@@ -798,7 +659,6 @@
             if (!container) return;
             const toastEl = document.createElement('div');
             const icon = type === 'success' ? '✅' : '❌';
-
             const safeMessage = typeof message === 'string' ? escapeHTML(message) : message;
 
             toastEl.className = `toast align-items-center text-white border-0 mb-1 show shadow`;
@@ -839,16 +699,12 @@
             displayData.forEach(u => {
                 const userRtp = u.rtp || 50;
                 const balance = parseFloat(u.balance || 0);
-
                 const usernameClean = escapeHTML(u.username || 'Inconnu');
                 const createdByClean = escapeHTML(u.created_by || 'System');
                 const userRole = u.role ? u.role.toUpperCase() : 'PLAYER';
                 const statusDot = u.is_blocked === 1 ? 'bg-danger' : 'bg-success';
-
                 const safePhone = escapeHTML(u.phone || '');
-                const phoneBadge = safePhone !== ""
-                    ? `<span class="badge bg-black text-info border border-dark ms-1 px-1 py-0" style="font-size: 0.6rem;"><i class="fa-solid fa-phone"></i> ${safePhone}</span>`
-                    : ``;
+                const phoneBadge = safePhone !== "" ? `<span class="badge bg-black text-info border border-dark ms-1 px-1 py-0" style="font-size: 0.6rem;"><i class="fa-solid fa-phone"></i> ${safePhone}</span>` : ``;
 
                 container.innerHTML += `
                 <div class="user-row-mini d-flex justify-content-between align-items-center" onclick="selectForControl('${usernameClean}', ${userRtp})">
@@ -860,7 +716,7 @@
                         <div>
                             <div class="text-white fw-bold mb-0 d-flex align-items-center flex-wrap gap-1" style="font-size: 0.75rem;">
                                 ${usernameClean} 
-                                <span class="badge bg-dark border border-dark text-secondary font-mono" style="font-size: 0.6rem; padding: 1px 3px;">ID: ${u.id || 'N/A'}</span>
+                                <span class="badge bg-dark border border-dark text-secondary font-mono" style="font-size: 0.6rem; padding: 1px 3px;">ID: ${escapeHTML(u.id || 'N/A')}</span>
                                 ${phoneBadge}
                             </div>
                             <div class="text-info font-mono" style="font-size: 0.6rem;">${userRole} • Par: ${createdByClean}</div>
@@ -884,9 +740,124 @@
             secureSelectedUser = username;
             document.getElementById('ctrl-target-user').value = username;
             document.getElementById('target-action-user').value = username;
+            document.getElementById('fs-target-user').value = username; 
             document.getElementById('ctrl-rtp-range').value = rtp;
             document.getElementById('rtp-val-label').innerText = rtp + '%';
             showNotification(`Sélectionné: ${username}`);
+        }
+
+        async function saveRtpAndBlock(blockStatus) {
+            const target_username = secureSelectedUser;
+            let rawRtp = parseInt(document.getElementById('ctrl-rtp-range').value);
+
+            if (isNaN(rawRtp)) rawRtp = 50;
+            const rtp = Math.max(1, Math.min(99, rawRtp));
+
+            if (!target_username) return showNotification('Sélectionnez un compte d\'abord!', 'error');
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/configure-account`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        admin_username: user.username,
+                        target_username,
+                        rtp,
+                        is_blocked: blockStatus
+                    })
+                });
+                if (res.ok) {
+                    showNotification(blockStatus === 1 ? 'Compte bloqué!' : 'Paramètres enregistrés!');
+                    loadNetworkData();
+                } else {
+                    const data = await res.json();
+                    showNotification(data.detail || 'Erreur', 'error');
+                }
+            } catch (e) {
+                showNotification('Erreur de connexion', 'error');
+            }
+        }
+
+        async function deleteAccountAction() {
+            const target_username = secureSelectedUser;
+            if (!target_username) return showNotification('Sélectionnez un compte!', 'error');
+
+            if (!confirm(`Supprimer le compte: ${target_username} ?`)) return;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/delete-account`, {
+                    method: 'DELETE', headers: getAuthHeaders(), body: JSON.stringify({ admin_username: user.username, target_username: target_username })
+                });
+                if (res.ok) {
+                    showNotification('Compte supprimé!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    const data = await res.json();
+                    showNotification('Erreur: ' + (data.detail || data.message), 'error');
+                }
+            } catch (e) { showNotification('Erreur', 'error'); }
+        }
+
+        async function executeAction(action) {
+            const target_username = secureSelectedUser;
+            const amountInput = document.getElementById('target-action-amount').value;
+            const actionBtn = action === 'charge' ? document.getElementById('btn-credit') : document.getElementById('btn-retirer');
+
+            if (!target_username) return showNotification('Sélectionnez un compte!', 'error');
+
+            const amount = parseFloat(amountInput);
+            if (isNaN(amount) || amount <= 0) return showNotification('Montant invalide!', 'error');
+
+            if (actionBtn) { actionBtn.disabled = true; actionBtn.innerText = '⏳'; }
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
+                    method: 'POST', headers: getAuthHeaders(),
+                    body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showNotification('Succès!');
+                    document.getElementById('target-action-amount').value = '';
+                    loadNetworkData();
+                } else { showNotification(data.detail || 'Erreur', 'error'); }
+            } catch (e) {
+                showNotification('Erreur', 'error');
+            } finally {
+                if (actionBtn) { actionBtn.disabled = false; actionBtn.innerText = action === 'charge' ? 'Créditer' : 'Retirer'; }
+            }
+        }
+
+        async function createNetworkUser() {
+            const usernameInput = document.getElementById('new-user-name');
+            const passwordInput = document.getElementById('new-user-pass');
+            const roleSelect = document.getElementById('new-user-role');
+            const phoneInput = document.getElementById('new_phone');
+            const username = usernameInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            const role = roleSelect ? roleSelect.value : 'player';
+            const phone = phoneInput ? phoneInput.value.trim() : '';
+
+            if (!username || !password) return showNotification('Remplissez les champs!', 'error');
+            
+            const btn = document.getElementById('btn-create');
+            if (btn) { btn.disabled = true; btn.innerText = '⏳'; }
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/register`, {
+                    method: 'POST', headers: getAuthHeaders(),
+                    body: JSON.stringify({ username, password, role, created_by: user.username, phone })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showNotification('Compte créé!', 'success');
+                    usernameInput.value = ''; passwordInput.value = ''; if (phoneInput) phoneInput.value = '';
+                    loadNetworkData();
+                } else { showNotification(data.detail || 'Erreur', 'error'); }
+            } catch (e) { showNotification('Erreur', 'error'); }
+            finally {
+                if (btn) { btn.disabled = false; btn.innerText = 'Créer'; }
+            }
         }
 
         async function fetchAndOpenHistory(type) {
@@ -952,9 +923,7 @@
                         } else { body.innerHTML = '<div class="text-center p-3 text-secondary" style="font-size: 0.75rem;">Aucune demande.</div>'; }
                     } else { body.innerHTML = '<div class="text-center p-3 text-danger" style="font-size: 0.75rem;">Erreur serveur.</div>'; }
                 } catch (error) { body.innerHTML = '<div class="text-center p-3 text-danger" style="font-size: 0.75rem;">Erreur de connexion.</div>'; }
-                return;
             }
-
             else if (safeType === 'withdrawals') {
                 title.innerText = "Retraits en Attente";
                 try {
@@ -997,9 +966,7 @@
                 } catch (error) {
                     body.innerHTML = '<div class="text-center p-3 text-danger" style="font-size: 0.75rem;">Erreur de connexion.</div>';
                 }
-                return;
             }
-
             else if (safeType === 'sport') {
                 try {
                     let url = '';
@@ -1095,20 +1062,21 @@
             else if (safeType === 'audit') {
                 title.innerText = "Audit Trail: 🛡️ Journaux d'audit";
                 try {
-                    const res = await fetch(`${BACKEND_URL}/api/admin/audit-logs`, { headers: getAuthHeaders() }); if (res.ok) {
+                    const res = await fetch(`${BACKEND_URL}/api/admin/audit-logs`, { headers: getAuthHeaders() }); 
+                    if (res.ok) {
                         const logs = await res.json();
                         if (logs && logs.length > 0) {
                             let html = `<div class="d-flex flex-column gap-1.5" style="max-height: 380px; overflow-y: auto;">`;
                             logs.forEach(l => {
                                 html += `
-                    <div class="bg-black border border-dark rounded-2 p-2 font-mono" style="font-size: 0.7rem;">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-warning fw-bold">👤 ${escapeHTML(l.admin_username)}</span>
-                            <span class="badge bg-dark border border-secondary text-info px-1 py-0" style="font-size: 0.6rem;">${escapeHTML(l.action_type)}</span>
-                        </div>
-                        <div class="text-white mb-1">${escapeHTML(l.details)}</div>
-                        <div class="text-secondary" style="font-size: 0.55rem;">🕒 ${l.date}</div>
-                    </div>`;
+                                <div class="bg-black border border-dark rounded-2 p-2 font-mono" style="font-size: 0.7rem;">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="text-warning fw-bold">👤 ${escapeHTML(l.admin_username)}</span>
+                                        <span class="badge bg-dark border border-secondary text-info px-1 py-0" style="font-size: 0.6rem;">${escapeHTML(l.action_type)}</span>
+                                    </div>
+                                    <div class="text-white mb-1">${escapeHTML(l.details)}</div>
+                                    <div class="text-secondary" style="font-size: 0.55rem;">🕒 ${l.date}</div>
+                                </div>`;
                             });
                             html += `</div>`;
                             body.innerHTML = html;
@@ -1121,6 +1089,7 @@
                 }
             }
         }
+
         function renderTransactionsModalUI(container) {
             let html = `
                 <div class="row g-1 mb-2 bg-black border border-dark p-2 rounded-2 align-items-center" style="font-size: 0.7rem;">
@@ -1167,21 +1136,24 @@
             }
             let html = '';
             transactions.forEach(t => {
-                const isCharge = t.action === 'charge' || t.action === 'deposit_request';
+                const amt = Math.abs(parseFloat(t.amount)).toFixed(2);
+                const isCharge = (t.action === 'charge' || t.action === 'dépôt' || t.action === 'deposit_request');
+
                 const color = isCharge ? 'text-success' : 'text-danger';
                 const sign = isCharge ? '+' : '-';
+
                 const targetName = escapeHTML(t.target_username || t.target || 'Inconnu');
-                const receiptBtn = t.image_path ?
-                    `<a href="${BACKEND_URL}/${t.image_path}" target="_blank" class="text-warning text-decoration-none ms-1" style="font-size: 0.6rem;"><i class="fa-solid fa-image"></i></a>` : '';
+                const actionName = escapeHTML(t.action);
+                const receiptBtn = t.image_path ? `<a href="${BACKEND_URL}/${t.image_path}" target="_blank" class="text-warning text-decoration-none ms-1" style="font-size: 0.6rem;"><i class="fa-solid fa-image"></i></a>` : '';
 
                 html += `
-                    <div class="bg-black border border-dark rounded-2 p-2 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
+                    <div class="bg-black border border-dark rounded-2 p-2 d-flex justify-content-between align-items-center mb-1" style="font-size: 0.7rem;">
                         <div>
-                            <div class="text-white fw-bold">👤 ${targetName}</div>
+                            <div class="text-white fw-bold">👤 ${targetName} <span class="text-secondary" style="font-size:0.55rem">(${actionName})</span></div>
                             <div class="text-secondary font-mono" style="font-size: 0.6rem;">🕒 ${t.date || ''} ${receiptBtn}</div>
                         </div>
                         <div class="text-end font-mono">
-                            <div class="${color} fw-bold" style="font-size: 0.75rem;">${sign}${parseFloat(t.amount).toFixed(2)} TND</div>
+                            <div class="${color} fw-bold" style="font-size: 0.75rem;">${sign}${amt} TND</div>
                         </div>
                     </div>`;
             });
@@ -1389,122 +1361,16 @@
                 } else { showNotification('Erreur', 'error'); }
             } catch (e) { showNotification('Erreur', 'error'); }
         }
-        async function saveRtpAndBlock(blockStatus) {
-            const target_username = secureSelectedUser;
-            let rawRtp = parseInt(document.getElementById('ctrl-rtp-range').value);
-
-            if (isNaN(rawRtp)) rawRtp = 50;
-            const rtp = Math.max(1, Math.min(99, rawRtp));
-
-            if (!target_username) return showNotification('Sélectionnez un compte d\'abord!', 'error');
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/configure-account`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({
-                        admin_username: user.username,
-                        target_username,
-                        rtp,
-                        is_blocked: blockStatus
-                    })
-                });
-                if (res.ok) {
-                    showNotification(blockStatus === 1 ? 'Compte bloqué!' : 'Paramètres enregistrés!');
-                    loadNetworkData();
-                } else {
-                    const data = await res.json();
-                    showNotification(data.detail || 'Erreur', 'error');
-                }
-            } catch (e) {
-                showNotification('Erreur de connexion', 'error');
-            }
-        }
 
         function triggerGoldRain() {
             const duration = 2 * 1000;
             const end = Date.now() + duration;
             (function frame() {
-                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#FFD700', '#F8B400'], zIndex: 9999 });
-                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FFD700', '#F8B400'], zIndex: 9999 });
+                /* تم تعديل لون الاحتفال ليتناسب مع الثيم الأحمر */
+                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#dc2626', '#b91c1c'], zIndex: 9999 });
+                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#dc2626', '#b91c1c'], zIndex: 9999 });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
-        }
-
-        async function deleteAccountAction() {
-            const target_username = secureSelectedUser;
-            if (!target_username) return showNotification('Sélectionnez un compte!', 'error');
-
-            if (!confirm(`Supprimer le compte: ${target_username} ?`)) return;
-
-            let headers = getAuthHeaders();
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/delete-account`, {
-                    method: 'DELETE', headers: headers, body: JSON.stringify({ admin_username: user.username, target_username: target_username })
-                });
-                if (res.ok) {
-                    showNotification('Compte supprimé!', 'success');
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    const data = await res.json();
-                    showNotification('Erreur: ' + (data.detail || data.message), 'error');
-                }
-            } catch (e) { showNotification('Erreur', 'error'); }
-        }
-
-        async function executeAction(action) {
-            const target_username = secureSelectedUser;
-            const amountInput = document.getElementById('target-action-amount').value;
-            const actionBtn = action === 'charge' ? document.getElementById('btn-credit') : document.getElementById('btn-retirer');
-
-            if (!target_username) return showNotification('Sélectionnez un compte!', 'error');
-
-            const amount = parseFloat(amountInput);
-            if (isNaN(amount) || amount <= 0) return showNotification('Montant invalide!', 'error');
-
-            if (actionBtn) { actionBtn.disabled = true; actionBtn.innerText = '⏳'; }
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
-                    method: 'POST', headers: getAuthHeaders(),
-                    body: JSON.stringify({ admin_username: user.username, target_username, action, amount })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showNotification('Succès!');
-                    document.getElementById('target-action-amount').value = '';
-                    loadNetworkData();
-                } else { showNotification(data.detail || 'Erreur', 'error'); }
-            } catch (e) {
-                showNotification('Erreur', 'error');
-            } finally {
-                if (actionBtn) { actionBtn.disabled = false; actionBtn.innerText = action === 'charge' ? 'Créditer' : 'Retirer'; }
-            }
-        }
-
-        async function createNetworkUser() {
-            const usernameInput = document.getElementById('new-user-name');
-            const passwordInput = document.getElementById('new-user-pass');
-            const roleSelect = document.getElementById('new-user-role');
-            const phoneInput = document.getElementById('new_phone');
-            const username = usernameInput.value.trim().toLowerCase();
-            const password = passwordInput.value;
-            const role = roleSelect ? roleSelect.value : 'player';
-            const phone = phoneInput ? phoneInput.value.trim() : '';
-
-            if (!username || !password) return showNotification('Remplissez les champs!', 'error');
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/register`, {
-                    method: 'POST', headers: getAuthHeaders(),
-                    body: JSON.stringify({ username, password, role, created_by: user.username, phone })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showNotification('Compte créé!', 'success');
-                    usernameInput.value = ''; passwordInput.value = ''; if (phoneInput) phoneInput.value = '';
-                    loadNetworkData();
-                } else { showNotification(data.detail || 'Erreur', 'error'); }
-            } catch (e) { showNotification('Erreur', 'error'); }
         }
 
         async function checkNewDeposits() {
@@ -1532,7 +1398,7 @@
             showNotification('Audio activé!', 'success');
         }
 
-async function approveDeposit(ticketId, username) {
+        async function approveDeposit(ticketId, username) {
             if (isTransactionRunning) return showNotification("⏳ En cours...", "warning");
 
             const amountInput = document.getElementById(`amt-${ticketId}`).value;
@@ -1545,10 +1411,7 @@ async function approveDeposit(ticketId, username) {
                     const chargeRes = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
                         method: 'POST', headers: getAuthHeaders(),
                         body: JSON.stringify({ 
-                            admin_username: user.username, 
-                            target_username: username, 
-                            action: 'charge', 
-                            amount: amount 
+                            admin_username: user.username, target_username: username, action: 'charge', amount: amount 
                         })
                     });
 
@@ -1556,19 +1419,15 @@ async function approveDeposit(ticketId, username) {
                         await fetch(`${BACKEND_URL}/api/admin/handle-request`, {
                             method: 'POST', headers: getAuthHeaders(),
                             body: JSON.stringify({ 
-                                transaction_id: parseInt(ticketId), 
-                                decision: 'reject', 
-                                admin_username: user.username 
+                                transaction_id: parseInt(ticketId), decision: 'reject', admin_username: user.username 
                             })
                         });
 
                         await fetch(`${BACKEND_URL}/api/admin/send-notification`, {
                             method: 'POST', headers: getAuthHeaders(),
                             body: JSON.stringify({ 
-                                target_user: username, 
-                                title: "Dépôt Approuvé ✅", 
-                                message: `Votre demande de dépôt de ${amount} TND a été approuvée avec succès.`, 
-                                icon: "fa-wallet" 
+                                target_user: username, title: "Dépôt Approuvé ✅", 
+                                message: `Votre demande de dépôt de ${amount} TND a été approuvée avec succès.`, icon: "fa-wallet" 
                             })
                         });
 
@@ -1597,8 +1456,7 @@ async function approveDeposit(ticketId, username) {
                 isTransactionRunning = true;
                 try {
                     const res = await fetch(`${BACKEND_URL}/api/admin/process-withdrawal`, {
-                        method: 'POST',
-                        headers: getAuthHeaders(),
+                        method: 'POST', headers: getAuthHeaders(),
                         body: JSON.stringify({ request_id: reqId, action: actionType })
                     });
 
@@ -1609,10 +1467,8 @@ async function approveDeposit(ticketId, username) {
                             await fetch(`${BACKEND_URL}/api/admin/send-notification`, {
                                 method: 'POST', headers: getAuthHeaders(),
                                 body: JSON.stringify({ 
-                                    target_user: username, 
-                                    title: "Retrait Approuvé 💸", 
-                                    message: `Votre demande de retrait de ${amount} TND a été approuvée et vous parviendra sous 24 heures.`, 
-                                    icon: "fa-money-bill-wave" 
+                                    target_user: username, title: "Retrait Approuvé 💸", 
+                                    message: `Votre demande de retrait de ${amount} TND a été approuvée et vous parviendra sous 24 heures.`, icon: "fa-money-bill-wave" 
                                 })
                             });
                             triggerGoldRain();
@@ -1620,18 +1476,13 @@ async function approveDeposit(ticketId, username) {
                             await fetch(`${BACKEND_URL}/api/admin/send-notification`, {
                                 method: 'POST', headers: getAuthHeaders(),
                                 body: JSON.stringify({ 
-                                    target_user: username, 
-                                    title: "Retrait Refusé ❌", 
-                                    message: `Votre demande de retrait de ${amount} TND a été refusée. Veuillez contacter le support.`, 
-                                    icon: "fa-exclamation-circle" 
+                                    target_user: username, title: "Retrait Refusé ❌", 
+                                    message: `Votre demande de retrait de ${amount} TND a été refusée. Veuillez contacter le support.`, icon: "fa-exclamation-circle" 
                                 })
                             });
                         }
-
                         fetchAndOpenHistory('withdrawals');
-                    } else {
-                        showNotification("Erreur", "error");
-                    }
+                    } else { showNotification("Erreur", "error"); }
                 } catch (e) {
                     showNotification("Erreur", "error");
                 } finally {
@@ -1639,91 +1490,31 @@ async function approveDeposit(ticketId, username) {
                 }
             }
         }
+
         async function rejectDeposit(ticketId) {
             if (!confirm("Refuser ce dépôt ?")) return;
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/admin/handle-request`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
+                    method: 'POST', headers: getAuthHeaders(),
                     body: JSON.stringify({
-                        transaction_id: parseInt(ticketId),
-                        decision: 'reject',
-                        admin_username: user.username
+                        transaction_id: parseInt(ticketId), decision: 'reject', admin_username: user.username
                     })
                 });
 
                 if (response.ok) {
                     fetchAndOpenHistory('pending');
                     showNotification("❌ Demande rejetée");
-                } else {
-                    alert("❌ Erreur");
-                }
-            } catch (error) {
-                alert("❌ Erreur réseau");
-            }
-        }
-
-        function copySecretCode(secret, event) {
-            event.stopPropagation();
-            navigator.clipboard.writeText(secret).then(() => {
-                showNotification(`Copié: ${secret}`, 'success');
-            }).catch(err => { showNotification('Erreur', 'error'); });
+                } else { alert("❌ Erreur"); }
+            } catch (error) { alert("❌ Erreur réseau"); }
         }
 
         function viewReceiptImage(index) {
             const t = window._currentPendingDeposits ? window._currentPendingDeposits[index] : null;
             if (t && t.receipt_image) {
                 window.open(`${BACKEND_URL}/${t.receipt_image}`, '_blank');
-            } else {
-                alert("❌ Image introuvable");
-            }
+            } else { alert("❌ Image introuvable"); }
         }
-
-        async function processWithdrawal(reqId, username, amount, actionType) {
-            if (isTransactionRunning) return showNotification("⏳ En cours...", "warning");
-
-            const isApprove = actionType === 'approve';
-            const confirmMsg = isApprove ? `Valider le retrait de ${amount} TND ?` : `Rejeter le retrait ?`;
-
-            if (confirm(confirmMsg)) {
-                isTransactionRunning = true;
-                try {
-                    const res = await fetch(`${BACKEND_URL}/api/admin/process-withdrawal`, {
-                        method: 'POST',
-                        headers: getAuthHeaders(),
-                        body: JSON.stringify({ request_id: reqId, action: actionType })
-                    });
-
-                    if (res.ok) {
-                        showNotification(isApprove ? "✅ Validé !" : "❌ Rejeté !");
-                        fetchAndOpenHistory('withdrawals');
-                        if (isApprove) triggerGoldRain();
-                    } else {
-                        showNotification("Erreur", "error");
-                    }
-                } catch (e) {
-                    showNotification("Erreur", "error");
-                } finally {
-                    isTransactionRunning = false;
-                }
-            }
-        }
-
-        let idleTime = 0;
-        function timerIncrement() {
-            idleTime = idleTime + 1;
-            if (idleTime > 15) {
-                showNotification("Déconnexion pour inactivité", "warning");
-                setTimeout(logout, 1500);
-            }
-        }
-        document.body.addEventListener('mousemove', () => idleTime = 0);
-        document.body.addEventListener('keypress', () => idleTime = 0);
-        setInterval(timerIncrement, 60000);
-
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
 
         async function fetchHugeWins() {
             const section = document.getElementById('huge-wins-section');
@@ -1760,6 +1551,21 @@ async function approveDeposit(ticketId, username) {
             } catch (e) { console.error("Error fetching huge wins"); }
         }
 
+        /* دالة معالجة الأرباح الضخمة (تمت برمجتها لتشغيل الأزرار المرفقة) */
+        async function handleHugeWin(txId, action) {
+            if (!confirm(`Voulez-vous vraiment ${action === 'approve' ? 'valider' : 'rejeter'} ce gain massif ?`)) return;
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/process-huge-win`, {
+                    method: 'POST', headers: getAuthHeaders(),
+                    body: JSON.stringify({ transaction_id: txId, action: action })
+                });
+                if (res.ok) {
+                    showNotification(`Action (${action}) réussie!`, 'success');
+                    fetchHugeWins();
+                } else { showNotification('Erreur', 'error'); }
+            } catch (e) { showNotification('Erreur de connexion', 'error'); }
+        }
+
         async function sendFreeSpins() {
             const username = document.getElementById('fs-target-user').value;
             const provider = document.getElementById('fs-provider').value;
@@ -1776,15 +1582,10 @@ async function approveDeposit(ticketId, username) {
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/grant-freespins`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
+                    method: 'POST', headers: getAuthHeaders(),
                     body: JSON.stringify({
-                        target_username: username,
-                        provider_code: provider,
-                        game_code: gameCode,
-                        spin_count: parseInt(spinCount),
-                        amount: parseFloat(amount),
-                        bet_level: 1
+                        target_username: username, provider_code: provider, game_code: gameCode,
+                        spin_count: parseInt(spinCount), amount: parseFloat(amount), bet_level: 1
                     })
                 });
                 const data = await res.json();
@@ -1792,15 +1593,9 @@ async function approveDeposit(ticketId, username) {
                 if (res.ok) {
                     showNotification(`✅ ${data.message} (Coût: ${data.real_win})`, "success");
                     triggerGoldRain();
-                } else {
-                    showNotification(`❌ ${data.detail}`, "error");
-                }
-            } catch (e) {
-                showNotification("Erreur de connexion", "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Envoyer maintenant";
-            }
+                } else { showNotification(`❌ ${data.detail}`, "error"); }
+            } catch (e) { showNotification("Erreur de connexion", "error"); } 
+            finally { btn.disabled = false; btn.innerText = "Envoyer maintenant"; }
         }
 
         async function cancelFreeSpins() {
@@ -1810,13 +1605,11 @@ async function approveDeposit(ticketId, username) {
             if (!confirm(`Voulez-vous vraiment annuler le tour ${tourId} ? Les fonds restants seront remboursés.`)) return;
 
             const btn = document.getElementById('btn-cancel-fs');
-            btn.disabled = true;
-            btn.innerText = "⏳...";
+            btn.disabled = true; btn.innerText = "⏳...";
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/cancel-freespins`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
+                    method: 'POST', headers: getAuthHeaders(),
                     body: JSON.stringify({ tour_id: tourId })
                 });
                 const data = await res.json();
@@ -1824,15 +1617,9 @@ async function approveDeposit(ticketId, username) {
                 if (res.ok) {
                     showNotification(`✅ ${data.message}`, "success");
                     document.getElementById('fs-cancel-tour-id').value = '';
-                } else {
-                    showNotification(`❌ ${data.detail}`, "error");
-                }
-            } catch (e) {
-                showNotification("Erreur de connexion", "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Annuler le tour";
-            }
+                } else { showNotification(`❌ ${data.detail}`, "error"); }
+            } catch (e) { showNotification("Erreur de connexion", "error"); } 
+            finally { btn.disabled = false; btn.innerText = "Annuler le tour"; }
         }
 
         async function fetchPromoConfig() {
@@ -1863,16 +1650,13 @@ async function approveDeposit(ticketId, username) {
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/promo`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
+                    method: 'POST', headers: getAuthHeaders(),
                     body: JSON.stringify(payload)
                 });
                 if (res.ok) showNotification("✅ Configuration de la promotion enregistrée!", "success");
                 else showNotification("❌ Erreur lors de l'enregistrement", "error");
             } catch (e) { showNotification("Erreur de connexion", "error"); }
         }
-
-        document.addEventListener('DOMContentLoaded', fetchPromoConfig);
 
         async function fetchFraudData() {
             const container = document.getElementById('fraud-results-container');
@@ -1909,12 +1693,8 @@ async function approveDeposit(ticketId, username) {
                     }
 
                     container.innerHTML = htmlContent;
-                } else {
-                    container.innerHTML = '<span class="text-danger">❌ Échec de la récupération des données de fraude.</span>';
-                }
-            } catch (e) {
-                container.innerHTML = '<span class="text-danger">❌ Erreur de connexion au serveur.</span>';
-            }
+                } else { container.innerHTML = '<span class="text-danger">❌ Échec de la récupération des données de fraude.</span>'; }
+            } catch (e) { container.innerHTML = '<span class="text-danger">❌ Erreur de connexion au serveur.</span>'; }
         }
 
         async function fetchGGRAnalytics() {
@@ -1938,18 +1718,8 @@ async function approveDeposit(ticketId, username) {
 
                     document.getElementById('ggr-rtp').innerText = data.actual_rtp + '%';
                 }
-            } catch (e) {
-                console.error("Error fetching GGR analytics");
-            }
+            } catch (e) { console.error("Error fetching GGR analytics"); }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentYear = new Date().getFullYear();
-            const yearSelect = document.getElementById('ggr-year');
-            if (yearSelect) yearSelect.value = currentYear;
-
-            fetchGGRAnalytics();
-        });
 
         async function sendPushNotification() {
             const target = document.getElementById('notif-target').value || 'all';
@@ -1972,6 +1742,20 @@ async function approveDeposit(ticketId, username) {
             } catch(e) { showNotification("Erreur", "error"); }
             document.getElementById('btn-send-notif').disabled = false;
         }
+
+        let idleTime = 0;
+        function timerIncrement() {
+            idleTime = idleTime + 1;
+            if (idleTime > 15) {
+                showNotification("Déconnexion pour inactivité", "warning");
+                setTimeout(logout, 1500);
+            }
+        }
+        document.body.addEventListener('mousemove', () => idleTime = 0);
+        document.body.addEventListener('keypress', () => idleTime = 0);
+        setInterval(timerIncrement, 60000);
+
+        document.addEventListener('contextmenu', event => event.preventDefault());
     </script>
 </body>
 

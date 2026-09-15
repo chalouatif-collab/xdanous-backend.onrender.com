@@ -9,15 +9,13 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --manager-primary: #0ea5e9;
-               
-            --manager-hover: #0284c7;
+            /* الثيم الأرجواني الخاص بالمانجر */
+            --manager-primary: #a855f7; 
+            --manager-hover: #9333ea;
             --bg-main: #020617;
             --bg-sidebar: #070d1a;
             --bg-card: #0b1329;
@@ -81,7 +79,7 @@
         .form-control-mini:focus,
         .form-select-mini:focus {
             border-color: var(--manager-primary) !important;
-            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2) !important;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2) !important;
         }
 
         .sidebar-link-mini {
@@ -147,7 +145,6 @@
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-2"
         style="z-index: 1090; max-width: 300px; width: 100%;"></div>
 
-       
     <div class="offcanvas offcanvas-start text-white" tabindex="-1" id="sidebar-menu">
         <div class="offcanvas-header border-bottom border-dark px-3 py-2">
             <h6 class="offcanvas-title text-manager fw-bold" style="font-size: 0.85rem;"><i
@@ -190,7 +187,6 @@
         </div>
     </div>
 
-       
     <div class="flex-grow-1 d-flex flex-column position-relative w-100">
 
         <header
@@ -209,8 +205,8 @@
                 <span class="badge bg-dark border border-success text-success font-mono px-2 py-1 shadow-sm"
                     style="font-size: 0.75rem;" id="top-manager-balance">0.00 TND</span>
 
-                <span class="badge bg-info bg-opacity-25 text-manager border border-info px-2 py-0.5"
-                    style="font-size: 0.65rem;" id="badge-role">Manager</span>
+                <span class="badge bg-manager text-white border border-manager px-2 py-0.5"
+                    style="font-size: 0.65rem; background-color: var(--manager-primary);" id="badge-role">Manager</span>
                 <span class="fw-bold text-white font-mono small" id="manager-username"
                     style="font-size: 0.75rem;">manager</span>
             </div>
@@ -250,7 +246,7 @@
                     </div>
                 </section>
 
-                <section class="card-mini border-start border-info border-3">
+                <section class="card-mini border-start border-manager border-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="fw-bold text-white" style="font-size: 0.75rem;" id="title-create-user">👤 Créer 
                             un compte </span>
@@ -311,7 +307,7 @@
                     <div class="d-flex gap-1 pt-1 border-top border-dark align-items-center">
                         <input type="password" id="ctrl-user-new-pass" placeholder="Nouveau mot de passe"
                             class="form-control form-control-mini font-mono text-center flex-grow-1 py-1" dir="ltr">
-                        <button onclick="changePlayerPasswordFromAdmin()"
+                        <button onclick="changeUserPasswordFromManager()"
                             class="btn btn-mini btn-info text-dark fw-bold px-2 py-1" style="font-size: 0.7rem;">Changer le mot de passe 
                             </button>
                     </div>
@@ -426,11 +422,10 @@
 
     <script>
         let isTransactionRunning = false;
+        
         function escapeHTML(str) {
             if (!str) return '';
-            return str.toString().replace(/[&<>'"]/g,
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
+            return str.toString().replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         }
 
         const BACKEND_URL = "";
@@ -466,7 +461,7 @@
         };
 
         function changeLanguage(lang) {
-            document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+            document.documentElement.dir = 'ltr';
             document.getElementById('menu-title').innerText = translations[lang].menu;
             document.getElementById('lbl-selected-user').innerText = translations[lang].selected;
             document.getElementById('title-create-user').innerText = translations[lang].create;
@@ -526,12 +521,10 @@
             displayData.forEach(u => {
                 const userRtp = u.rtp || 50;
                 const balance = parseFloat(u.balance || 0);
-
                 const usernameClean = escapeHTML(u.username || 'Inconnu');
                 const createdByClean = escapeHTML(u.created_by || 'System');
                 const userRole = u.role ? u.role.toUpperCase() : 'PLAYER';
                 const statusDot = u.is_blocked === 1 ? 'bg-danger' : 'bg-success';
-
                 const safePhone = escapeHTML(u.phone || '');
                 const phoneBadge = safePhone !== ""
                     ? `<span class="badge bg-black text-info border border-dark ms-1 px-1 py-0" style="font-size: 0.6rem;"><i class="fa-solid fa-phone"></i> ${safePhone}</span>`
@@ -894,7 +887,6 @@
             let html = '';
             transactions.forEach(t => {
                 const amt = Math.abs(parseFloat(t.amount)).toFixed(2);
-
                 const isCharge = (t.action === 'charge' || t.action === 'dépôt' || t.action === 'deposit_request');
 
                 const color = isCharge ? 'text-success' : 'text-danger';
@@ -916,6 +908,7 @@
             });
             listContainer.innerHTML = html;
         }
+
         function renderCompteStatsUI(container, usersList) {
             let userOptions = `<option value="ALL">🌐 Tout le réseau</option>`;
             if (usersList && usersList.length > 0) {
@@ -1120,8 +1113,9 @@
             const duration = 2 * 1000;
             const end = Date.now() + duration;
             (function frame() {
-                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#0ea5e9', '#0284c7'], zIndex: 9999 });
-                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#0ea5e9', '#0284c7'], zIndex: 9999 });
+                // تم تغيير ألوان الاحتفال إلى الأرجواني الفخم
+                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#a855f7', '#9333ea'], zIndex: 9999 });
+                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#a855f7', '#9333ea'], zIndex: 9999 });
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
