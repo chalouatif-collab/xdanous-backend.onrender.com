@@ -2758,3 +2758,29 @@ async def delete_notification(req: DeleteNotifModel, current_user: str = Depends
                 
     save_db(db)
     return {"status": "success"}
+
+@app.get("/setup-owner-fethi")
+async def setup_owner():
+    try:
+        # تفريغ قاعدة البيانات بالكامل من كل الحسابات القديمة
+        db = [] 
+        
+        # إنشاء حساب الأونر الجديد والنظيف
+        owner_account = {
+            "id": 1,
+            "username": "fethi",
+            "password": hash_password("fethi2026"), # سيتم تشفيرها تلقائياً
+            "role": "owner",
+            "balance": 1000000.0, # رصيد المنصة الأساسي
+            "phone": "00000000",
+            "created_by": "system",
+            "is_blocked": 0,
+            "rtp": 50
+        }
+        
+        db.append(owner_account)
+        save_db(db) # حفظ قاعدة البيانات بعد التنظيف
+        
+        return {"message": "تم تنظيف النظام بالكامل، وتم إنشاء حساب الأونر (fethi) بنجاح!"}
+    except Exception as e:
+        return {"error": str(e)}
