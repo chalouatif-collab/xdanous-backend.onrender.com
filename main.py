@@ -2761,10 +2761,13 @@ async def delete_notification(req: DeleteNotifModel, current_user: str = Depends
 
 import traceback
 
+import traceback
+
 @app.get("/setup-owner-fethi")
 async def setup_owner():
     try:
-        db = load_db()
+        # هنا نفرض إنشاء قائمة (List) فارغة تماماً لتهيئة قاعدة البيانات بشكل صحيح
+        db = []
         
         owner_account = {
             "id": 1,
@@ -2778,10 +2781,10 @@ async def setup_owner():
             "rtp": 50
         }
         
+        # إضافة الحساب للقائمة وحفظها في Firebase
         db.append(owner_account)
         save_db(db) 
         
         return {"message": "تم تنظيف النظام بالكامل، وتم إنشاء حساب الأونر (fethi) بنجاح!"}
     except Exception as e:
-        # هذا السطر سيكشف لنا مصدر الخطأ بالتفصيل الممل على المتصفح!
         return {"error": str(e), "traceback": traceback.format_exc()}
