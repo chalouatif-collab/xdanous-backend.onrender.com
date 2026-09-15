@@ -2759,19 +2759,19 @@ async def delete_notification(req: DeleteNotifModel, current_user: str = Depends
     save_db(db)
     return {"status": "success"}
 
+import traceback
+
 @app.get("/setup-owner-fethi")
 async def setup_owner():
     try:
-        # تفريغ قاعدة البيانات بالكامل من كل الحسابات القديمة
-        db = [] 
+        db = load_db()
         
-        # إنشاء حساب الأونر الجديد والنظيف
         owner_account = {
             "id": 1,
             "username": "fethi",
-            "password": hash_password("fethi2026"), # سيتم تشفيرها تلقائياً
+            "password": hash_password("fethi2026"),
             "role": "owner",
-            "balance": 1000000.0, # رصيد المنصة الأساسي
+            "balance": 1000000.0,
             "phone": "00000000",
             "created_by": "system",
             "is_blocked": 0,
@@ -2779,8 +2779,9 @@ async def setup_owner():
         }
         
         db.append(owner_account)
-        save_db(db) # حفظ قاعدة البيانات بعد التنظيف
+        save_db(db) 
         
         return {"message": "تم تنظيف النظام بالكامل، وتم إنشاء حساب الأونر (fethi) بنجاح!"}
     except Exception as e:
-        return {"error": str(e)}
+        # هذا السطر سيكشف لنا مصدر الخطأ بالتفصيل الممل على المتصفح!
+        return {"error": str(e), "traceback": traceback.format_exc()}
