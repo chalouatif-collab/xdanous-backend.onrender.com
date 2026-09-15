@@ -58,8 +58,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "alpha-secure-key-2026")
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase-key.json") 
     firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://xdanous-5a6c4-default-rtdb.firebaseio.com/'
-    })
+    'databaseURL': 'https://xdanous-5a6c4-default-rtdb.firebaseio.com/'
+})
     
 SITE_PREFIX = os.getenv("SITE_PREFIX", "C1_")
 
