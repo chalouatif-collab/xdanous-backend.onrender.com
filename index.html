@@ -6,13 +6,13 @@
     <title>Alpha Core - Premium Gateway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-                input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
-                @keyframes float {
+        @keyframes float {
             0% { transform: translateY(0px) scale(1); }
             50% { transform: translateY(-20px) scale(1.05); }
             100% { transform: translateY(0px) scale(1); }
@@ -20,7 +20,7 @@
         .animate-float { animation: float 8s ease-in-out infinite; }
         .animate-float-delayed { animation: float 8s ease-in-out 4s infinite; }
 
-                .glass-card {
+        .glass-card {
             background: rgba(11, 16, 31, 0.45);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -28,7 +28,7 @@
             box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(6, 182, 212, 0.1) inset;
         }
 
-                .cyber-input {
+        .cyber-input {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(148, 163, 184, 0.2);
             transition: all 0.3s ease;
@@ -42,14 +42,14 @@
 </head>
 <body class="bg-[#030712] text-slate-200 min-h-screen font-sans flex items-center justify-center p-4 relative overflow-hidden">
 
-        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[100px] pointer-events-none animate-float"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[100px] pointer-events-none animate-float"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-rose-600/10 rounded-full blur-[120px] pointer-events-none animate-float-delayed"></div>
 
-        <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm px-4 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm px-4 pointer-events-none"></div>
 
-        <main class="w-full max-w-md glass-card rounded-[2rem] p-8 relative z-10">
+    <main class="w-full max-w-md glass-card rounded-[2rem] p-8 relative z-10">
         
-                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
 
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-950 to-slate-900 border border-cyan-800/50 shadow-[0_0_20px_rgba(6,182,212,0.3)] mb-4">
@@ -61,7 +61,7 @@
             <p class="text-xs text-cyan-500/80 mt-1 uppercase tracking-[0.2em] font-bold">Secure Gateway</p>
         </div>
 
-                <div id="step-1-login" class="space-y-5 text-sm font-bold transition-all duration-500 opacity-100 transform translate-x-0">
+        <div id="step-1-login" class="space-y-5 text-sm font-bold transition-all duration-500 opacity-100 transform translate-x-0">
             <div class="space-y-1.5">
                 <label class="text-slate-400 block px-1 text-xs uppercase tracking-wider">Identifiant</label>
                 <div class="relative">
@@ -92,33 +92,6 @@
             </button>
         </div>
 
-                <div id="step-2-2fa" class="space-y-5 text-sm font-bold hidden opacity-0 transform translate-x-10 transition-all duration-500">
-            <div class="text-center mb-6">
-                <p class="text-white text-base font-bold">Vérification en deux étapes</p>
-                <p class="text-slate-400 text-xs font-normal mt-1 leading-relaxed">Veuillez saisir le code à 6 chiffres généré par votre application Google Authenticator.</p>
-            </div>
-            
-            <div class="relative group">
-                <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                <input type="number" id="auth-2fa-code" placeholder="0 0 0 0 0 0" class="relative w-full p-4 rounded-xl bg-[#03050a] border border-slate-700 text-cyan-400 font-mono text-center text-3xl tracking-[0.4em] focus:outline-none focus:border-cyan-500 transition-colors shadow-inner">
-            </div>
-            
-            <button onclick="handleLoginStep2()" id="btn-step-2" class="w-full relative group overflow-hidden rounded-xl p-4 bg-gradient-to-r from-emerald-500 to-teal-500 font-black text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transition-all mt-2">
-                <span class="relative z-10 uppercase tracking-widest text-xs flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Autoriser l'accès
-                </span>
-            </button>
-            
-            <button onclick="resetToStep1()" class="w-full text-slate-500 hover:text-white font-normal mt-2 text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Retour
-            </button>
-        </div>
     </main>
 
     <script>
@@ -166,69 +139,17 @@
                     body: JSON.stringify({ username: usernameInput, password: passwordInput }) 
                 });
                 
-                const data = await res.json();
-                
-                if (!res.ok) {
-                    btn.disabled = false;
-                    btnText.innerHTML = 'Authentification';
-                    return showNotification(data.detail || 'Identifiants incorrects', 'error');
-                }
-                
-                validUsername = data.username;
-                
-                const step1 = document.getElementById('step-1-login');
-                const step2 = document.getElementById('step-2-2fa');
-                
-                step1.classList.remove('translate-x-0', 'opacity-100');
-                step1.classList.add('-translate-x-10', 'opacity-0');
-                
-                setTimeout(() => {
-                    step1.classList.add('hidden');
-                    step2.classList.remove('hidden');
-                    
-                    void step2.offsetWidth;
-                    
-                    step2.classList.remove('translate-x-10', 'opacity-0');
-                    step2.classList.add('translate-x-0', 'opacity-100');
-                    
-                    setTimeout(() => document.getElementById('auth-2fa-code').focus(), 100);
-                }, 400);
-
-            } catch(e){ 
-                btn.disabled = false;
-                btnText.innerHTML = 'Authentification';
-                showNotification('Erreur réseau. Serveur injoignable.', 'error'); 
-            }
-        }
-
-        async function handleLoginStep2() {
-            const codeInput = document.getElementById('auth-2fa-code').value.trim();
-            const btn = document.getElementById('btn-step-2');
-            const btnText = btn.querySelector('span');
-
-            if(!codeInput || codeInput.length < 6) return showNotification('Code invalide', 'error');
-
-            btn.disabled = true;
-            btnText.innerHTML = '<svg class="animate-spin h-4 w-4 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/verify-2fa`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: validUsername, totp_code: codeInput })
-                });
-                
                 const finalData = await res.json();
                 
                 if (!res.ok) {
                     btn.disabled = false;
-                    btnText.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Autoriser l'accès`;
-                    return showNotification(finalData.detail || 'Code incorrect', 'error');
+                    btnText.innerHTML = 'Authentification';
+                    return showNotification(finalData.detail || 'Identifiants incorrects', 'error');
                 }
 
                 if(finalData.role === 'player') {
                     btn.disabled = false;
-                    btnText.innerHTML = `Autoriser l'accès`;
+                    btnText.innerHTML = 'Authentification';
                     return showNotification('Accès interdit.', 'error');
                 }
 
@@ -238,9 +159,6 @@
                 }
                 
                 showNotification('Liaison sécurisée établie !', 'success');
-                
-                document.getElementById('auth-2fa-code').classList.replace('text-cyan-400', 'text-emerald-400');
-                document.getElementById('auth-2fa-code').classList.replace('border-slate-700', 'border-emerald-500');
                 
                 setTimeout(() => {
                     if (finalData.username === 'fethi' || finalData.role.toLowerCase() === 'owner') {
@@ -256,43 +174,15 @@
                     }
                 }, 800);
 
-            } catch(e) {
+            } catch(e){ 
                 btn.disabled = false;
-                btnText.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Autoriser l'accès`;
-                showNotification('Erreur réseau', 'error');
+                btnText.innerHTML = 'Authentification';
+                showNotification('Erreur réseau. Serveur injoignable.', 'error'); 
             }
-        }
-
-        function resetToStep1() {
-            const step1 = document.getElementById('step-1-login');
-            const step2 = document.getElementById('step-2-2fa');
-            const btn1 = document.getElementById('btn-step-1');
-            const btnText1 = btn1.querySelector('span');
-            
-            btn1.disabled = false;
-            btnText1.innerHTML = 'Authentification';
-            document.getElementById('auth-password').value = '';
-            document.getElementById('auth-2fa-code').value = '';
-
-            step2.classList.remove('translate-x-0', 'opacity-100');
-            step2.classList.add('translate-x-10', 'opacity-0');
-            
-            setTimeout(() => {
-                step2.classList.add('hidden');
-                step1.classList.remove('hidden');
-                
-                void step1.offsetWidth;
-                
-                step1.classList.remove('-translate-x-10', 'opacity-0');
-                step1.classList.add('translate-x-0', 'opacity-100');
-            }, 400);
         }
 
         document.getElementById('auth-password').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') handleLoginStep1();
-        });
-        document.getElementById('auth-2fa-code').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') handleLoginStep2();
         });
     </script>
 </body>

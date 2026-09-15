@@ -163,7 +163,6 @@
                 <select id="lang-select" onchange="changeLanguage(this.value)"
                     class="form-select form-select-mini bg-transparent text-white border-0 w-auto fw-bold shadow-none py-0">
                     <option value="fr">Français</option>
-                    <option value="ar">العربية</option>
                     <option value="en">English</option>
                 </select>
             </div>
@@ -181,7 +180,7 @@
                 <button onclick="fetchAndOpenHistory('compte')" class="sidebar-link-mini"><i
                         class="fa-solid fa-chart-pie text-info"></i> Stats</button>
                 <button onclick="openPasswordModal()" class="sidebar-link-mini"><i
-                        class="fa-solid fa-key text-secondary"></i> Password</button>
+                        class="fa-solid fa-key text-secondary"></i> Mot de passe</button>
             </nav>
 
             <button onclick="logout()" id="btn-logout" class="btn btn-sm btn-outline-danger w-100 fw-bold py-1 mt-2"
@@ -206,7 +205,7 @@
             </div>
             <div class="d-flex align-items-center gap-2">
                 <button id="audio-enable-btn" onclick="enableAudio()" class="btn btn-mini btn-outline-info py-0 px-2"
-                    style="font-size: 0.65rem;"> </button>
+                    style="font-size: 0.65rem;">Audio </button>
                 <span class="badge bg-dark border border-success text-success font-mono px-2 py-1 shadow-sm"
                     style="font-size: 0.75rem;" id="top-manager-balance">0.00 TND</span>
 
@@ -222,7 +221,6 @@
 
             <div class="d-flex flex-column gap-2" id="default-dashboard-view">
 
-                <!--     -->
                 <section class="card-mini">
                     <div class="row g-1 align-items-center">
                         <div class="col-12 col-md-5">
@@ -244,28 +242,27 @@
                                     oninput="document.getElementById('rtp-val-label').innerText = this.value + '%'"
                                     class="form-range flex-grow-1 m-0">
                                 <button onclick="saveRtpAndBlock(0)"
-                                    class="btn btn-mini btn-success py-0 px-2">sauvegarder</button>
+                                    class="btn btn-mini btn-success py-0 px-2">Enregistrer</button>
                                 <button onclick="saveRtpAndBlock(1)"
-                                    class="btn btn-mini btn-warning text-dark py-0 px-2">Ban</button>
+                                    class="btn btn-mini btn-warning text-dark py-0 px-2">Bloquer</button>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- سكشن إنشاء حساب جديد (محلات ولاعبين فقط) -->
                 <section class="card-mini border-start border-info border-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-bold text-white" style="font-size: 0.75rem;" id="title-create-user">👤 Cré 
+                        <span class="fw-bold text-white" style="font-size: 0.75rem;" id="title-create-user">👤 Créer 
                             un compte </span>
                     </div>
                     <div class="row g-1 align-items-center">
                         <div class="col-6 col-md-3">
                             <input type="text" id="new-user-name"
-                                class="form-control form-control-mini font-mono text-center" placeholder="Username">
+                                class="form-control form-control-mini font-mono text-center" placeholder="Nom d'utilisateur">
                         </div>
                         <div class="col-6 col-md-3">
                             <input type="password" id="new-user-pass"
-                                class="form-control form-control-mini font-mono text-center" placeholder="Password">
+                                class="form-control form-control-mini font-mono text-center" placeholder="Mot de passe">
                         </div>
                         <div class="col-4 col-md-2">
                             <select id="new-user-role" class="form-select form-select-mini font-mono py-0.5">
@@ -277,7 +274,7 @@
                         </div>
                         <div class="col-4 col-md-2">
                             <input type="text" id="new_phone"
-                                class="form-control form-control-mini font-mono text-center" placeholder="Phone">
+                                class="form-control form-control-mini font-mono text-center" placeholder="Téléphone">
                         </div>
                         <div class="col-4 col-md-2">
                             <button onclick="createNetworkUser()" class="btn btn-mini btn-manager-mini w-100 py-1"
@@ -286,11 +283,10 @@
                     </div>
                 </section>
 
-                <!-- العمليات المالية المصغرة (Console) -->
                 <section class="card-mini">
                     <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-1 mb-1">
                         <span class="fw-bold text-white small" id="title-table-console" style="font-size: 0.7rem;">📋
-                             Dépôt&Retrait</span>
+                             Dépôt & Retrait</span>
                     </div>
 
                     <div class="row g-1 mb-1 align-items-center">
@@ -314,17 +310,13 @@
 
                     <div class="d-flex gap-1 pt-1 border-top border-dark align-items-center">
                         <input type="password" id="ctrl-user-new-pass" placeholder="Nouveau mot de passe"
-                            class="form-control form-control-mini font-mono text-center flex-grow-1 py-1" dir="rtl">
+                            class="form-control form-control-mini font-mono text-center flex-grow-1 py-1" dir="ltr">
                         <button onclick="changePlayerPasswordFromAdmin()"
-                            class="btn btn-mini btn-info text-dark fw-bold px-2 py-1" style="font-size: 0.7rem;">Change mot de passe 
+                            class="btn btn-mini btn-info text-dark fw-bold px-2 py-1" style="font-size: 0.7rem;">Changer le mot de passe 
                             </button>
-                        <button onclick="resetUser2FA()" class="btn btn-mini btn-warning text-dark fw-bold px-2 py-1"
-                            style="font-size: 0.7rem;" title="Créer 2FA"><i class="fa-solid fa-key"></i>
-                            2FA</button>
                     </div>
                 </section>
 
-                <!-- قائمة المستخدمين المصغرة والمنظمة -->
                 <section class="card-mini p-0 overflow-hidden mt-1">
                     <div class="p-1.5 border-bottom border-dark bg-black">
                         <div class="input-group input-group-sm">
@@ -337,12 +329,10 @@
                     </div>
                     <div id="manager-network-tbody" class="p-1.5 d-flex flex-column gap-1"
                         style="max-height: 450px; overflow-y: auto;">
-                        <!-- يتم حقن الحسابات هنا -->
                     </div>
                 </section>
             </div>
 
-            <!-- ================= واجهة تصحيح التذاكر ================= -->
             <div id="admin-resettlement-panel" class="d-none">
                 <button onclick="hideResettlementPanel()" class="btn btn-mini btn-outline-secondary mb-2"><i
                         class="fa-solid fa-arrow-left"></i> Retour</button>
@@ -400,7 +390,6 @@
         </main>
     </div>
 
-    <!-- Modal السجلات -->
     <div class="modal fade" id="historyModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content card-mini border-dark text-white shadow">
@@ -415,7 +404,6 @@
         </div>
     </div>
 
-    <!-- Modal كلمة السر -->
     <div class="modal fade" id="passwordModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content card-mini border-dark text-white shadow">
@@ -454,7 +442,6 @@
         let sessionData = localStorage.getItem('alpha_user');
         let user = sessionData ? JSON.parse(sessionData) : null;
 
-        // حماية دور المانجر
         if (!user || user.role !== 'manager') {
             localStorage.clear();
             window.location.href = '/';
@@ -475,7 +462,6 @@
 
         const translations = {
             fr: { menu: "Menu", selected: "Sélection:", create: "👤 Créer un compte", user: "Nom d'utilisateur", pass: "Mot de passe", console: "📋 Console financière", credit: "Créditer", retirer: "Retirer", out: "Déconnexion" },
-            ar: { menu: "القائمة", selected: "المحدد:", create: "👤 إنشاء حساب تشغيلي", user: "اسم المستخدم", pass: "كلمة المرور", console: "📋 لوحة التحكم المالي", credit: "شحن رصيد", retirer: "سحب", out: "تسجيل الخروج" },
             en: { menu: "Menu", selected: "Selected:", create: "👤 Create Account", user: "Username", pass: "Password", console: "📋 Financial Console", credit: "Charge", retirer: "Withdraw", out: "Logout" }
         };
 
@@ -515,7 +501,6 @@
                     allUsers = await res.json();
                     renderFilteredUsers();
 
-                    // 👈 تحديث رصيد المانجر في الهيدر العلوي
                     const myAccount = allUsers.find(u => u.username === user.username);
                     if (myAccount) {
                         const bal = parseFloat(myAccount.balance || 0).toFixed(2);
@@ -532,7 +517,7 @@
             container.innerHTML = '';
 
             if (data.length === 0) {
-                container.innerHTML = `<div class="text-center text-secondary p-2" style="font-size: 0.7rem;">لا توجد حسابات</div>`;
+                container.innerHTML = `<div class="text-center text-secondary p-2" style="font-size: 0.7rem;">Aucun compte trouvé</div>`;
                 return;
             }
 
@@ -565,7 +550,7 @@
                                 <span class="badge bg-dark border border-dark text-secondary font-mono" style="font-size: 0.6rem; padding: 1px 3px;">ID: ${u.id || 'N/A'}</span>
                                 ${phoneBadge}
                             </div>
-                            <div class="text-info font-mono" style="font-size: 0.6rem;">${userRole} • By: ${createdByClean}</div>
+                            <div class="text-info font-mono" style="font-size: 0.6rem;">${userRole} • Par: ${createdByClean}</div>
                         </div>
                     </div>
                     <div class="text-end font-mono">
@@ -584,7 +569,7 @@
 
             let html = '';
             if (filtered.length === 0) {
-                tbody.innerHTML = `<div class="text-center text-secondary p-2" style="font-size: 0.7rem;">لا توجد حسابات</div>`;
+                tbody.innerHTML = `<div class="text-center text-secondary p-2" style="font-size: 0.7rem;">Aucun compte trouvé</div>`;
                 return;
             }
 
@@ -598,17 +583,6 @@
                 const createdByClean = escapeHTML(u.created_by || 'System');
                 const userRole = u.role ? u.role.toUpperCase() : 'PLAYER';
                 const statusDot = u.is_blocked === 1 ? 'bg-danger' : 'bg-success';
-
-                // 👉 استخراج كود الـ 2FA (الدرع الأصفر) مع زر النسخ
-                const secretBadge = u.two_factor_secret
-                    ? `<div class="d-inline-flex align-items-center bg-dark border border-secondary rounded px-1 ms-1" onclick="event.stopPropagation()">
-                       <i class="fa-solid fa-shield-halved text-warning me-1" style="font-size: 0.55rem;"></i>
-                       <input type="text" value="${escapeHTML(u.two_factor_secret)}" class="bg-transparent border-0 text-white font-mono p-0 text-center" style="width: 60px; font-size: 0.6rem; outline: none;" readonly>
-                       <button onclick="copySecretCode('${escapeHTML(u.two_factor_secret)}', event)" class="btn btn-sm btn-link text-info p-0 ms-1 shadow-none" style="font-size: 0.6rem;">
-                           <i class="fa-regular fa-copy"></i>
-                       </button>
-                   </div>`
-                    : ``;
 
                 const phoneHtml = u.phone ? `<span class="badge bg-black text-info border border-dark ms-1 px-1 py-0 font-mono" style="font-size: 0.6rem;"><i class="fa-solid fa-phone"></i> ${escapeHTML(u.phone)}</span>` : '';
                 const keyText = u.password || u.key;
@@ -625,9 +599,9 @@
                             <div class="text-white fw-bold mb-0 d-flex align-items-center flex-wrap gap-1" style="font-size: 0.75rem;">
                                 ${usernameClean} 
                                 <span class="badge bg-dark border border-dark text-secondary font-mono" style="font-size: 0.6rem; padding: 1px 3px;">ID: ${u.id || 'N/A'}</span>
-                                ${secretBadge} ${keyHtml} ${phoneHtml}
+                                ${keyHtml} ${phoneHtml}
                             </div>
-                            <div class="text-info font-mono" style="font-size: 0.6rem;">${userRole} • By: ${createdByClean}</div>
+                            <div class="text-info font-mono" style="font-size: 0.6rem;">${userRole} • Par: ${createdByClean}</div>
                         </div>
                     </div>
                     <div class="text-end font-mono">
@@ -637,12 +611,6 @@
             });
             tbody.innerHTML = html;
         }
-        function copySecretCode(secret, event) {
-            event.stopPropagation();
-            navigator.clipboard.writeText(secret).then(() => {
-                showNotification(`تم نسخ الكود: ${secret}`, 'success');
-            }).catch(err => { showNotification('خطأ في النسخ', 'error'); });
-        }
 
         function selectForControl(username, rtp) {
             secureSelectedUser = username;
@@ -650,37 +618,11 @@
             document.getElementById('target-action-user').value = username;
             document.getElementById('ctrl-rtp-range').value = rtp;
             document.getElementById('rtp-val-label').innerText = rtp + '%';
-            showNotification(`تم تحديد: ${username}`);
-        }
-
-        async function resetUser2FA() {
-            const target = secureSelectedUser;
-            if (!target) return showNotification('الرجاء تحديد حساب أولاً!', 'error');
-
-            if (!confirm(`هل أنت متأكد من إعادة تعيين مفتاح 2FA للحساب: ${target}؟ سيتم إلغاء المفتاح القديم ولن يتمكن من الدخول به.`)) return;
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/reset-2fa`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ admin_username: user.username, target_username: target })
-                });
-                const data = await res.json();
-
-                if (res.ok) {
-                    // عرض المفتاح الجديد في نافذة Prompt ليتمكن المدير من نسخه بسهولة
-                    prompt(`تم إعادة تعيين 2FA بنجاح للحساب ${target}.\n\nانسخ هذا المفتاح وأرسله للمستخدم فوراً (لن يظهر مرة أخرى):`, data.new_secret);
-                    showNotification('تم إعادة تعيين المفتاح!', 'success');
-                } else {
-                    showNotification(data.detail || 'Erreur', 'error');
-                }
-            } catch (e) {
-                showNotification('Erreur de connexion', 'error');
-            }
+            showNotification(`Sélectionné: ${username}`);
         }
 
         async function saveRtpAndBlock(isBlocked) {
-            if (!secureSelectedUser) return showNotification("حدد حساباً أولاً", "warning");
+            if (!secureSelectedUser) return showNotification("Sélectionnez un compte d'abord", "warning");
             const rtp = document.getElementById('ctrl-rtp-range').value;
 
             try {
@@ -694,12 +636,12 @@
                     })
                 });
                 if (res.ok) {
-                    showNotification(isBlocked ? "تم حظر الحساب!" : "تم تحديث الإعدادات!", "success");
+                    showNotification(isBlocked ? "Compte bloqué!" : "Paramètres mis à jour!", "success");
                     loadNetworkData();
                 } else {
-                    showNotification("حدث خطأ", "error");
+                    showNotification("Une erreur s'est produite", "error");
                 }
-            } catch (e) { showNotification("خطأ اتصال", "error"); }
+            } catch (e) { showNotification("Erreur de connexion", "error"); }
         }
 
         async function fetchAndOpenHistory(type) {
@@ -731,8 +673,8 @@
                                 const codeVal = escapeHTML(t.code || t.pin_code || t.reference || "N/A");
 
                                 const imageBtn = t.receipt_image
-                                    ? `<button onclick="viewReceiptImage(${index})" class="btn btn-mini btn-outline-info py-0 px-1" style="font-size: 0.65rem;">📸 الإيصال</button>`
-                                    : `<span class="text-secondary small" style="font-size: 0.65rem;">بدون إيصال</span>`;
+                                    ? `<button onclick="viewReceiptImage(${index})" class="btn btn-mini btn-outline-info py-0 px-1" style="font-size: 0.65rem;">📸 Reçu</button>`
+                                    : `<span class="text-secondary small" style="font-size: 0.65rem;">Aucun reçu</span>`;
 
                                 html += `
                                 <div class="bg-black border border-warning rounded-2 p-2">
@@ -842,7 +784,7 @@
                             });
                             html += `</div>`;
                             body.innerHTML = html;
-                        } else { body.innerHTML = `<div class="text-center p-3 text-secondary" style="font-size: 0.75rem;">لا توجد أوراق رياضية.</div>`; }
+                        } else { body.innerHTML = `<div class="text-center p-3 text-secondary" style="font-size: 0.75rem;">Aucun ticket sportif trouvé.</div>`; }
                     }
                 } catch (e) { body.innerHTML = `<div class="text-center p-3 text-danger" style="font-size: 0.75rem;">Erreur API</div>`; }
             }
@@ -865,7 +807,7 @@
                         const usersList = await usersRes.json();
                         allTransactionsCache = await txRes.json();
                         renderCompteStatsUI(body, usersList);
-                    } else { body.innerHTML = `<div class="text-center p-3 text-danger" style="font-size: 0.75rem;">خطأ في جلب البيانات</div>`; }
+                    } else { body.innerHTML = `<div class="text-center p-3 text-danger" style="font-size: 0.75rem;">Erreur de récupération des données</div>`; }
                 } catch (e) { body.innerHTML = `<div class="text-center p-3 text-danger" style="font-size: 0.75rem;">Erreur API</div>`; }
             }
             else if (safeType === 'casino') {
@@ -879,7 +821,7 @@
                                 const isWin = t.action === 'win';
                                 const badgeColor = isWin ? 'text-success' : 'text-danger';
                                 const sign = isWin ? '+' : '-';
-                                const actionName = isWin ? 'Gain (ربح)' : 'Mise (رهان)';
+                                const actionName = isWin ? 'Gain' : 'Mise';
 
                                 html += `
                                 <div class="bg-black border border-dark rounded-2 p-2 d-flex justify-content-between align-items-center" style="font-size: 0.7rem;">
@@ -896,7 +838,7 @@
                             html += `</div>`;
                             body.innerHTML = html;
                         } else {
-                            body.innerHTML = `<div class="text-center p-3 text-secondary" style="font-size: 0.75rem;">لا توجد سجلات كازينو حتى الآن.</div>`;
+                            body.innerHTML = `<div class="text-center p-3 text-secondary" style="font-size: 0.75rem;">Aucun historique de casino pour le moment.</div>`;
                         }
                     }
                 } catch (e) {
@@ -909,11 +851,11 @@
             let html = `
                 <div class="row g-1 mb-2 bg-black border border-dark p-2 rounded-2 align-items-center" style="font-size: 0.7rem;">
                     <div class="col-5">
-                        <label class="text-secondary mb-0">من:</label>
+                        <label class="text-secondary mb-0">De:</label>
                         <input type="date" id="tx-start-date" class="form-control form-control-mini text-center py-0">
                     </div>
                     <div class="col-5">
-                        <label class="text-secondary mb-0">إلى:</label>
+                        <label class="text-secondary mb-0">À:</label>
                         <input type="date" id="tx-end-date" class="form-control form-control-mini text-center py-0">
                     </div>
                     <div class="col-2 mt-auto">
@@ -946,20 +888,19 @@
         function displayModalTransactions(transactions) {
             const listContainer = document.getElementById('modal-tx-list');
             if (!transactions || transactions.length === 0) {
-                listContainer.innerHTML = '<div class="text-center text-secondary p-3" style="font-size: 0.7rem;">لا توجد معاملات</div>';
+                listContainer.innerHTML = '<div class="text-center text-secondary p-3" style="font-size: 0.7rem;">Aucune transaction</div>';
                 return;
             }
             let html = '';
             transactions.forEach(t => {
                 const amt = Math.abs(parseFloat(t.amount)).toFixed(2);
 
-                // 👈 التعديل هنا: إضافة dépôt للشرط ليتعرف عليها كعملية شحن خضراء
                 const isCharge = (t.action === 'charge' || t.action === 'dépôt' || t.action === 'deposit_request');
 
                 const color = isCharge ? 'text-success' : 'text-danger';
                 const sign = isCharge ? '+' : '-';
 
-                const targetName = escapeHTML(t.target_username || t.target || 'مجهول');
+                const targetName = escapeHTML(t.target_username || t.target || 'Inconnu');
                 const actionName = escapeHTML(t.action);
 
                 html += `
@@ -976,7 +917,7 @@
             listContainer.innerHTML = html;
         }
         function renderCompteStatsUI(container, usersList) {
-            let userOptions = `<option value="ALL">🌐 كل الموقع</option>`;
+            let userOptions = `<option value="ALL">🌐 Tout le réseau</option>`;
             if (usersList && usersList.length > 0) {
                 usersList.forEach(u => {
                     const cleanUser = escapeHTML(u.username);
@@ -985,21 +926,21 @@
             }
             let html = `
                 <div class="bg-black border border-dark p-2 rounded-2 mb-2" style="font-size: 0.7rem;">
-                    <div class="row g-1" dir="rtl">
+                    <div class="row g-1" dir="ltr">
                         <div class="col-12 col-md-4">
-                            <label class="text-secondary mb-0">الحساب:</label>
+                            <label class="text-secondary mb-0">Compte:</label>
                             <select id="stat-user-select" class="form-select form-select-mini text-center fw-bold text-white py-0">${userOptions}</select>
                         </div>
                         <div class="col-6 col-md-3">
-                            <label class="text-secondary mb-0">من:</label>
+                            <label class="text-secondary mb-0">De:</label>
                             <input type="date" id="stat-start-date" class="form-control form-control-mini text-center py-0">
                         </div>
                         <div class="col-6 col-md-3">
-                            <label class="text-secondary mb-0">إلى:</label>
+                            <label class="text-secondary mb-0">À:</label>
                             <input type="date" id="stat-end-date" class="form-control form-control-mini text-center py-0">
                         </div>
                         <div class="col-12 col-md-2 mt-auto">
-                            <button onclick="calculateAccountStats()" class="btn btn-mini btn-manager-mini w-100 py-1">إحسب</button>
+                            <button onclick="calculateAccountStats()" class="btn btn-mini btn-manager-mini w-100 py-1">Calculer</button>
                         </div>
                     </div>
                 </div>
@@ -1035,26 +976,26 @@
             });
 
             const dashboard = document.getElementById('stat-dashboard-results');
-            const titleText = selectedUser === "ALL" ? "📊 إحصائيات عامة" : `📊 إحصائيات: ${selectedUser}`;
+            const titleText = selectedUser === "ALL" ? "📊 Statistiques Générales" : `📊 Statistiques: ${selectedUser}`;
 
             let html = `
-                <h6 class="text-manager fw-bold text-center mb-1 mt-2" dir="rtl" style="font-size: 0.75rem;">${titleText}</h6>
+                <h6 class="text-manager fw-bold text-center mb-1 mt-2" dir="ltr" style="font-size: 0.75rem;">${titleText}</h6>
                 <div class="row g-1 mb-1">
                     <div class="col-6">
                         <div class="bg-black border border-success rounded-2 p-2 text-center">
-                            <div class="text-secondary" style="font-size: 0.6rem;">شحن ⬆️</div>
+                            <div class="text-secondary" style="font-size: 0.6rem;">Dépôt ⬆️</div>
                             <div class="text-success fw-bold font-mono" style="font-size: 0.8rem;">${totalCharged.toFixed(2)}</div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="bg-black border border-danger rounded-2 p-2 text-center">
-                            <div class="text-secondary" style="font-size: 0.6rem;">سحب ⬇️</div>
+                            <div class="text-secondary" style="font-size: 0.6rem;">Retrait ⬇️</div>
                             <div class="text-danger fw-bold font-mono" style="font-size: 0.8rem;">${totalWithdrawn.toFixed(2)}</div>
                         </div>
                     </div>
                 </div>
                 <div class="bg-black border border-dark rounded-2 p-2 text-center">
-                    <div class="text-secondary" style="font-size: 0.6rem;">الصافي</div>
+                    <div class="text-secondary" style="font-size: 0.6rem;">Net</div>
                     <div class="text-info fw-bold font-mono" style="font-size: 0.85rem;">${(totalCharged - totalWithdrawn).toFixed(2)} TND</div>
                 </div>
             `;
@@ -1077,7 +1018,7 @@
         async function resettleTicket() {
             const ticketId = document.getElementById('ticket-search-input').value;
             const newStatus = document.querySelector('#ticket-details-section select').value;
-            if (!ticketId) return showNotification("❌ أدخل رقم التذكرة", "error");
+            if (!ticketId) return showNotification("❌ Saisir un ID de ticket", "error");
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/resettle-ticket`, {
@@ -1090,21 +1031,21 @@
                     hideResettlementPanel();
                 } else {
                     const err = await res.json();
-                    showNotification(`❌ خطأ: ${err.detail || "خطأ"}`, "error");
+                    showNotification(`❌ Erreur: ${err.detail || "Erreur"}`, "error");
                 }
-            } catch (e) { showNotification("خطأ في الاتصال", "error"); }
+            } catch (e) { showNotification("Erreur de connexion", "error"); }
         }
 
         async function fetchAllTickets() {
             const listContainer = document.getElementById('all-tickets-list');
             if (!listContainer) return;
-            listContainer.innerHTML = '<div class="text-info text-center p-2" style="font-size: 0.7rem;">جاري التحميل...</div>';
+            listContainer.innerHTML = '<div class="text-info text-center p-2" style="font-size: 0.7rem;">Chargement...</div>';
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/get-all-tickets`, { headers: getAuthHeaders() });
                 const tickets = await res.json();
                 if (tickets.length === 0) {
-                    listContainer.innerHTML = '<div class="text-secondary text-center p-2" style="font-size: 0.7rem;">لا توجد أوراق.</div>';
+                    listContainer.innerHTML = '<div class="text-secondary text-center p-2" style="font-size: 0.7rem;">Aucun ticket trouvé.</div>';
                     return;
                 }
                 listContainer.innerHTML = tickets.map(t => {
@@ -1124,7 +1065,7 @@
                         <div class="text-white">${matchName}</div>
                     </div>`;
                 }).join('');
-            } catch (e) { listContainer.innerHTML = '<div class="text-danger text-center p-2">خطأ</div>'; }
+            } catch (e) { listContainer.innerHTML = '<div class="text-danger text-center p-2">Erreur</div>'; }
         }
 
         function openPasswordModal() { new bootstrap.Modal(document.getElementById('passwordModal')).show(); }
@@ -1135,7 +1076,7 @@
             const new_password = passwordInput.value.trim();
             const updateBtn = document.querySelector('#passwordModal button.btn-manager-mini');
 
-            if (!new_password || new_password.length < 6) return showNotification('6 أحرف على الأقل!', 'error');
+            if (!new_password || new_password.length < 6) return showNotification('6 caractères minimum!', 'error');
             if (updateBtn) { updateBtn.disabled = true; updateBtn.innerText = '⏳'; }
 
             try {
@@ -1161,15 +1102,15 @@
         async function changeUserPasswordFromManager() {
             const target = secureSelectedUser;
             const newPassword = document.getElementById('ctrl-user-new-pass').value.trim();
-            if (!target) return showNotification('حدد حساب أولاً', 'error');
-            if (!newPassword || newPassword.length < 4) return showNotification('كلمة المرور قصيرة', 'error');
+            if (!target) return showNotification('Sélectionnez un compte d\'abord', 'error');
+            if (!newPassword || newPassword.length < 4) return showNotification('Mot de passe trop court', 'error');
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/change-player-password`, {
                     method: 'POST', headers: getAuthHeaders(),
                     body: JSON.stringify({ admin_username: user.username, target_username: target, new_password: newPassword })
                 });
                 if (res.ok) {
-                    showNotification(`تم تغيير كلمة السر بنجاح!`);
+                    showNotification(`Mot de passe modifié avec succès!`);
                     document.getElementById('ctrl-user-new-pass').value = '';
                 } else { showNotification('Erreur', 'error'); }
             } catch (e) { showNotification('Erreur', 'error'); }
@@ -1218,14 +1159,14 @@
             const usernameInput = document.getElementById('new-user-name');
             const passwordInput = document.getElementById('new-user-pass');
             const roleSelect = document.getElementById('new-user-role');
-            const phoneInput = document.getElementById('new_phone'); // إذا كان موجوداً
+            const phoneInput = document.getElementById('new_phone'); 
 
             const username = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
             const password = passwordInput ? passwordInput.value : '';
             const role = roleSelect ? roleSelect.value : 'player';
             const phone = phoneInput ? phoneInput.value.trim() : '';
 
-            if (!username || !password) return showNotification('الرجاء تعبئة اسم المستخدم وكلمة السر!', 'error');
+            if (!username || !password) return showNotification('Veuillez remplir le nom d\'utilisateur et le mot de passe!', 'error');
 
             const btn = document.getElementById('btn-create');
             if (btn) { btn.disabled = true; btn.innerText = '⏳'; }
@@ -1238,7 +1179,7 @@
                         username,
                         password,
                         role,
-                        created_by: user.username, // ربط الحساب بالمانجر الحالي
+                        created_by: user.username, 
                         phone
                     })
                 });
@@ -1246,22 +1187,19 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    showNotification('✅ تم إنشاء الحساب بنجاح!', 'success');
-                    // تفريغ الحقول
+                    showNotification('✅ Compte créé avec succès!', 'success');
                     if (usernameInput) usernameInput.value = '';
                     if (passwordInput) passwordInput.value = '';
                     if (phoneInput) phoneInput.value = '';
 
-                    // تحديث قائمة الحسابات فوراً لظهور الحساب الجديد
                     if (typeof loadNetworkData === 'function') {
                         loadNetworkData();
                     }
                 } else {
-                    // إظهار سبب الرفض (مثلاً: الاسم موجود مسبقاً)
-                    showNotification(`❌ ${data.detail || 'حدث خطأ أثناء الإنشاء'}`, 'error');
+                    showNotification(`❌ ${data.detail || 'Erreur lors de la création'}`, 'error');
                 }
             } catch (e) {
-                showNotification('❌ خطأ في الاتصال بالسيرفر', 'error');
+                showNotification('❌ Erreur de connexion au serveur', 'error');
             } finally {
                 if (btn) { btn.disabled = false; btn.innerText = 'Créer'; }
             }

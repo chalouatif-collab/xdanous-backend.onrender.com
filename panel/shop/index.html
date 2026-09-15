@@ -1,737 +1,873 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr" dir="ltr" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALPHA SHOP - لوحة تحكم المحل المعتمد</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MINIADMIN | MENU</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* الألوان المخصصة - التركيز على الأخضر */
-        :root {
-            --emerald-primary: #10b981;
-            --emerald-hover: #059669;
-            --bg-main: #060913;
-            --bg-sidebar: #090d1a;
-            --bg-card: #0b101f;
-            --bg-input: #0f172a; /* تم تفتيح لون الخانات لتوضيح الكتابة */
-            --border-dark: #1e293b;
-        }
-
         body {
-            background-color: var(--bg-main);
-            color: #e2e8f0;
-            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #121212 !important;
+            color: #ffffff !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
-
-        /* تنسيقات مخصصة */
-        .bg-card-custom { background-color: var(--bg-card); }
-        .bg-input-custom { background-color: var(--bg-input); }
-        .border-custom { border: 1px solid var(--border-dark); }
-        .text-emerald { color: var(--emerald-primary) !important; }
         
-        /* الأزرار الخضراء */
-        .btn-emerald {
-            background-color: var(--emerald-primary);
-            color: #060913;
-            font-weight: 900;
-            border: none;
-            transition: all 0.3s;
-        }
-        .btn-emerald:hover {
-            background-color: var(--emerald-hover);
-            color: #060913;
-            transform: translateY(-1px);
-        }
-
-        /* حقول الإدخال - تم تحسين ألوانها لتكون أوضح */
-        .form-control, .form-select {
-            background-color: var(--bg-input) !important;
-            border: 1px solid #334155 !important;
-            color: #ffffff !important; /* لون الكتابة ناصع */
-            font-family: monospace;
-            font-weight: bold;
-        }
-        .form-control::placeholder {
-            color: #64748b !important; /* لون النص الإرشادي */
-            font-weight: normal;
-        }
-        .form-control:focus, .form-select:focus {
-            background-color: #1e293b !important;
-            border-color: var(--emerald-primary) !important;
-            box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
-        }
-
-        /* القائمة الجانبية */
-        .sidebar-link {
-            color: #cbd5e1;
-            background-color: rgba(11, 16, 31, 0.6);
-            border: 1px solid rgba(30, 41, 59, 0.6);
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: bold;
-            transition: all 0.2s;
-            cursor: pointer;
+        .bg-dark-header { background-color: #000000; }
+        .bg-green-header { background-color: #0f5132; } 
+        .bg-green-section { background-color: #198754; }
+        
+        .menu-btn {
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            color: #ffffff;
             width: 100%;
             text-align: left;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
         }
-        .sidebar-link:hover {
-            background-color: #1e293b;
-            color: #fff;
-        }
-        .active-shop-btn {
-            background-color: rgba(16, 185, 129, 0.15) !important;
-            border-color: var(--emerald-primary) !important;
-            color: var(--emerald-primary) !important;
+        
+        .menu-btn:hover, .menu-btn:active {
+            background-color: #2a2a2a;
+            border-color: #444;
         }
 
-        /* إخفاء شريط التمرير */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .form-input {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            color: white;
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: #198754;
+        }
         
-        .offcanvas { background-color: var(--bg-sidebar); border-right: 1px solid var(--border-dark); }
-        /* إصلاح مشكلة الملء التلقائي في المتصفحات (Autofill) للوحة Shop */
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus, 
-    input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
-        -webkit-text-fill-color: #e2e8f0 !important;
-        transition: background-color 5000s ease-in-out 0s;
-    }
+        .action-btn {
+            background-color: #ffc107; 
+            color: #000;
+            font-weight: bold;
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            margin-top: 10px;
+        }
+
+        ::-webkit-scrollbar { display: none; }
+        
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 90%;
+            max-width: 400px;
+        }
     </style>
 </head>
-    <body class="d-flex flex-column flex-md-row min-vh-100"></body>
+<body class="h-screen flex flex-col overflow-hidden">
 
-    <!-- حاوية الإشعارات -->
-    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; width: 100%; max-width: 400px;"></div>
+    <div id="toast-container" class="flex flex-col gap-2"></div>
 
-    <!-- القائمة الجانبية (للكمبيوتر) -->
-    <aside class="d-none d-md-flex flex-column justify-content-between p-4" style="width: 280px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-dark);">
-        <div class="d-flex flex-column gap-4">
-            <div class="bg-card-custom border-custom rounded-3 p-2 d-flex align-items-center justify-content-between">
-                <span class="small fw-bold text-secondary">🌐 Langue:</span>
-                <select id="shop-lang-select" onchange="changeShopLanguage(this.value)" class="form-select form-select-sm w-auto border-0 shadow-none cursor-pointer">
-                    <option value="fr">Français</option>
-                    <option value="ar">العربية</option>
+    <div class="bg-dark-header text-white px-4 py-3 flex items-center gap-3 font-bold text-lg border-b border-gray-800">
+        <button id="back-btn" class="hidden" onclick="showView('menu-view')">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span id="header-title"><i class="fa-solid fa-chevron-left mr-2"></i> MINIADMIN | MENU</span>
+    </div>
+
+    <div class="bg-green-header text-white px-4 py-3 flex justify-between items-center shadow-md">
+        <div>
+            <div class="font-bold uppercase tracking-wide" id="shop-username-display">SHOP_NAME (ID: ---)</div>
+            <div class="font-bold mt-1" id="shop-balance-display">0.00 TND</div>
+        </div>
+        <button class="text-white text-2xl hover:text-gray-300 transition" onclick="showView('menu-view')">
+            <i class="fa-solid fa-house"></i>
+        </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto pb-6" id="main-container">
+
+        <div id="menu-view" class="p-3 animate-fade-in">
+            
+            <div class="text-gray-400 text-sm mb-2 mt-2 px-1">Enregistreuse</div>
+            <button class="menu-btn" onclick="showView('new-user-view')">Nouvel Utilisateur</button>
+            <button class="menu-btn" onclick="fetchAndShowBalances()">Solde des cartes utilisateur</button>
+            <button class="menu-btn" onclick="fetchAndShowTransactions()">Transactions utilisateur</button>
+            <button class="menu-btn" onclick="fetchAndShowNetHistory()">Historique Net des Joueurs</button>
+            <button class="menu-btn" onclick="fetchAndShowTree()">Arbre</button>
+
+            <div class="text-gray-400 text-sm mb-2 mt-4 px-1">Les partenaires</div>
+            <button class="menu-btn" onclick="fetchAndShowSportTickets()">Historique des transactions (Sport)</button>
+             <button class="menu-btn" onclick="fetchAndShowCasinoHistory()">Historique des transactions (Casino)</button>
+
+        </div>
+
+        <div id="menu-footer" class="animate-fade-in">
+            <div class="bg-green-section text-white px-4 py-2 font-bold mb-3">Autre</div>
+            <div class="px-3">
+                <button class="menu-btn" onclick="changeLanguage('en')">Changer de Langue <i class="fa-regular fa-flag text-gray-400"></i></button>
+                <button class="menu-btn" onclick="showView('password-view')">Changer le mot de passe <i class="fa-solid fa-lock text-gray-400"></i></button>
+                <button class="menu-btn" onclick="logoutShop()">Me deconnecter <i class="fa-solid fa-arrow-right-from-bracket text-gray-400"></i></button>
+            </div>
+        </div>
+
+        <div id="new-user-view" class="p-4 hidden animate-fade-in">
+            <div class="mb-4">
+                <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
+                <input type="text" id="new-username" class="form-input" placeholder="Nom d'utilisateur">
+            </div>
+            
+            <div class="mb-4 relative">
+                <label class="block text-gray-400 text-sm mb-1">Mot de passe</label>
+                <input type="password" id="new-password" class="form-input" placeholder="Mot de passe">
+                <button class="absolute right-3 top-8 text-gray-400" onclick="togglePassword('new-password')">
+                    <i class="fa-regular fa-eye-slash"></i>
+                </button>
+            </div>
+            
+            <button class="w-full bg-[#2a2a2a] text-white border border-gray-600 py-2 rounded mb-4" onclick="generatePassword()">Générer un mot de passe</button>
+
+            <div class="mb-4 border-t border-gray-800 pt-4 mt-2">
+                <label class="block text-white font-bold mb-2">Équilibre</label>
+                <div class="flex items-center">
+                    <span class="text-gray-400 mr-2">Total:</span>
+                    <input type="number" id="new-balance" class="form-input mb-0 bg-transparent border-b border-t-0 border-l-0 border-r-0 rounded-none focus:border-green-500" value="0.00" step="0.10">
+                </div>
+            </div>
+
+            <button class="action-btn" id="btn-create-user" onclick="createPlayerAccount()">Créer</button>
+        </div>
+
+        <div id="balances-view" class="p-3 hidden animate-fade-in">
+            <div class="flex gap-2 mb-3">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
+                    <input type="text" id="search-users" oninput="filterTable('users-table', this.value)" class="form-input pl-10 mb-0" placeholder="Search">
+                </div>
+                <button class="bg-yellow-400 text-black font-bold px-4 rounded" onclick="fetchAndShowBalances()">Search</button>
+            </div>
+
+            <div class="flex justify-between bg-[#0f5132] text-white px-3 py-2 rounded-t font-bold text-sm">
+                <span>Carte d'utilisateur</span>
+                <span>Solde du Compte</span>
+            </div>
+
+            <div class="bg-[#1e1e1e] border border-gray-800 rounded-b p-2">
+                <div class="flex justify-between text-gray-300 text-sm mb-2 border-b border-gray-700 pb-2">
+                    <span><span id="users-count">0</span> Utilisateur</span>
+                    <span id="total-users-balance" class="font-bold text-white">0.00</span>
+                </div>
+                
+                <table class="w-full text-left text-sm" id="users-table">
+                    <thead class="text-gray-400 border-b border-gray-700">
+                        <tr>
+                            <th class="py-2 font-normal">Id</th>
+                            <th class="py-2 font-normal">Nom d'utilisateur</th>
+                            <th class="py-2 font-normal text-right">Solde du Compte</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tree-view" class="p-3 hidden animate-fade-in">
+            <div class="mb-3">
+                <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
+                <input type="text" id="tree-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterTree()">
+            </div>
+            <div class="mb-3">
+                <label class="block text-gray-400 text-sm mb-1">Id</label>
+                <input type="text" id="tree-search-id" class="form-input" placeholder="Id" oninput="filterTree()">
+            </div>
+            <div class="mb-3">
+                <label class="block text-gray-400 text-sm mb-1">Rôle</label>
+                <select class="form-input" id="tree-role" onchange="filterTree()">
+                    <option value="all">Rôle</option>
+                    <option value="player">Player</option>
                 </select>
             </div>
+            <button class="action-btn mb-4" onclick="fetchAndShowTree()">Afficher</button>
 
-            <div>
-                <p class="text-secondary fw-black small mb-3 text-uppercase" style="letter-spacing: 2px;">MENU DE GESTION</p>
-                <nav id="shop-sidebar-nav" class="d-flex flex-column">
-                    <button onclick="switchShopPanelSection('compte')" id="btn-shop-compte" class="sidebar-link active-shop-btn">
-                        👤 Gestion des Joueurs
-                    </button>
-                    <button onclick="switchShopPanelSection('transfert')" id="btn-shop-transfert" class="sidebar-link">
-                        💸 Historique de Transfert
-                    </button>
-                    <button onclick="switchShopPanelSection('casino')" id="btn-shop-casino" class="sidebar-link">
-                        🎰 Historique de Casino
-                    </button>
-                    <button onclick="switchShopPanelSection('sport')" id="btn-shop-sport" class="sidebar-link">
-                        ⚽ Tickets de Sport
-                    </button>
-                    <button onclick="switchShopPanelSection('security')" id="btn-shop-security" class="sidebar-link">
-                        🔑 Sécurité du magasin
-                    </button>
-                </nav>
+            <div id="tree-list" class="flex flex-col gap-2">
             </div>
         </div>
-
-        <div class="pt-3 border-top border-custom mt-auto">
-            <button onclick="logoutShop()" class="btn w-100 fw-bold d-flex align-items-center justify-content-center gap-2" style="background-color: rgba(225, 29, 72, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); color: #fb7185;">
-                🚪 Déconnexion
-            </button>
-        </div>
-    </aside>
-
-    <!-- القائمة الجانبية (للهاتف - Offcanvas) -->
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
-        <div class="offcanvas-header border-bottom border-custom">
-            <h5 class="offcanvas-title text-white fw-bold">Menu Boutique</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body d-flex flex-column justify-content-between p-4">
-            <div class="d-flex flex-column gap-4">
-                <nav id="shop-sidebar-nav-mobile" class="d-flex flex-column">
-                    <button onclick="switchShopPanelSection('compte'); bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar')).hide();" class="sidebar-link active-shop-btn">👤 Gestion des Joueurs</button>
-                    <button onclick="switchShopPanelSection('transfert'); bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar')).hide();" class="sidebar-link">💸 Historique de Transfert</button>
-                    <button onclick="switchShopPanelSection('casino'); bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar')).hide();" class="sidebar-link">🎰 Historique de Casino</button>
-                    <button onclick="switchShopPanelSection('sport'); bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar')).hide();" class="sidebar-link">⚽ Tickets de Sport</button>
-                    <button onclick="switchShopPanelSection('security'); bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar')).hide();" class="sidebar-link">🔑 Sécurité du magasin</button>
-                </nav>
-            </div>
-            <div class="pt-3 border-top border-custom mt-auto">
-                <button onclick="logoutShop()" class="btn w-100 fw-bold" style="background-color: rgba(225, 29, 72, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); color: #fb7185;">🚪 Déconnexion</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- منطقة المحتوى الرئيسية -->
-    <div class="flex-grow-1 d-flex flex-column  position-relative">
         
-        <!-- الهيدر العلوي - تم تصغيره بشكل كبير -->
-<header class="bg-card-custom border-bottom border-custom px-3 py-2 d-flex justify-content-between align-items-center shadow-sm flex-shrink-0">
-    <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-secondary d-md-none border-0 text-white px-2 py-1 fs-4" type="button" 
-        data-bs-toggle="offcanvas" 
-        data-bs-target="#mobileSidebar" 
-        aria-controls="mobileSidebar">
-            ☰
-        </button>
-        <span class="badge text-emerald fw-bold px-2 py-1 border rounded-2" style="background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); font-size: 0.65rem;" id="shop-username-display">Boutique: Connected</span>
-    </div>
-    <div class="border-custom px-2 py-1 rounded-2 d-flex align-items-center gap-2" style="background-color: #04060c;">
-        <span class="text-secondary font-sans" style="font-size: 0.65rem;">Crédit:</span>
-        <span class="text-emerald fw-black font-monospace" style="font-size: 0.75rem;" id="shop-balance-val">0.00 TND</span>
-    </div>
-</header>
-
-        <!-- مساحة العمل -->
-        <main class="flex-grow-1 overflow-y-auto p-2 p-md-4 no-scrollbar">
-
-            <!-- قسم إدارة اللاعبين -->
-            <div id="panel-shop-compte" class="shop-main-view d-flex flex-column gap-3">
-                
-                <!-- حقل البحث -->
-                <div class="p-2 bg-card-custom rounded-3 border border-custom shadow-sm">
-                    <input type="text" id="search-input" oninput="renderFilteredUsers()" placeholder="🔍  Chercher un utilisateur..." class="form-control form-control-sm rounded-2">
-                </div>
-                
-                <!-- إنشاء حساب جديد -->
-                <section class="bg-card-custom border-custom rounded-3 p-3 shadow-sm">
-                    <h5 class="fw-bold text-light mb-2" style="font-size: 0.8rem;">🕹️ Créé un nouveau Compte</h5>
-                    <div class="row g-2 mb-2">
-                        <div class="col-12 col-sm-6">
-                            <input type="text" id="new-user-name" placeholder="Nom du joueur" class="form-control form-control-sm">
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <input type="password" id="player-password" placeholder="Mot de passe" class="form-control form-control-sm">
-                        </div>
-                    </div>
-                    <button onclick="createPlayerAccount()" class="btn btn-emerald btn-sm w-100 py-1 rounded-2 shadow-sm" style="font-size: 0.75rem;">Créé </button>
-                </section>
-
-                <!-- إدارة الأموال والعمليات -->
-                <section class="bg-card-custom border-custom rounded-3 overflow-hidden shadow-sm">
-                    <div class="p-2 border-bottom border-custom" style="background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);">
-                        <h5 class="fw-bold text-white mb-2" style="font-size: 0.75rem;">📋 Dépôt/Retrait </h5>
-                        
-                        <!-- شريط التحكم المالي -->
-                        <div class="d-flex flex-wrap gap-2 align-items-center p-2 rounded-2 border border-custom" style="background-color: #04060c;">
-                            <div class="d-flex align-items-center gap-1">
-                                <input type="text" id="target-player-name" placeholder="sélectionner un compte" class="form-control form-control-sm text-warning" style="width: 80px; font-size: 0.7rem;" readonly>
-                            </div>
-                            
-                            <div class="vr bg-secondary mx-1 d-none d-sm-block"></div>
-                            
-                            <div class="d-flex align-items-center gap-1">
-                                <input type="number" id="finance-amount" placeholder="Montant" class="form-control form-control-sm text-emerald" style="width: 70px; font-size: 0.7rem;">
-                                <button onclick="executeShopFinance('charge')" class="btn btn-emerald btn-sm fw-bold px-2 py-1" style="font-size: 0.65rem;">Dépôt</button>
-                                <button onclick="executeShopFinance('withdraw')" class="btn btn-danger btn-sm fw-bold px-2 py-1" style="font-size: 0.65rem;">Retrait</button>
-                            </div>
-
-                            <div class="vr bg-secondary mx-1 d-none d-lg-block"></div>
-                            
-                            <div class="d-flex align-items-center gap-1 ms-auto mt-1 mt-lg-0 w-100 w-lg-auto">
-                                <input type="password" id="shop-player-new-pass" placeholder="Nouveau mot de passe" class="form-control form-control-sm flex-grow-1" style="font-size: 0.7rem;">
-                                <button onclick="changePlayerPasswordFromShop()" class="btn btn-info btn-sm text-white fw-bold px-2 py-1" style="font-size: 0.65rem;">Change</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- قائمة اللاعبين - تم تصغيرها بشكل كبير -->
-                    <div class="p-2" id="players-table-body">
-                        <!-- سيتم عرض بطاقات اللاعبين هنا بواسطة JS -->
-                    </div>
-                </section>
+        <div id="transactions-view" class="p-3 hidden animate-fade-in">
+             <div class="mb-3">
+                <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
+                <input type="text" id="trans-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterTransactions()">
             </div>
-
-            <!-- أقسام أخرى مخفية افتراضياً -->
-            <div id="panel-shop-transfert" class="shop-main-view d-none">
-                <p class="text-secondary small fw-bold text-uppercase mb-3">💸 Historique des Transferts et Transactions :</p>
-                <div class="bg-card-custom border-custom rounded-3 p-4 text-center text-secondary fw-bold text-uppercase" style="font-size: 0.8rem;">
-                    Aucune transaction enregistrée pour le moment.
-                </div>
+             <button class="action-btn mb-4" onclick="fetchAndShowTransactions()">Afficher</button>
+             <div id="transactions-list" class="flex flex-col gap-2">
             </div>
-
-            <div id="panel-shop-casino" class="shop-main-view d-none">
-                <p class="text-secondary small fw-bold text-uppercase mb-3">🎰 Historique des Sessions Casino (Hub88 API) :</p>
-                <div class="bg-card-custom border-custom rounded-3 p-4 text-center text-secondary fw-bold text-uppercase" style="font-size: 0.8rem;">
-                    Logs Hub88 synchronisés. Aucun pari de casino trouvé pour vos joueurs.
-                </div>
+        </div>
+        
+         <div id="net-history-view" class="p-3 hidden animate-fade-in">
+             <div class="mb-3">
+                <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
+                <input type="text" id="net-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterNetHistory()">
             </div>
-
-            <div id="panel-shop-sport" class="shop-main-view d-none">
-                <p class="text-secondary small fw-bold text-uppercase mb-3">⚽ Tickets de sport actifs de vos joueurs :</p>
-                <div id="shop-sport-container">
-                    <div class="bg-card-custom border-custom rounded-3 p-4 text-center text-secondary fw-bold text-uppercase" style="font-size: 0.8rem;">Aucun ticket en attente</div>
-                </div>
+             <button class="action-btn mb-4" onclick="fetchAndShowNetHistory()">Afficher</button>
+             <div id="net-history-list" class="flex flex-col gap-2">
             </div>
+        </div>
 
-            <div id="panel-shop-security" class="shop-main-view d-none" style="max-width: 500px; margin: 0 auto;">
-                <div class="bg-card-custom border-custom p-3 rounded-3 shadow-sm">
-                    <h5 class="fw-bold text-warning text-uppercase mb-3" style="font-size: 0.8rem;">🔑 Modifier le mot de passe Boutique</h5>
-                    <div class="mb-3">
-                        <label class="form-label text-secondary fw-bold" style="font-size: 0.7rem;">Nouveau mot de passe</label>
-                        <input type="password" id="shop-new-pass" placeholder="••••••••" class="form-control form-control-sm">
-                    </div>
-                    <button onclick="updateShopPassword()" class="btn btn-emerald w-100 py-1 rounded-2" style="font-size: 0.8rem;">Mettre à jour</button>
-                </div>
+        <div id="sport-history-view" class="p-3 hidden animate-fade-in">
+             <div class="mb-3">
+                <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
+                <input type="text" id="sport-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterSportHistory()">
             </div>
+             <button class="action-btn mb-4" onclick="fetchAndShowSportTickets()">Afficher</button>
+             <div id="sport-history-list" class="flex flex-col gap-2">
+            </div>
+        </div>
 
-        </main>
+        <div id="casino-history-view" class="p-3 hidden animate-fade-in">
+             <div class="mb-3">
+                <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
+                <input type="text" id="casino-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterCasinoHistory()">
+            </div>
+             <button class="action-btn mb-4" onclick="fetchAndShowCasinoHistory()">Afficher</button>
+             <div id="casino-history-list" class="flex flex-col gap-2">
+            </div>
+        </div>
+
+        <div id="password-view" class="p-4 hidden animate-fade-in">
+             <div class="mb-4 relative">
+                <label class="block text-gray-400 text-sm mb-1">Entrez un nouveau mot de passe</label>
+                <input type="password" id="new-shop-pass" class="form-input" placeholder="Entrez un nouveau mot de passe">
+            </div>
+            <button class="action-btn" onclick="updateShopPassword()">Sauvegarder</button>
+        </div>
+
     </div>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <div id="balance-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-[#1e1e1e] border border-gray-700 rounded-lg w-full max-w-sm p-4">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                <h3 class="text-white font-bold">Gérer le solde</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <div class="text-center mb-4">
+                <div class="text-gray-400 text-sm">Joueur</div>
+                <div class="text-[#0ea5e9] font-mono font-bold text-lg" id="modal-username">---</div>
+            </div>
+
+            <input type="number" id="modal-amount" class="form-input text-center text-lg font-bold" placeholder="Montant (TND)">
+             
+            <div class="mb-4 relative mt-2">
+                <label class="block text-gray-400 text-sm mb-1">Nouveau mot de passe (Optionnel)</label>
+                <input type="password" id="modal-new-pass" class="form-input" placeholder="Nouveau mot de passe">
+                 <button class="absolute right-3 top-8 text-gray-400" onclick="togglePassword('modal-new-pass')">
+                    <i class="fa-regular fa-eye-slash"></i>
+                </button>
+                <button onclick="changePlayerPasswordFromModal()" class="w-full bg-[#2a2a2a] text-white border border-gray-600 py-1 rounded mt-1 text-sm">Changer MDP</button>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <button onclick="processTransaction('charge')" class="flex-1 bg-green-600 text-white font-bold py-3 rounded">Dépôt</button>
+                <button onclick="processTransaction('withdraw')" class="flex-1 bg-red-600 text-white font-bold py-3 rounded">Retrait</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-
-        function escapeHTML(str) {
-            if (!str) return '';
-            return str.toString().replace(/[&<>'"]/g,
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
         const BACKEND_URL = "https://alpha-backend-server.onrender.com";
-        let shopSessionUser = { username: "shop_test", balance: 0.00 };
-        let createdPlayersList = [];
-        let allUsers = []; 
-       
-        function getAuthHeaders() {
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('alpha_user') || '{}');
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            };
+        const token = localStorage.getItem('token');
+        let sessionData = localStorage.getItem('alpha_user');
+        let user = sessionData ? JSON.parse(sessionData) : null;
+
+        if (!token || !user || user.role !== 'shop') {
+            localStorage.clear();
+            window.location.href = '/';
         }
+
+        let allUsersCache = [];
+        let createdPlayersList = [];
+        let selectedPlayer = "";
+        let allTransactionsCache = [];
+        let allSportTicketsCache = [];
+        let allCasinoHistoryCache = [];
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
-            if(!container) return;
             const toast = document.createElement('div');
-            const icon = type === 'success' ? '✅' : '❌';
+            const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
             
-            toast.className = `toast align-items-center text-bg-dark border-0 mb-2 show shadow-lg`;
-            toast.setAttribute('role', 'alert');
-            toast.setAttribute('aria-live', 'assertive');
-            toast.setAttribute('aria-atomic', 'true');
+            toast.className = `${bgColor} text-white px-4 py-3 rounded shadow-lg flex items-center justify-between transition-all duration-300 transform translate-y-0 opacity-100 mb-2`;
+            toast.innerHTML = `<span class="text-sm font-bold">${message}</span>`;
             
-            toast.innerHTML = `
-                <div class="d-flex ${type === 'success' ? 'border-success' : 'border-danger'} border-start border-4 rounded" style="background-color: var(--bg-card);">
-                    <div class="toast-body fw-bold d-flex gap-2" style="font-size: 0.75rem;">
-                        <span>${icon}</span> ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" onclick="this.parentElement.parentElement.remove()"></button>
-                </div>
-            `;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
-        function switchShopPanelSection(sectionId) {
-            document.querySelectorAll('.shop-main-view').forEach(el => {
-                el.classList.add('d-none');
-                el.classList.remove('d-flex');
-            });
-            
-            document.querySelectorAll('.sidebar-link').forEach(btn => btn.classList.remove('active-shop-btn'));
-            
-            const targetSection = document.getElementById(`panel-shop-${sectionId}`);
-            if (targetSection) {
-                targetSection.classList.remove('d-none');
-                if(sectionId === 'compte') targetSection.classList.add('d-flex');
-            }
-            
-            document.querySelectorAll(`[onclick*="switchShopPanelSection('${sectionId}')"]`).forEach(btn => btn.classList.add('active-shop-btn'));
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('shop-username-display').innerText = `${user.username.toUpperCase()} (ID: ${user.id || '---'})`;
+            updateTopBalance(user.balance);
+            await loadShopPlayersData();
+        });
 
-            // تشغيل دوال الجلب الديناميكية عند الدخول للقسم
-            if (sectionId === 'transfert') fetchShopTransactions();
-            if (sectionId === 'casino') fetchShopCasinoHistory();
-            if (sectionId === 'sport') fetchShopSportTickets();
+        function updateTopBalance(balance) {
+            const balNum = parseFloat(balance || 0).toFixed(2);
+            document.getElementById('shop-balance-display').innerText = `${balNum} TND`;
+        }
+
+        function getAuthHeaders() {
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+        }
+
+        function showView(viewId) {
+            const views = ['menu-view', 'new-user-view', 'balances-view', 'tree-view', 'password-view', 'transactions-view', 'net-history-view', 'sport-history-view', 'casino-history-view'];
+            views.forEach(v => {
+                document.getElementById(v).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+
+            const backBtn = document.getElementById('back-btn');
+            const menuFooter = document.getElementById('menu-footer');
+            const title = document.getElementById('header-title');
+
+            if (viewId === 'menu-view') {
+                backBtn.classList.add('hidden');
+                menuFooter.classList.remove('hidden');
+                title.innerHTML = '<i class="fa-solid fa-chevron-left mr-2"></i> MINIADMIN | MENU';
+            } else {
+                backBtn.classList.remove('hidden');
+                menuFooter.classList.add('hidden');
+                let titleText = viewId.replace('-view', '').replace(/-/g, ' ').toUpperCase();
+                if(viewId === 'balances-view') titleText = 'SOLDE DES CARTES';
+                if(viewId === 'new-user-view') titleText = 'NOUVEL UTILISATEUR';
+                title.innerHTML = titleText;
+            }
+        }
+
+        function generatePassword() {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let pass = "";
+            for (let i = 0; i < 8; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+            document.getElementById('new-password').value = pass;
+        }
+
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === "password" ? "text" : "password";
         }
 
         async function loadShopPlayersData() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/users`, {
-                 method: 'GET',
-                 headers: getAuthHeaders()
-            });
+                const res = await fetch(`${BACKEND_URL}/api/admin/users`, { headers: getAuthHeaders() });
                 if(res.ok) {
-                    allUsers = await res.json();
-                    createdPlayersList = allUsers.filter(u => u.created_by === shopSessionUser.username);
-                    renderFilteredUsers(); 
+                    allUsersCache = await res.json();
+                    createdPlayersList = allUsersCache.filter(u => u.created_by === user.username && u.role === 'player');
                     
-                    const me = allUsers.find(u => u.username === shopSessionUser.username);
+                    const me = allUsersCache.find(u => u.username === user.username);
                     if(me) {
-                        shopSessionUser.balance = me.balance;
-                        document.getElementById('shop-balance-val').innerText = `${parseFloat(shopSessionUser.balance).toFixed(2)} TND`;
-                        localStorage.setItem('alpha_user', JSON.stringify(shopSessionUser));
+                        user.balance = me.balance;
+                        updateTopBalance(user.balance);
+                        localStorage.setItem('alpha_user', JSON.stringify(user));
                     }
                 }
             } catch(e) { console.error(e); }
         }
 
-      async function createPlayerAccount() {
-            const usernameInput = document.getElementById('new-user-name');
-            const passwordInput = document.getElementById('player-password');
+        async function createPlayerAccount() {
+            const username = document.getElementById('new-username').value.trim().toLowerCase();
+            const password = document.getElementById('new-password').value;
+            const initialBalance = parseFloat(document.getElementById('new-balance').value) || 0;
+            const btn = document.getElementById('btn-create-user');
 
-            const username = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
-            const password = passwordInput ? passwordInput.value : '';
+            if (!username || !password) return showNotification("Veuillez remplir les champs", "error");
 
-            if(!username || !password) {
-                showNotification('Remplir tous les champs!', 'error');
-                return;
-            }
-
-            // جلب اسم الشوب الحالي من التخزين المحلي
-            const sessionData = localStorage.getItem('alpha_user');
-            const currentUser = sessionData ? JSON.parse(sessionData) : null;
-            const creatorUsername = currentUser ? currentUser.username : 'shop_admin';
+            btn.innerText = "⏳...";
+            btn.disabled = true;
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/register`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ 
-                        username: username, 
-                        password: password, 
-                        role: 'player', 
-                        created_by: creatorUsername,
-                        phone: "00000000" // إضافة حقل الهاتف المطلوب لكي يوافق السيرفر
-                    })
+                    method: 'POST', headers: getAuthHeaders(),
+                    body: JSON.stringify({ username, password, role: 'player', created_by: user.username, phone: "00000000" })
                 });
-                
-                const data = await res.json(); 
+                const data = await res.json();
 
-                if(res.ok){
-                    showNotification('Compte créé avec succès!', 'success');
-                    usernameInput.value = '';
-                    passwordInput.value = '';
+                if (res.ok) {
+                    showNotification("Compte créé avec succès!");
+                    
+                    if (initialBalance > 0) {
+                        await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
+                            method: 'POST', headers: getAuthHeaders(),
+                            body: JSON.stringify({ admin_username: user.username, target_username: username, action: 'charge', amount: initialBalance })
+                        });
+                        showNotification(`Solde initial ${initialBalance} TND ajouté`);
+                    }
+
+                    document.getElementById('new-username').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('new-balance').value = '0.00';
+                    
                     await loadShopPlayersData();
                 } else {
-                    showNotification(data.detail || 'Erreur lors de la création', 'error');
+                    showNotification(data.detail || "Erreur", "error");
                 }
-            } catch(e) {
-                console.error("خطأ الاتصال تفصيلي:", e);
-                showNotification('Erreur de connexion avec le serveur', 'error');
+            } catch (e) {
+                showNotification("Erreur de connexion", "error");
+            } finally {
+                btn.innerText = "Créer";
+                btn.disabled = false;
             }
         }
 
-        async function changePlayerPasswordFromShop() {
-            const targetPlayer = document.getElementById('target-player-name').value.trim().toLowerCase();
-            const newPassword = document.getElementById('shop-player-new-pass').value;
+        async function fetchAndShowBalances() {
+            showView('balances-view');
+            await loadShopPlayersData();
+            renderUsersTable(createdPlayersList);
+        }
+
+        function renderUsersTable(users) {
+            const tbody = document.getElementById('users-tbody');
+            document.getElementById('users-count').innerText = users.length;
             
-            if(!targetPlayer) return showNotification('الرجاء اختيار لاعب أولاً من الجدول أسفله', 'error');
-            if(!newPassword || newPassword.length < 4) return showNotification('كلمة المرور قصيرة جداً (مطلوب 4 رموز على الأقل)', 'error');
+            let totalBal = 0;
+            let html = '';
+
+            if(users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Aucun joueur</td></tr>';
+                document.getElementById('total-users-balance').innerText = "0.00";
+                return;
+            }
+
+            users.forEach(u => {
+                const bal = parseFloat(u.balance || 0);
+                totalBal += bal;
+                html += `
+                <tr class="border-b border-gray-800 hover:bg-gray-800 transition">
+                    <td class="py-3 text-gray-400 font-mono text-xs">${u.id || '---'}</td>
+                    <td class="py-3 font-bold text-[#0ea5e9]">${escapeHTML(u.username)}</td>
+                    <td class="py-3 text-right font-mono font-bold">${bal.toFixed(2)}</td>
+                    <td class="py-3 text-right">
+                        <button onclick="openBalanceModal('${escapeHTML(u.username)}')" class="text-green-500 text-lg ml-2"><i class="fa-solid fa-circle-plus"></i></button>
+                    </td>
+                </tr>`;
+            });
             
+            document.getElementById('total-users-balance').innerText = totalBal.toFixed(2);
+            tbody.innerHTML = html;
+        }
+
+        function filterTable(tableId, term) {
+            const lowerTerm = term.toLowerCase();
+            const filtered = createdPlayersList.filter(u => u.username.toLowerCase().includes(lowerTerm));
+            renderUsersTable(filtered);
+        }
+
+        function openBalanceModal(username) {
+            selectedPlayer = username;
+            document.getElementById('modal-username').innerText = username;
+            document.getElementById('modal-amount').value = '';
+            document.getElementById('modal-new-pass').value = '';
+            document.getElementById('balance-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('balance-modal').classList.add('hidden');
+        }
+
+        async function processTransaction(action) {
+            const amount = parseFloat(document.getElementById('modal-amount').value);
+            if (!amount || amount <= 0) return showNotification("Montant invalide", "error");
+            
+            if(action === 'charge' && user.balance < amount) {
+                return showNotification('Solde insuffisant!', 'error');
+            }
+
             try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
+                    method: 'POST', headers: getAuthHeaders(),
+                    body: JSON.stringify({ admin_username: user.username, target_username: selectedPlayer, action, amount })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showNotification("Opération réussie!");
+                    closeModal();
+                    await fetchAndShowBalances(); 
+                } else {
+                    showNotification(data.detail || "Erreur", "error");
+                }
+            } catch (e) {
+                showNotification("Erreur de connexion", "error");
+            }
+        }
+
+        async function changePlayerPasswordFromModal() {
+             const newPassword = document.getElementById('modal-new-pass').value;
+             if(!newPassword || newPassword.length < 4) return showNotification('Mot de passe trop court', 'error');
+             
+             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/change-player-password`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({
-                        admin_username: shopSessionUser.username,
-                        target_username: targetPlayer,
+                        admin_username: user.username,
+                        target_username: selectedPlayer,
                         new_password: newPassword
                     })
                 });
                 if(res.ok) {
-                    showNotification(`تم تحديث كلمة مرور اللاعب [ ${targetPlayer} ] بنجاح!`);
-                    document.getElementById('shop-player-new-pass').value = '';
-                    document.getElementById('target-player-name').value = '';
+                    showNotification(`Mot de passe modifié avec succès!`);
+                    document.getElementById('modal-new-pass').value = '';
                 } else {
-                    showNotification('فشلت عملية التعديل، تأكد من اتصال الخادم', 'error');
+                    showNotification('Erreur', 'error');
                 }
-            } catch(e) { showNotification('خطأ في الاتصال بالخادم المالي والبرمجي', 'error'); }
+            } catch(e) { showNotification('Erreur de connexion', 'error'); }
         }
 
-        async function executeShopFinance(action) {
-            const targetPlayer = document.getElementById('target-player-name').value.trim().toLowerCase();
-            let amount = parseFloat(document.getElementById('finance-amount').value);
-            
-            if(!targetPlayer || isNaN(amount) || amount <= 0) return showNotification('بيانات المعاملة غير صحيحة أو لم تختر لاعباً', 'error');
 
-            if(action === 'charge' && shopSessionUser.balance < amount) {
-                return showNotification('رصيد متجرك الحالي غير كافٍ للشحن!', 'error');
-            }
-
-            try {
-                // طلب واحد كافٍ وسحرm؛ السيرفر يتولى خصم الرصيد من الشوب وإضافته للاعب تلقائياً
-                const res = await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
-                    method: 'POST', 
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ 
-                        admin_username: shopSessionUser.username, 
-                        target_username: targetPlayer, 
-                        action: action, 
-                        amount: amount 
-                    })
-                });
-                
-                if(res.ok) {
-                    if (action === 'withdraw') {
-                        showNotification(`تم سحب ${amount.toFixed(2)} د.ت بنجاح لرصيد متجرك`);
-                    } else {
-                        showNotification(`تم شحن اللاعب بمبلغ ${amount.toFixed(2)} د.ت خصماً من رصيدك`);
-                    }
-                    document.getElementById('finance-amount').value = "";
-                    document.getElementById('target-player-name').value = "";
-                    await loadShopPlayersData(); // تحديث أوتوماتيكي لرصيد الشوب واللاعبين من السيرفر
-                } else {
-                    const errData = await res.json();
-                    showNotification(errData.detail || 'فشلت العملية، تأكد من رصيد اللاعب', 'error');
-                }
-            } catch(e) { 
-                console.error(e);
-                showNotification('خطأ في معالجة الشبكة المالية للمحلات', 'error'); 
-            }
-        }
-
-        // دالة عرض اللاعبين بحجم مصغر (Compact)
-        // دالة عرض اللاعبين بحجم مصغر (Compact)
-        function renderFilteredUsers() {
-            const searchInput = document.getElementById('search-input');
-            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-            const container = document.getElementById('players-table-body');
-            
-            if (!container) return;
-            
-            let filtered = createdPlayersList.filter(u => (u.username || '').toLowerCase().includes(searchTerm));
-            filtered.sort((a, b) => parseFloat(b.balance || 0) - parseFloat(a.balance || 0));
-            
-            if (filtered.length === 0) {
-                container.innerHTML = `<p class="p-2 text-center text-secondary fw-bold" style="font-size: 0.75rem;">Aucun joueur trouvé</p>`;
-                return;
-            }
-            
-            container.innerHTML = filtered.map(p => {
-                const safeUsername = escapeHTML(p.username);
-                const safeRole = escapeHTML(p.role || 'PLAYER').toUpperCase();
-                const safeId = escapeHTML(p.id || 'N/A');
-                
-                return `
-                <div class="bg-input-custom p-2 rounded-2 d-flex justify-content-between align-items-center border border-custom mb-1 shadow-sm">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="bg-dark rounded-circle d-flex justify-content-center align-items-center border border-secondary" style="width: 24px; height: 24px;">
-                            <span style="font-size: 10px;">👤</span>
-                        </div>
-                        <div>
-                        <div class="d-flex align-items-center gap-1 mb-0">
-                        <p class="fw-bold text-white mb-0" style="font-size: 0.75rem;">${safeUsername}</p>
-                        <span class="badge bg-secondary border border-secondary text-white" style="font-size: 0.55rem; padding: 2px 4px;">ID: ${safeId}</span>
-                    </div>
-                            <span class="text-warning fw-bold" style="font-size: 0.55rem;">${safeRole}</span>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="font-monospace text-emerald fw-bold" style="font-size: 0.75rem;">${parseFloat(p.balance).toFixed(2)} TND</span>
-                        <button onclick="selectPlayerForAction('${safeUsername}')" 
-                                class="btn btn-emerald rounded-1 d-flex align-items-center justify-content-center shadow-sm" style="width: 24px; height: 24px; padding: 0; font-size: 10px;">
-                            ➜
-                        </button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-        function selectPlayerForAction(name) { 
-            document.getElementById('target-player-name').value = name;
-            document.getElementById('target-player-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        async function fetchAndShowTree() {
+            showView('tree-view');
+            await loadShopPlayersData();
+            renderTree(createdPlayersList);
         }
         
-        function changeShopLanguage(lang) { document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; }
-        function logoutShop() { localStorage.clear(); window.location.href = '/';  }
-
-        window.onload = async function() {
-            const saved = localStorage.getItem('alpha_user');
-            if(saved) {
-                shopSessionUser = JSON.parse(saved);
-                document.getElementById('shop-username-display').innerText = `Boutique: ${shopSessionUser.username}`;
-                document.getElementById('shop-balance-val').innerText = `${parseFloat(shopSessionUser.balance).toFixed(2)} TND`;
-                await loadShopPlayersData();
-            } else {
-                window.location.href = '/';
+        function renderTree(users) {
+            const container = document.getElementById('tree-list');
+            if(users.length === 0) {
+                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun joueur</div>';
+                 return;
             }
+             let html = '';
+             users.forEach(u => {
+                 const bal = parseFloat(u.balance || 0).toFixed(2);
+                 html += `
+                 <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 flex justify-between items-center">
+                     <div>
+                         <div class="font-bold text-lg text-white">${escapeHTML(u.username)}</div>
+                         <div class="text-gray-400 text-xs font-mono mt-1">ID: ${u.id || '---'}</div>
+                     </div>
+                     <div class="text-right">
+                         <div class="text-sm text-gray-300">ÉQUILIBRE: <span class="font-mono font-bold text-white">${bal} TND</span></div>
+                         <div class="text-gray-400 text-xs mt-1">RÔLE: ${u.role.substring(0,1).toUpperCase()}</div>
+                     </div>
+                 </div>`;
+             });
+             container.innerHTML = html;
         }
-       // 1. جلب سجل التحويلات (Transferts)
-        async function fetchShopTransactions() {
-            const container = document.querySelector('#panel-shop-transfert .bg-card-custom');
-            container.innerHTML = '<div class="text-center text-info fw-bold" style="font-size: 0.8rem;">جاري جلب السجلات... ⏳</div>';
+
+        function filterTree() {
+            const username = document.getElementById('tree-search-username').value.toLowerCase();
+            const id = document.getElementById('tree-search-id').value.toLowerCase();
+            const role = document.getElementById('tree-role').value;
+            
+            let filtered = createdPlayersList;
+            if(username) filtered = filtered.filter(u => u.username.toLowerCase().includes(username));
+            if(id) filtered = filtered.filter(u => (u.id || '').toString().toLowerCase().includes(id));
+            if(role !== 'all') filtered = filtered.filter(u => u.role === role);
+            
+            renderTree(filtered);
+        }
+
+        async function fetchAndShowTransactions() {
+            showView('transactions-view');
+            const container = document.getElementById('transactions-list');
+            container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
             
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/transactions-history?username=${shopSessionUser.username}`, { headers: getAuthHeaders() });
+                const res = await fetch(`${BACKEND_URL}/api/admin/transactions-history?username=${user.username}`, { headers: getAuthHeaders() });
                 if (res.ok) {
-                    const txs = await res.json();
-                    if (txs.length === 0) {
-                        container.innerHTML = 'Aucune transaction enregistrée pour le moment.';
-                        return;
-                    }
-                    
-                    let html = `<div class="d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">`;
-                    txs.forEach(t => {
-                        const isCharge = t.action === 'charge' || t.action === 'deposit_request';
-                        const color = isCharge ? 'text-emerald' : 'text-danger';
-                        const sign = isCharge ? '+' : '-';
-                        const targetName = escapeHTML(t.target_username || t.target || 'مجهول');
-                        const actionName = escapeHTML(t.action);
-                        
-                        html += `
-                        <div class="bg-input-custom border border-custom rounded-2 p-2 d-flex justify-content-between align-items-center text-start" style="font-size: 0.75rem;">
-                            <div>
-                                <div class="text-white fw-bold">👤 ${targetName} <span class="text-secondary" style="font-size:0.6rem">(${actionName})</span></div>
-                                <div class="text-secondary font-monospace" style="font-size: 0.65rem;">🕒 ${t.date || ''}</div>
-                            </div>
-                            <div class="text-end font-monospace">
-                                <div class="${color} fw-bold">${sign}${parseFloat(t.amount).toFixed(2)} TND</div>
-                            </div>
-                        </div>`;
-                    });
-                    html += `</div>`;
-                    container.innerHTML = html;
-                    container.classList.remove('text-center', 'text-secondary', 'text-uppercase');
-                } else { container.innerHTML = 'Erreur lors du chargement des transactions.'; }
-            } catch (e) { container.innerHTML = 'Erreur de connexion.'; }
+                    allTransactionsCache = await res.json();
+                    renderTransactions(allTransactionsCache);
+                } else { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur</div>'; }
+            } catch (e) { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur de connexion</div>'; }
         }
 
-        // 2. جلب سجل الكازينو (Casino) للوكيل (اللاعبين التابعين له)
-        async function fetchShopCasinoHistory() {
-            const container = document.querySelector('#panel-shop-casino .bg-card-custom');
-            container.innerHTML = '<div class="text-center text-info fw-bold" style="font-size: 0.8rem;">جاري المزامنة مع Hub88... ⏳</div>';
+        function renderTransactions(txs) {
+            const container = document.getElementById('transactions-list');
+            if (txs.length === 0) {
+                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucune transaction</div>';
+                 return;
+            }
+            
+            let html = '';
+            txs.forEach(t => {
+                const isCharge = t.action === 'charge' || t.action === 'deposit_request';
+                const color = isCharge ? 'text-green-500' : 'text-red-500';
+                const sign = isCharge ? '+' : '-';
+                const targetName = escapeHTML(t.target_username || t.target || 'Inconnu');
+                const actionName = escapeHTML(t.action);
+                
+                html += `
+                <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-white">👤 ${targetName} <span class="text-gray-400 text-xs">(${actionName})</span></div>
+                        <div class="text-gray-400 text-xs font-mono mt-1">🕒 ${t.date || ''}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-mono font-bold ${color}">${sign}${parseFloat(t.amount).toFixed(2)} TND</div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterTransactions() {
+             const username = document.getElementById('trans-search-username').value.toLowerCase();
+             let filtered = allTransactionsCache;
+             if(username) filtered = filtered.filter(t => (t.target_username || '').toLowerCase().includes(username));
+             renderTransactions(filtered);
+        }
+
+        async function fetchAndShowNetHistory() {
+             showView('net-history-view');
+             const container = document.getElementById('net-history-list');
+             container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
+             
+             try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/transactions-history?username=${user.username}`, { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const txs = await res.json();
+                    
+                    let userStats = {};
+                    txs.forEach(t => {
+                        const target = t.target_username;
+                        if(!target) return;
+                        if(!userStats[target]) userStats[target] = { deposit: 0, withdraw: 0 };
+                        
+                        const amt = parseFloat(t.amount) || 0;
+                        if (t.action === 'charge' || t.action === 'deposit_request') userStats[target].deposit += amt;
+                        else if (t.action === 'withdraw') userStats[target].withdraw += amt;
+                    });
+                    
+                    let statsArray = [];
+                    for(let username in userStats) {
+                        statsArray.push({
+                            username: username,
+                            deposit: userStats[username].deposit,
+                            withdraw: userStats[username].withdraw,
+                            net: userStats[username].deposit - userStats[username].withdraw
+                        });
+                    }
+                    
+                    window._currentNetStats = statsArray;
+                    renderNetHistory(statsArray);
+
+                } else { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur</div>'; }
+            } catch (e) { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur de connexion</div>'; }
+        }
+        
+        function renderNetHistory(stats) {
+            const container = document.getElementById('net-history-list');
+            if (stats.length === 0) {
+                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucune donnée</div>';
+                 return;
+            }
+            let html = '';
+            stats.forEach(s => {
+                const netColor = s.net >= 0 ? 'text-green-500' : 'text-red-500';
+                html += `
+                <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3">
+                     <div class="font-bold text-white mb-2 text-lg border-b border-gray-700 pb-1">👤 ${escapeHTML(s.username)}</div>
+                     <div class="flex justify-between text-sm mb-1">
+                         <span class="text-gray-400">Dépôt:</span>
+                         <span class="text-white font-mono">${s.deposit.toFixed(2)}</span>
+                     </div>
+                     <div class="flex justify-between text-sm mb-1">
+                         <span class="text-gray-400">Retrait:</span>
+                         <span class="text-white font-mono">${s.withdraw.toFixed(2)}</span>
+                     </div>
+                     <div class="flex justify-between text-sm font-bold border-t border-gray-700 pt-1 mt-1">
+                         <span class="text-gray-300">Total:</span>
+                         <span class="font-mono ${netColor}">${s.net.toFixed(2)}</span>
+                     </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterNetHistory() {
+             const username = document.getElementById('net-search-username').value.toLowerCase();
+             let filtered = window._currentNetStats || [];
+             if(username) filtered = filtered.filter(s => s.username.toLowerCase().includes(username));
+             renderNetHistory(filtered);
+        }
+
+        async function fetchAndShowSportTickets() {
+            showView('sport-history-view');
+            const container = document.getElementById('sport-history-list');
+            container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/get-all-tickets?t=${Date.now()}`, { headers: getAuthHeaders() });
+                if (res.ok) {
+                    const allTickets = await res.json();
+                    
+                    const shopPlayers = createdPlayersList.map(p => p.username);
+                    allSportTicketsCache = allTickets.filter(t => shopPlayers.includes(t.username || t.user));
+                    
+                    renderSportTickets(allSportTicketsCache);
+                } else { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur</div>'; }
+            } catch (e) { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur de connexion</div>'; }
+        }
+
+        function renderSportTickets(tickets) {
+             const container = document.getElementById('sport-history-list');
+             if (tickets.length === 0) {
+                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun ticket en attente</div>';
+                 return;
+             }
+             let html = '';
+             tickets.forEach(t => {
+                 let badgeColor = t.status === "gagne" ? "text-green-500" : (t.status === "perdu" ? "text-red-500" : (t.status === "cashout" ? "text-yellow-500" : "text-blue-500"));
+                 let matchesHtml = Array.isArray(t.details_list) ? t.details_list.map(g => `• ${escapeHTML(g.matchName)} (<span class="text-yellow-500">${escapeHTML(g.outcome)}</span>)`).join('<br>') : escapeHTML(t.match || "Match Inconnu");
+                 
+                 html += `
+                 <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 text-sm">
+                     <div class="flex justify-between items-start mb-2">
+                         <div class="text-white">
+                             <span class="text-gray-400 font-mono">#${t.ticket_id || t.id || ''}</span><br>
+                             👤 <span class="text-[#0ea5e9] font-bold">${t.username || t.user || ''}</span>
+                         </div>
+                         <span class="border border-gray-600 px-2 py-1 rounded text-xs uppercase ${badgeColor} font-bold">${t.status}</span>
+                     </div>
+                     <div class="text-gray-300 mb-2 leading-relaxed">${matchesHtml}</div>
+                     <div class="border-t border-gray-700 pt-2 flex justify-between font-mono">
+                         <div class="text-gray-400">
+                             Cote: X${parseFloat(t.total_cote || 0).toFixed(2)}<br>
+                             Mise: ${parseFloat(t.mise || 0).toFixed(2)}
+                         </div>
+                         <div class="${badgeColor} font-bold text-right flex items-end">
+                             Gain: +${parseFloat(t.gain || 0).toFixed(2)} TND
+                         </div>
+                     </div>
+                 </div>`;
+             });
+             container.innerHTML = html;
+        }
+
+        function filterSportHistory() {
+             const username = document.getElementById('sport-search-username').value.toLowerCase();
+             let filtered = allSportTicketsCache;
+             if(username) filtered = filtered.filter(t => (t.username || t.user || '').toLowerCase().includes(username));
+             renderSportTickets(filtered);
+        }
+
+        async function fetchAndShowCasinoHistory() {
+            showView('casino-history-view');
+            const container = document.getElementById('casino-history-list');
+            container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
             
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/casino-history`, { headers: getAuthHeaders() });
                 if (res.ok) {
                     const allHistory = await res.json();
                     
-                    // فلترة السجلات لتشمل فقط اللاعبين التابعين لهذا المتجر
                     const shopPlayers = createdPlayersList.map(p => p.username);
-                    const myHistory = allHistory.filter(t => shopPlayers.includes(t.username));
+                    allCasinoHistoryCache = allHistory.filter(t => shopPlayers.includes(t.username));
                     
-                    if (myHistory.length === 0) {
-                        container.innerHTML = 'Logs Hub88 synchronisés. Aucun pari de casino trouvé pour vos joueurs.';
-                        return;
-                    }
-                    
-                    let html = `<div class="d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">`;
-                    myHistory.forEach(t => {
-                        const isWin = t.action === 'win';
-                        const badgeColor = isWin ? 'text-emerald' : 'text-danger';
-                        const sign = isWin ? '+' : '-';
-                        const actionName = isWin ? 'Gain' : 'Mise';
-                        
-                        html += `
-                        <div class="bg-input-custom border border-custom rounded-2 p-2 d-flex justify-content-between align-items-center text-start" style="font-size: 0.75rem;">
-                            <div>
-                                <div class="text-white fw-bold">👤 ${escapeHTML(t.username)}</div>
-                                <div class="text-secondary font-monospace" style="font-size: 0.65rem;">🕒 ${t.date}</div>
-                            </div>
-                            <div class="text-end font-monospace">
-                                <span class="badge border border-secondary text-uppercase ${badgeColor} py-0 px-1 mb-1" style="font-size: 0.6rem;">${actionName}</span>
-                                <div class="${badgeColor} fw-bold">${sign}${parseFloat(t.amount).toFixed(2)} TND</div>
-                            </div>
-                        </div>`;
-                    });
-                    html += `</div>`;
-                    container.innerHTML = html;
-                    container.classList.remove('text-center', 'text-secondary', 'text-uppercase');
-                } else { container.innerHTML = 'Erreur serveur.'; }
-            } catch (e) { container.innerHTML = 'Erreur API.'; }
+                    renderCasinoHistory(allCasinoHistoryCache);
+                } else { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur</div>'; }
+            } catch (e) { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur API</div>'; }
         }
 
-        // 3. جلب الأوراق الرياضية (Sport Tickets)
-        async function fetchShopSportTickets() {
-            const container = document.querySelector('#shop-sport-container');
-            container.innerHTML = '<div class="bg-card-custom border-custom rounded-3 p-4 text-center text-info fw-bold" style="font-size: 0.8rem;">جاري جلب التذاكر... ⏳</div>';
-            
-            try {
-                // استخدام مسار الأونر لجلب كل التذاكر ثم فلترتها
-                const res = await fetch(`${BACKEND_URL}/api/admin/get-all-tickets?t=${Date.now()}`, { headers: getAuthHeaders() });
-                if (res.ok) {
-                    const allTickets = await res.json();
-                    
-                    const shopPlayers = createdPlayersList.map(p => p.username);
-                    const myTickets = allTickets.filter(t => shopPlayers.includes(t.username || t.user));
-
-                    if (myTickets.length === 0) {
-                        container.innerHTML = '<div class="bg-card-custom border-custom rounded-3 p-4 text-center text-secondary fw-bold text-uppercase" style="font-size: 0.8rem;">Aucun ticket en attente</div>';
-                        return;
-                    }
-                    
-                    let html = `<div class="d-flex flex-column gap-2" style="max-height: 400px; overflow-y: auto;">`;
-                    myTickets.forEach(t => {
-                        let badgeColor = t.status === "gagne" ? "text-emerald" : (t.status === "perdu" ? "text-danger" : (t.status === "cashout" ? "text-warning" : "text-info"));
-                        let matchesHtml = Array.isArray(t.details_list) ? t.details_list.map(g => `• ${escapeHTML(g.matchName)} (<span class="text-warning">${escapeHTML(g.outcome)}</span>)`).join('<br>') : escapeHTML(t.match || "Match Inconnu");
-                        
-                        html += `
-                        <div class="bg-card-custom border border-custom rounded-2 p-3 d-flex flex-column flex-md-row justify-content-between gap-2 text-start" style="font-size: 0.75rem;">
-                            <div class="text-white">
-                                <span class="text-secondary font-monospace">#${t.ticket_id || t.id || ''} • 👤 <span class="text-info">${t.username || t.user || ''}</span></span>
-                                <div class="mt-1 line-height-sm">${matchesHtml}</div>
-                            </div>
-                            <div class="text-end font-monospace border-top border-md-0 border-custom pt-2 pt-md-0">
-                                <div class="text-secondary" style="font-size: 0.7rem;">Cote: X${parseFloat(t.total_cote || 0).toFixed(2)} | Mise: ${parseFloat(t.mise || 0).toFixed(2)}</div>
-                                <div class="fw-bold ${badgeColor} my-1" style="font-size: 0.85rem;">Gain: +${parseFloat(t.gain || 0).toFixed(2)} TND</div>
-                                <span class="badge border border-secondary text-uppercase ${badgeColor} py-1 px-2" style="font-size: 0.65rem;">${t.status}</span>
-                            </div>
-                        </div>`;
-                    });
-                    html += `</div>`;
-                    container.innerHTML = html;
-                } else { container.innerHTML = '<div class="bg-card-custom p-3 text-center text-danger">Erreur</div>'; }
-            } catch (e) { container.innerHTML = '<div class="bg-card-custom p-3 text-center text-danger">Erreur de connexion</div>'; }
+        function renderCasinoHistory(history) {
+             const container = document.getElementById('casino-history-list');
+             if (history.length === 0) {
+                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun pari de casino trouvé</div>';
+                 return;
+             }
+             let html = '';
+             history.forEach(t => {
+                 const isWin = t.action === 'win';
+                 const badgeColor = isWin ? 'text-green-500' : 'text-red-500';
+                 const sign = isWin ? '+' : '-';
+                 const actionName = isWin ? 'Gain' : 'Mise';
+                 
+                 html += `
+                 <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 flex justify-between items-center text-sm">
+                     <div>
+                         <div class="text-white font-bold">👤 ${escapeHTML(t.username)}</div>
+                         <div class="text-gray-400 font-mono text-xs mt-1">🕒 ${t.date}</div>
+                     </div>
+                     <div class="text-right">
+                         <div class="text-xs text-gray-400 uppercase mb-1">${actionName}</div>
+                         <div class="${badgeColor} font-bold font-mono text-lg">${sign}${parseFloat(t.amount).toFixed(2)} TND</div>
+                     </div>
+                 </div>`;
+             });
+             container.innerHTML = html;
         }
 
-        // 4. تغيير كلمة سر الشوب (الأمان)
+        function filterCasinoHistory() {
+             const username = document.getElementById('casino-search-username').value.toLowerCase();
+             let filtered = allCasinoHistoryCache;
+             if(username) filtered = filtered.filter(t => (t.username || '').toLowerCase().includes(username));
+             renderCasinoHistory(filtered);
+        }
+
         async function updateShopPassword() {
-            const newPass = document.getElementById('shop-new-pass').value;
+            const newPass = document.getElementById('new-shop-pass').value;
             if (!newPass || newPass.length < 6) return showNotification('6 caractères minimum', 'error');
             
             try {
                 const res = await fetch(`${BACKEND_URL}/api/user/change-password`, {
                     method: 'POST', headers: getAuthHeaders(),
-                    body: JSON.stringify({ username: shopSessionUser.username, new_password: newPass })
+                    body: JSON.stringify({ username: user.username, new_password: newPass })
                 });
                 if (res.ok) {
                     showNotification('Mot de passe mis à jour!', 'success');
-                    document.getElementById('shop-new-pass').value = '';
+                    document.getElementById('new-shop-pass').value = '';
                 } else {
                     const data = await res.json();
                     showNotification(data.detail || 'Erreur', 'error');
                 }
             } catch (e) { showNotification('Erreur de connexion', 'error'); }
         }
-// 🛡️ درع المقعد الفارغ (طرد بعد 15 دقيقة من الخمول)
+
+        function changeLanguage(lang) {
+           if(lang === 'en') {
+                showNotification("English translation not fully implemented yet.", "warning");
+           }
+        }
+
+        function logoutShop() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+
         let idleTime = 0;
         function timerIncrement() {
             idleTime = idleTime + 1;
-            if (idleTime > 15) { // 15 دقيقة
-                showNotification("تم تسجيل الخروج بسبب عدم النشاط!", "warning");
+            if (idleTime > 15) {
+                showNotification("Déconnexion pour inactivité", "warning");
                 setTimeout(logoutShop, 1500);
             }
         }
-        // تصفير العداد عند أي حركة
         document.body.addEventListener('mousemove', () => idleTime = 0);
         document.body.addEventListener('keypress', () => idleTime = 0);
-        setInterval(timerIncrement, 60000); // يفحص كل دقيقة
+        setInterval(timerIncrement, 60000); 
 
         document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123) return false; // تعطيل F12
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // تعطيل Ctrl+Shift+I
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; // تعطيل Ctrl+Shift+C
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // تعطيل Ctrl+Shift+J
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // تعطيل Ctrl+U
-        }
-    </script>
 
-</script>
+    </script>
 </body>
 </html>
