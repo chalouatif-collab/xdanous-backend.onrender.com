@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr" dir="ltr" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         body {
             background-color: #121212 !important;
@@ -16,28 +17,40 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
-        
-        .bg-dark-header { background-color: #000000; }
-        .bg-green-header { background-color: #0f5132; } 
-        .bg-green-section { background-color: #198754; }
-        
+
+        .bg-dark-header {
+            background-color: #000000;
+        }
+
+        .bg-green-header {
+            background-color: #0f5132;
+        }
+
+        .bg-green-section {
+            background-color: #198754;
+        }
+
         .menu-btn {
             background-color: #1e1e1e;
             border: 1px solid #333333;
             color: #ffffff;
             width: 100%;
             text-align: left;
-            padding: 12px 16px;
+            padding: 8px 12px;
+            /* تم تصغير الحشوة الداخلية */
             border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 15px;
+            margin-bottom: 6px;
+            /* تقليل المسافة بين الأزرار */
+            font-size: 13px;
+            /* تصغير حجم الخط */
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: background-color 0.2s;
         }
-        
-        .menu-btn:hover, .menu-btn:active {
+
+        .menu-btn:hover,
+        .menu-btn:active {
             background-color: #2a2a2a;
             border-color: #444;
         }
@@ -52,23 +65,29 @@
             margin-bottom: 12px;
             outline: none;
         }
+
         .form-input:focus {
             border-color: #198754;
         }
-        
+
         .action-btn {
-            background-color: #ffc107; 
+            background-color: #ffc107;
             color: #000;
             font-weight: bold;
             width: 100%;
-            padding: 12px;
+            padding: 8px;
+            /* تم تصغير الحشوة */
+            font-size: 14px;
+            /* تحديد حجم خط أصغر بقليل */
             border-radius: 6px;
             border: none;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
-        ::-webkit-scrollbar { display: none; }
-        
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
         #toast-container {
             position: fixed;
             top: 20px;
@@ -80,6 +99,7 @@
         }
     </style>
 </head>
+
 <body class="h-screen flex flex-col overflow-hidden">
 
     <div id="toast-container" class="flex flex-col gap-2"></div>
@@ -104,7 +124,7 @@
     <div class="flex-1 overflow-y-auto pb-6" id="main-container">
 
         <div id="menu-view" class="p-3 animate-fade-in">
-            
+
             <div class="text-gray-400 text-sm mb-2 mt-2 px-1">Enregistreuse</div>
             <button class="menu-btn" onclick="showView('new-user-view')">Nouvel Utilisateur</button>
             <button class="menu-btn" onclick="fetchAndShowBalances()">Solde des cartes utilisateur</button>
@@ -114,16 +134,19 @@
 
             <div class="text-gray-400 text-sm mb-2 mt-4 px-1">Les partenaires</div>
             <button class="menu-btn" onclick="fetchAndShowSportTickets()">Historique des transactions (Sport)</button>
-             <button class="menu-btn" onclick="fetchAndShowCasinoHistory()">Historique des transactions (Casino)</button>
+            <button class="menu-btn" onclick="fetchAndShowCasinoHistory()">Historique des transactions (Casino)</button>
 
         </div>
 
         <div id="menu-footer" class="animate-fade-in">
             <div class="bg-green-section text-white px-4 py-2 font-bold mb-3">Autre</div>
             <div class="px-3">
-                <button class="menu-btn" onclick="changeLanguage('en')">Changer de Langue <i class="fa-regular fa-flag text-gray-400"></i></button>
-                <button class="menu-btn" onclick="showView('password-view')">Changer le mot de passe <i class="fa-solid fa-lock text-gray-400"></i></button>
-                <button class="menu-btn" onclick="logoutShop()">Me deconnecter <i class="fa-solid fa-arrow-right-from-bracket text-gray-400"></i></button>
+                <button class="menu-btn" onclick="changeLanguage('en')">Changer de Langue <i
+                        class="fa-regular fa-flag text-gray-400"></i></button>
+                <button class="menu-btn" onclick="showView('password-view')">Changer le mot de passe <i
+                        class="fa-solid fa-lock text-gray-400"></i></button>
+                <button class="menu-btn" onclick="logoutShop()">Me deconnecter <i
+                        class="fa-solid fa-arrow-right-from-bracket text-gray-400"></i></button>
             </div>
         </div>
 
@@ -132,7 +155,7 @@
                 <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
                 <input type="text" id="new-username" class="form-input" placeholder="Nom d'utilisateur">
             </div>
-            
+
             <div class="mb-4 relative">
                 <label class="block text-gray-400 text-sm mb-1">Mot de passe</label>
                 <input type="password" id="new-password" class="form-input" placeholder="Mot de passe">
@@ -140,14 +163,17 @@
                     <i class="fa-regular fa-eye-slash"></i>
                 </button>
             </div>
-            
-            <button class="w-full bg-[#2a2a2a] text-white border border-gray-600 py-2 rounded mb-4" onclick="generatePassword()">Générer un mot de passe</button>
+
+            <button class="w-full bg-[#2a2a2a] text-white border border-gray-600 py-2 rounded mb-4"
+                onclick="generatePassword()">Générer un mot de passe</button>
 
             <div class="mb-4 border-t border-gray-800 pt-4 mt-2">
                 <label class="block text-white font-bold mb-2">Équilibre</label>
                 <div class="flex items-center">
                     <span class="text-gray-400 mr-2">Total:</span>
-                    <input type="number" id="new-balance" class="form-input mb-0 bg-transparent border-b border-t-0 border-l-0 border-r-0 rounded-none focus:border-green-500" value="0.00" step="0.10">
+                    <input type="number" id="new-balance"
+                        class="form-input mb-0 bg-transparent border-b border-t-0 border-l-0 border-r-0 rounded-none focus:border-green-500"
+                        value="0.00" step="0.10">
                 </div>
             </div>
 
@@ -158,9 +184,11 @@
             <div class="flex gap-2 mb-3">
                 <div class="relative w-full">
                     <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
-                    <input type="text" id="search-users" oninput="filterTable('users-table', this.value)" class="form-input pl-10 mb-0" placeholder="Search">
+                    <input type="text" id="search-users" oninput="filterTable('users-table', this.value)"
+                        class="form-input pl-10 mb-0" placeholder="Search">
                 </div>
-                <button class="bg-yellow-400 text-black font-bold px-4 rounded" onclick="fetchAndShowBalances()">Search</button>
+                <button class="bg-yellow-400 text-black font-bold px-4 rounded"
+                    onclick="fetchAndShowBalances()">Search</button>
             </div>
 
             <div class="flex justify-between bg-[#0f5132] text-white px-3 py-2 rounded-t font-bold text-sm">
@@ -173,7 +201,7 @@
                     <span><span id="users-count">0</span> Utilisateur</span>
                     <span id="total-users-balance" class="font-bold text-white">0.00</span>
                 </div>
-                
+
                 <table class="w-full text-left text-sm" id="users-table">
                     <thead class="text-gray-400 border-b border-gray-700">
                         <tr>
@@ -192,7 +220,8 @@
         <div id="tree-view" class="p-3 hidden animate-fade-in">
             <div class="mb-3">
                 <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
-                <input type="text" id="tree-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterTree()">
+                <input type="text" id="tree-search-username" class="form-input" placeholder="Nom d'utilisateur"
+                    oninput="filterTree()">
             </div>
             <div class="mb-3">
                 <label class="block text-gray-400 text-sm mb-1">Id</label>
@@ -210,83 +239,95 @@
             <div id="tree-list" class="flex flex-col gap-2">
             </div>
         </div>
-        
+
         <div id="transactions-view" class="p-3 hidden animate-fade-in">
-             <div class="mb-3">
+            <div class="mb-3">
                 <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
-                <input type="text" id="trans-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterTransactions()">
+                <input type="text" id="trans-search-username" class="form-input" placeholder="Nom d'utilisateur"
+                    oninput="filterTransactions()">
             </div>
-             <button class="action-btn mb-4" onclick="fetchAndShowTransactions()">Afficher</button>
-             <div id="transactions-list" class="flex flex-col gap-2">
+            <button class="action-btn mb-4" onclick="fetchAndShowTransactions()">Afficher</button>
+            <div id="transactions-list" class="flex flex-col gap-2">
             </div>
         </div>
-        
-         <div id="net-history-view" class="p-3 hidden animate-fade-in">
-             <div class="mb-3">
+
+        <div id="net-history-view" class="p-3 hidden animate-fade-in">
+            <div class="mb-3">
                 <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
-                <input type="text" id="net-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterNetHistory()">
+                <input type="text" id="net-search-username" class="form-input" placeholder="Nom d'utilisateur"
+                    oninput="filterNetHistory()">
             </div>
-             <button class="action-btn mb-4" onclick="fetchAndShowNetHistory()">Afficher</button>
-             <div id="net-history-list" class="flex flex-col gap-2">
+            <button class="action-btn mb-4" onclick="fetchAndShowNetHistory()">Afficher</button>
+            <div id="net-history-list" class="flex flex-col gap-2">
             </div>
         </div>
 
         <div id="sport-history-view" class="p-3 hidden animate-fade-in">
-             <div class="mb-3">
+            <div class="mb-3">
                 <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
-                <input type="text" id="sport-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterSportHistory()">
+                <input type="text" id="sport-search-username" class="form-input" placeholder="Nom d'utilisateur"
+                    oninput="filterSportHistory()">
             </div>
-             <button class="action-btn mb-4" onclick="fetchAndShowSportTickets()">Afficher</button>
-             <div id="sport-history-list" class="flex flex-col gap-2">
+            <button class="action-btn mb-4" onclick="fetchAndShowSportTickets()">Afficher</button>
+            <div id="sport-history-list" class="flex flex-col gap-2">
             </div>
         </div>
 
         <div id="casino-history-view" class="p-3 hidden animate-fade-in">
-             <div class="mb-3">
+            <div class="mb-3">
                 <label class="block text-gray-400 text-sm mb-1">Nom d'utilisateur</label>
-                <input type="text" id="casino-search-username" class="form-input" placeholder="Nom d'utilisateur" oninput="filterCasinoHistory()">
+                <input type="text" id="casino-search-username" class="form-input" placeholder="Nom d'utilisateur"
+                    oninput="filterCasinoHistory()">
             </div>
-             <button class="action-btn mb-4" onclick="fetchAndShowCasinoHistory()">Afficher</button>
-             <div id="casino-history-list" class="flex flex-col gap-2">
+            <button class="action-btn mb-4" onclick="fetchAndShowCasinoHistory()">Afficher</button>
+            <div id="casino-history-list" class="flex flex-col gap-2">
             </div>
         </div>
 
         <div id="password-view" class="p-4 hidden animate-fade-in">
-             <div class="mb-4 relative">
+            <div class="mb-4 relative">
                 <label class="block text-gray-400 text-sm mb-1">Entrez un nouveau mot de passe</label>
-                <input type="password" id="new-shop-pass" class="form-input" placeholder="Entrez un nouveau mot de passe">
+                <input type="password" id="new-shop-pass" class="form-input"
+                    placeholder="Entrez un nouveau mot de passe">
             </div>
             <button class="action-btn" onclick="updateShopPassword()">Sauvegarder</button>
         </div>
 
     </div>
 
-    <div id="balance-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50 p-4">
+    <div id="balance-modal"
+        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50 p-4">
         <div class="bg-[#1e1e1e] border border-gray-700 rounded-lg w-full max-w-sm p-4">
             <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
                 <h3 class="text-white font-bold">Gérer le solde</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
+
             <div class="text-center mb-4">
                 <div class="text-gray-400 text-sm">Joueur</div>
                 <div class="text-[#0ea5e9] font-mono font-bold text-lg" id="modal-username">---</div>
             </div>
 
-            <input type="number" id="modal-amount" class="form-input text-center text-lg font-bold" placeholder="Montant (TND)">
-             
+            <input type="number" id="modal-amount" class="form-input text-center text-lg font-bold"
+                placeholder="Montant (TND)">
+
             <div class="mb-4 relative mt-2">
                 <label class="block text-gray-400 text-sm mb-1">Nouveau mot de passe (Optionnel)</label>
                 <input type="password" id="modal-new-pass" class="form-input" placeholder="Nouveau mot de passe">
-                 <button class="absolute right-3 top-8 text-gray-400" onclick="togglePassword('modal-new-pass')">
+                <button class="absolute right-3 top-8 text-gray-400" onclick="togglePassword('modal-new-pass')">
                     <i class="fa-regular fa-eye-slash"></i>
                 </button>
-                <button onclick="changePlayerPasswordFromModal()" class="w-full bg-[#2a2a2a] text-white border border-gray-600 py-1 rounded mt-1 text-sm">Changer MDP</button>
+                <button onclick="changePlayerPasswordFromModal()"
+                    class="w-full bg-[#2a2a2a] text-white border border-gray-600 py-1 rounded mt-1 text-sm">Changer
+                    MDP</button>
             </div>
 
             <div class="flex gap-2 mt-4">
-                <button onclick="processTransaction('charge')" class="flex-1 bg-green-600 text-white font-bold py-3 rounded">Dépôt</button>
-                <button onclick="processTransaction('withdraw')" class="flex-1 bg-red-600 text-white font-bold py-3 rounded">Retrait</button>
+                <button onclick="processTransaction('charge')"
+                    class="flex-1 bg-green-600 text-white font-bold py-2 text-sm rounded">Dépôt</button>
+                <button onclick="processTransaction('withdraw')"
+                    class="flex-1 bg-red-600 text-white font-bold py-2 text-sm rounded">Retrait</button>
             </div>
         </div>
     </div>
@@ -313,10 +354,10 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
-            
+
             toast.className = `${bgColor} text-white px-4 py-3 rounded shadow-lg flex items-center justify-between transition-all duration-300 transform translate-y-0 opacity-100 mb-2`;
             toast.innerHTML = `<span class="text-sm font-bold">${message}</span>`;
-            
+
             container.appendChild(toast);
             setTimeout(() => {
                 toast.classList.add('opacity-0', '-translate-y-2');
@@ -358,8 +399,8 @@
                 backBtn.classList.remove('hidden');
                 menuFooter.classList.add('hidden');
                 let titleText = viewId.replace('-view', '').replace(/-/g, ' ').toUpperCase();
-                if(viewId === 'balances-view') titleText = 'SOLDE DES CARTES';
-                if(viewId === 'new-user-view') titleText = 'NOUVEL UTILISATEUR';
+                if (viewId === 'balances-view') titleText = 'SOLDE DES CARTES';
+                if (viewId === 'new-user-view') titleText = 'NOUVEL UTILISATEUR';
                 title.innerHTML = titleText;
             }
         }
@@ -379,18 +420,18 @@
         async function loadShopPlayersData() {
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/users`, { headers: getAuthHeaders() });
-                if(res.ok) {
+                if (res.ok) {
                     allUsersCache = await res.json();
                     createdPlayersList = allUsersCache.filter(u => u.created_by === user.username && u.role === 'player');
-                    
+
                     const me = allUsersCache.find(u => u.username === user.username);
-                    if(me) {
+                    if (me) {
                         user.balance = me.balance;
                         updateTopBalance(user.balance);
                         localStorage.setItem('alpha_user', JSON.stringify(user));
                     }
                 }
-            } catch(e) { console.error(e); }
+            } catch (e) { console.error(e); }
         }
 
         async function createPlayerAccount() {
@@ -413,7 +454,7 @@
 
                 if (res.ok) {
                     showNotification("Compte créé avec succès!");
-                    
+
                     if (initialBalance > 0) {
                         await fetch(`${BACKEND_URL}/api/admin/update-balance`, {
                             method: 'POST', headers: getAuthHeaders(),
@@ -425,7 +466,7 @@
                     document.getElementById('new-username').value = '';
                     document.getElementById('new-password').value = '';
                     document.getElementById('new-balance').value = '0.00';
-                    
+
                     await loadShopPlayersData();
                 } else {
                     showNotification(data.detail || "Erreur", "error");
@@ -447,11 +488,11 @@
         function renderUsersTable(users) {
             const tbody = document.getElementById('users-tbody');
             document.getElementById('users-count').innerText = users.length;
-            
+
             let totalBal = 0;
             let html = '';
 
-            if(users.length === 0) {
+            if (users.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Aucun joueur</td></tr>';
                 document.getElementById('total-users-balance').innerText = "0.00";
                 return;
@@ -470,7 +511,7 @@
                     </td>
                 </tr>`;
             });
-            
+
             document.getElementById('total-users-balance').innerText = totalBal.toFixed(2);
             tbody.innerHTML = html;
         }
@@ -496,8 +537,8 @@
         async function processTransaction(action) {
             const amount = parseFloat(document.getElementById('modal-amount').value);
             if (!amount || amount <= 0) return showNotification("Montant invalide", "error");
-            
-            if(action === 'charge' && user.balance < amount) {
+
+            if (action === 'charge' && user.balance < amount) {
                 return showNotification('Solde insuffisant!', 'error');
             }
 
@@ -507,11 +548,11 @@
                     body: JSON.stringify({ admin_username: user.username, target_username: selectedPlayer, action, amount })
                 });
                 const data = await res.json();
-                
+
                 if (res.ok) {
                     showNotification("Opération réussie!");
                     closeModal();
-                    await fetchAndShowBalances(); 
+                    await fetchAndShowBalances();
                 } else {
                     showNotification(data.detail || "Erreur", "error");
                 }
@@ -521,10 +562,10 @@
         }
 
         async function changePlayerPasswordFromModal() {
-             const newPassword = document.getElementById('modal-new-pass').value;
-             if(!newPassword || newPassword.length < 4) return showNotification('Mot de passe trop court', 'error');
-             
-             try {
+            const newPassword = document.getElementById('modal-new-pass').value;
+            if (!newPassword || newPassword.length < 4) return showNotification('Mot de passe trop court', 'error');
+
+            try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/change-player-password`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
@@ -534,13 +575,13 @@
                         new_password: newPassword
                     })
                 });
-                if(res.ok) {
+                if (res.ok) {
                     showNotification(`Mot de passe modifié avec succès!`);
                     document.getElementById('modal-new-pass').value = '';
                 } else {
                     showNotification('Erreur', 'error');
                 }
-            } catch(e) { showNotification('Erreur de connexion', 'error'); }
+            } catch (e) { showNotification('Erreur de connexion', 'error'); }
         }
 
 
@@ -549,17 +590,17 @@
             await loadShopPlayersData();
             renderTree(createdPlayersList);
         }
-        
+
         function renderTree(users) {
             const container = document.getElementById('tree-list');
-            if(users.length === 0) {
-                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun joueur</div>';
-                 return;
+            if (users.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun joueur</div>';
+                return;
             }
-             let html = '';
-             users.forEach(u => {
-                 const bal = parseFloat(u.balance || 0).toFixed(2);
-                 html += `
+            let html = '';
+            users.forEach(u => {
+                const bal = parseFloat(u.balance || 0).toFixed(2);
+                html += `
                  <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 flex justify-between items-center">
                      <div>
                          <div class="font-bold text-lg text-white">${escapeHTML(u.username)}</div>
@@ -567,23 +608,23 @@
                      </div>
                      <div class="text-right">
                          <div class="text-sm text-gray-300">ÉQUILIBRE: <span class="font-mono font-bold text-white">${bal} TND</span></div>
-                         <div class="text-gray-400 text-xs mt-1">RÔLE: ${u.role.substring(0,1).toUpperCase()}</div>
+                         <div class="text-gray-400 text-xs mt-1">RÔLE: ${u.role.substring(0, 1).toUpperCase()}</div>
                      </div>
                  </div>`;
-             });
-             container.innerHTML = html;
+            });
+            container.innerHTML = html;
         }
 
         function filterTree() {
             const username = document.getElementById('tree-search-username').value.toLowerCase();
             const id = document.getElementById('tree-search-id').value.toLowerCase();
             const role = document.getElementById('tree-role').value;
-            
+
             let filtered = createdPlayersList;
-            if(username) filtered = filtered.filter(u => u.username.toLowerCase().includes(username));
-            if(id) filtered = filtered.filter(u => (u.id || '').toString().toLowerCase().includes(id));
-            if(role !== 'all') filtered = filtered.filter(u => u.role === role);
-            
+            if (username) filtered = filtered.filter(u => u.username.toLowerCase().includes(username));
+            if (id) filtered = filtered.filter(u => (u.id || '').toString().toLowerCase().includes(id));
+            if (role !== 'all') filtered = filtered.filter(u => u.role === role);
+
             renderTree(filtered);
         }
 
@@ -591,7 +632,7 @@
             showView('transactions-view');
             const container = document.getElementById('transactions-list');
             container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
-            
+
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/transactions-history?username=${user.username}`, { headers: getAuthHeaders() });
                 if (res.ok) {
@@ -604,10 +645,10 @@
         function renderTransactions(txs) {
             const container = document.getElementById('transactions-list');
             if (txs.length === 0) {
-                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucune transaction</div>';
-                 return;
+                container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucune transaction</div>';
+                return;
             }
-            
+
             let html = '';
             txs.forEach(t => {
                 const isCharge = t.action === 'charge' || t.action === 'deposit_request';
@@ -615,7 +656,7 @@
                 const sign = isCharge ? '+' : '-';
                 const targetName = escapeHTML(t.target_username || t.target || 'Inconnu');
                 const actionName = escapeHTML(t.action);
-                
+
                 html += `
                 <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 flex justify-between items-center">
                     <div>
@@ -631,35 +672,35 @@
         }
 
         function filterTransactions() {
-             const username = document.getElementById('trans-search-username').value.toLowerCase();
-             let filtered = allTransactionsCache;
-             if(username) filtered = filtered.filter(t => (t.target_username || '').toLowerCase().includes(username));
-             renderTransactions(filtered);
+            const username = document.getElementById('trans-search-username').value.toLowerCase();
+            let filtered = allTransactionsCache;
+            if (username) filtered = filtered.filter(t => (t.target_username || '').toLowerCase().includes(username));
+            renderTransactions(filtered);
         }
 
         async function fetchAndShowNetHistory() {
-             showView('net-history-view');
-             const container = document.getElementById('net-history-list');
-             container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
-             
-             try {
+            showView('net-history-view');
+            const container = document.getElementById('net-history-list');
+            container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
+
+            try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/transactions-history?username=${user.username}`, { headers: getAuthHeaders() });
                 if (res.ok) {
                     const txs = await res.json();
-                    
+
                     let userStats = {};
                     txs.forEach(t => {
                         const target = t.target_username;
-                        if(!target) return;
-                        if(!userStats[target]) userStats[target] = { deposit: 0, withdraw: 0 };
-                        
+                        if (!target) return;
+                        if (!userStats[target]) userStats[target] = { deposit: 0, withdraw: 0 };
+
                         const amt = parseFloat(t.amount) || 0;
                         if (t.action === 'charge' || t.action === 'deposit_request') userStats[target].deposit += amt;
                         else if (t.action === 'withdraw') userStats[target].withdraw += amt;
                     });
-                    
+
                     let statsArray = [];
-                    for(let username in userStats) {
+                    for (let username in userStats) {
                         statsArray.push({
                             username: username,
                             deposit: userStats[username].deposit,
@@ -667,19 +708,19 @@
                             net: userStats[username].deposit - userStats[username].withdraw
                         });
                     }
-                    
+
                     window._currentNetStats = statsArray;
                     renderNetHistory(statsArray);
 
                 } else { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur</div>'; }
             } catch (e) { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur de connexion</div>'; }
         }
-        
+
         function renderNetHistory(stats) {
             const container = document.getElementById('net-history-list');
             if (stats.length === 0) {
-                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucune donnée</div>';
-                 return;
+                container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucune donnée</div>';
+                return;
             }
             let html = '';
             stats.forEach(s => {
@@ -705,42 +746,42 @@
         }
 
         function filterNetHistory() {
-             const username = document.getElementById('net-search-username').value.toLowerCase();
-             let filtered = window._currentNetStats || [];
-             if(username) filtered = filtered.filter(s => s.username.toLowerCase().includes(username));
-             renderNetHistory(filtered);
+            const username = document.getElementById('net-search-username').value.toLowerCase();
+            let filtered = window._currentNetStats || [];
+            if (username) filtered = filtered.filter(s => s.username.toLowerCase().includes(username));
+            renderNetHistory(filtered);
         }
 
         async function fetchAndShowSportTickets() {
             showView('sport-history-view');
             const container = document.getElementById('sport-history-list');
             container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
-            
+
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/get-all-tickets?t=${Date.now()}`, { headers: getAuthHeaders() });
                 if (res.ok) {
                     const allTickets = await res.json();
-                    
+
                     const shopPlayers = createdPlayersList.map(p => p.username);
                     allSportTicketsCache = allTickets.filter(t => shopPlayers.includes(t.username || t.user));
-                    
+
                     renderSportTickets(allSportTicketsCache);
                 } else { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur</div>'; }
             } catch (e) { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur de connexion</div>'; }
         }
 
         function renderSportTickets(tickets) {
-             const container = document.getElementById('sport-history-list');
-             if (tickets.length === 0) {
-                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun ticket en attente</div>';
-                 return;
-             }
-             let html = '';
-             tickets.forEach(t => {
-                 let badgeColor = t.status === "gagne" ? "text-green-500" : (t.status === "perdu" ? "text-red-500" : (t.status === "cashout" ? "text-yellow-500" : "text-blue-500"));
-                 let matchesHtml = Array.isArray(t.details_list) ? t.details_list.map(g => `• ${escapeHTML(g.matchName)} (<span class="text-yellow-500">${escapeHTML(g.outcome)}</span>)`).join('<br>') : escapeHTML(t.match || "Match Inconnu");
-                 
-                 html += `
+            const container = document.getElementById('sport-history-list');
+            if (tickets.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun ticket en attente</div>';
+                return;
+            }
+            let html = '';
+            tickets.forEach(t => {
+                let badgeColor = t.status === "gagne" ? "text-green-500" : (t.status === "perdu" ? "text-red-500" : (t.status === "cashout" ? "text-yellow-500" : "text-blue-500"));
+                let matchesHtml = Array.isArray(t.details_list) ? t.details_list.map(g => `• ${escapeHTML(g.matchName)} (<span class="text-yellow-500">${escapeHTML(g.outcome)}</span>)`).join('<br>') : escapeHTML(t.match || "Match Inconnu");
+
+                html += `
                  <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 text-sm">
                      <div class="flex justify-between items-start mb-2">
                          <div class="text-white">
@@ -760,49 +801,49 @@
                          </div>
                      </div>
                  </div>`;
-             });
-             container.innerHTML = html;
+            });
+            container.innerHTML = html;
         }
 
         function filterSportHistory() {
-             const username = document.getElementById('sport-search-username').value.toLowerCase();
-             let filtered = allSportTicketsCache;
-             if(username) filtered = filtered.filter(t => (t.username || t.user || '').toLowerCase().includes(username));
-             renderSportTickets(filtered);
+            const username = document.getElementById('sport-search-username').value.toLowerCase();
+            let filtered = allSportTicketsCache;
+            if (username) filtered = filtered.filter(t => (t.username || t.user || '').toLowerCase().includes(username));
+            renderSportTickets(filtered);
         }
 
         async function fetchAndShowCasinoHistory() {
             showView('casino-history-view');
             const container = document.getElementById('casino-history-list');
             container.innerHTML = '<div class="text-center py-4 text-gray-500">Chargement...</div>';
-            
+
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/casino-history`, { headers: getAuthHeaders() });
                 if (res.ok) {
                     const allHistory = await res.json();
-                    
+
                     const shopPlayers = createdPlayersList.map(p => p.username);
                     allCasinoHistoryCache = allHistory.filter(t => shopPlayers.includes(t.username));
-                    
+
                     renderCasinoHistory(allCasinoHistoryCache);
                 } else { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur</div>'; }
             } catch (e) { container.innerHTML = '<div class="text-center py-4 text-red-500">Erreur API</div>'; }
         }
 
         function renderCasinoHistory(history) {
-             const container = document.getElementById('casino-history-list');
-             if (history.length === 0) {
-                 container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun pari de casino trouvé</div>';
-                 return;
-             }
-             let html = '';
-             history.forEach(t => {
-                 const isWin = t.action === 'win';
-                 const badgeColor = isWin ? 'text-green-500' : 'text-red-500';
-                 const sign = isWin ? '+' : '-';
-                 const actionName = isWin ? 'Gain' : 'Mise';
-                 
-                 html += `
+            const container = document.getElementById('casino-history-list');
+            if (history.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-gray-500">Aucun pari de casino trouvé</div>';
+                return;
+            }
+            let html = '';
+            history.forEach(t => {
+                const isWin = t.action === 'win';
+                const badgeColor = isWin ? 'text-green-500' : 'text-red-500';
+                const sign = isWin ? '+' : '-';
+                const actionName = isWin ? 'Gain' : 'Mise';
+
+                html += `
                  <div class="bg-[#1e1e1e] border border-gray-700 rounded p-3 flex justify-between items-center text-sm">
                      <div>
                          <div class="text-white font-bold">👤 ${escapeHTML(t.username)}</div>
@@ -813,21 +854,21 @@
                          <div class="${badgeColor} font-bold font-mono text-lg">${sign}${parseFloat(t.amount).toFixed(2)} TND</div>
                      </div>
                  </div>`;
-             });
-             container.innerHTML = html;
+            });
+            container.innerHTML = html;
         }
 
         function filterCasinoHistory() {
-             const username = document.getElementById('casino-search-username').value.toLowerCase();
-             let filtered = allCasinoHistoryCache;
-             if(username) filtered = filtered.filter(t => (t.username || '').toLowerCase().includes(username));
-             renderCasinoHistory(filtered);
+            const username = document.getElementById('casino-search-username').value.toLowerCase();
+            let filtered = allCasinoHistoryCache;
+            if (username) filtered = filtered.filter(t => (t.username || '').toLowerCase().includes(username));
+            renderCasinoHistory(filtered);
         }
 
         async function updateShopPassword() {
             const newPass = document.getElementById('new-shop-pass').value;
             if (!newPass || newPass.length < 6) return showNotification('6 caractères minimum', 'error');
-            
+
             try {
                 const res = await fetch(`${BACKEND_URL}/api/user/change-password`, {
                     method: 'POST', headers: getAuthHeaders(),
@@ -844,9 +885,9 @@
         }
 
         function changeLanguage(lang) {
-           if(lang === 'en') {
+            if (lang === 'en') {
                 showNotification("English translation not fully implemented yet.", "warning");
-           }
+            }
         }
 
         function logoutShop() {
@@ -864,10 +905,11 @@
         }
         document.body.addEventListener('mousemove', () => idleTime = 0);
         document.body.addEventListener('keypress', () => idleTime = 0);
-        setInterval(timerIncrement, 60000); 
+        setInterval(timerIncrement, 60000);
 
         document.addEventListener('contextmenu', event => event.preventDefault());
 
     </script>
 </body>
+
 </html>
