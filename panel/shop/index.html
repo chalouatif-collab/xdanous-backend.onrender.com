@@ -337,7 +337,7 @@
         const token = localStorage.getItem('token');
         let sessionData = localStorage.getItem('alpha_user');
         let user = sessionData ? JSON.parse(sessionData) : null;
-        // دالة الحماية المفقودة
+       
         function escapeHTML(str) {
             if (!str) return '';
             return str.toString().replace(/[&<>'"]/g,
