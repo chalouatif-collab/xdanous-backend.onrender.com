@@ -1656,44 +1656,56 @@
 
             // ================= فتح قسم الرياضة في نافذة مستقلة =================
             async function openSportsbookForProvider(providerCode) {
-                closeChat();
-                if (!playerSession) return openLoginModal();
+    // 1. إغلاق القوائم المفتوحة والتحقق من الجلسة
+    if (typeof closeChat === 'function') closeChat();
+    if (typeof playerSession === 'undefined' || !playerSession) return openLoginModal();
 
-                if (!providerCode || providerCode === 'nexus' || providerCode === 'SABA') {
-                    providerCode = 'SPORTSBOOK';
-                }
+    // 2. توحيد اسم المزود
+    if (!providerCode || providerCode === 'nexus' || providerCode === 'SABA') {
+        providerCode = 'SPORTSBOOK';
+    }
 
-                try {
-                    // إشعار سريع للاعب أثناء التجهيز
-                    showNotification("Chargement du Sportsbook...", "info");
+    try {
+        // 3. إظهار حالة التحميل في الواجهة الجديدة والإشعارات
+        if (typeof showNotification === 'function') showNotification("Chargement du Sportsbook...", "info");
+        const container = document.getElementById('embedded-sportsbook-container');
+        if (container) {
+            container.innerHTML = '<div class="absolute inset-0 flex flex-col items-center justify-center bg-betCard z-10"><i class="fas fa-circle-notch fa-spin text-betGreen text-3xl mb-3"></i><p class="text-gray-400 font-bold text-xs uppercase">Préparation en cours...</p></div>';
+        }
 
-                    const response = await fetch(`${BACKEND_URL}/api/provider/launch-sportsbook`, {
-                        method: 'POST',
-                        headers: getAuthHeaders(),
-                        body: JSON.stringify({
-                            provider_code: providerCode,
-                            user_code: playerSession.username,
-                            game_code: "SPORTSBOOK"
-                        })
-                    });
+        // 4. إرسال الطلب مع التوكن (Auth Headers)
+        const response = await fetch(`${BACKEND_URL}/api/provider/launch-sportsbook`, {
+            method: 'POST',
+            headers: typeof getAuthHeaders === 'function' ? getAuthHeaders() : { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                provider_code: providerCode,
+                user_code: playerSession.username,
+                game_code: "SPORTSBOOK"
+            })
+        });
 
-                    const data = await response.json();
+        const data = await response.json();
 
-                    if (data.launch_url) {
-                        // 🚀 فتح الواجهة الرياضية في تبويب مستقل
-                        window.open(data.launch_url, '_blank');
-
-                        // تحديث رصيد اللاعب تلقائياً لمزامنة أي تغييرات
-                        if (typeof refreshBalance === 'function') {
-                            setTimeout(refreshBalance, 4000);
-                        }
-                    } else {
-                        showNotification(data.error || "Sportsbook non disponible", "error");
-                    }
-                } catch (error) {
-                    showNotification("Erreur de connexion", "error");
-                }
+        // 5. معالجة الرد وفتح النافذة
+        if (data.launch_url) {
+            // فتح الرياضة في تبويب مستقل لتخطي الحظر
+            window.open(data.launch_url, '_blank');
+            
+            // تحديث رسالة الواجهة
+            if (container) {
+                container.innerHTML = '<div class="absolute inset-0 flex flex-col items-center justify-center bg-betCard z-10"><i class="fas fa-check-circle text-betGreen text-3xl mb-3"></i><p class="text-gray-400 font-bold text-xs uppercase">Le Sportsbook est ouvert dans un nouvel onglet</p></div>';
             }
+
+            if (typeof refreshBalance === 'function') setTimeout(refreshBalance, 4000);
+        } else {
+            if (typeof showNotification === 'function') showNotification(data.error || "Sportsbook non disponible", "error");
+            if (container) container.innerHTML = '<p class="text-red-500 text-center mt-10 font-bold">Erreur de chargement</p>';
+        }
+    } catch (error) {
+        console.error("Erreur:", error);
+        if (typeof showNotification === 'function') showNotification("Erreur de connexion", "error");
+    }
+}
             // ================= شريط الفائزين المتحرك =================
             function generateLiveWinnersTicker() {
                 const track = document.getElementById('winners-ticker-track');

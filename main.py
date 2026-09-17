@@ -1366,7 +1366,46 @@ async def get_games_paged(provider: str = "PRAGMATIC", page: int = 1, limit: int
             return response_data
         except Exception as e:
             return {"status": 0, "msg": "Error"}
-
+@app.post("/api/provider/launch-sportsbook")
+async def launch_sportsbook(request: Request):
+    try:
+        data = await request.json()
+        user_code = str(data.get("user_code", "test_user"))
+        
+        # تجهيز الطلب لإرساله إلى مزود Nexus
+        payload = {
+            "method": "game_launch",
+            "agent_code": AGENT_CODE,
+            "agent_token": AGENT_TOKEN,
+            "provider_code": "SPORTSBOOK", 
+            "game_code": "SPORTSBOOK",
+            "user_code": user_code,
+            "lang": "fr",
+            "lobby_url": "https://xdanous.net/"
+        }
+        
+        headers = {"Content-Type": "application/json"}
+        endpoint = PROVIDER_ENDPOINT.rstrip('/')
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(endpoint, json=payload, headers=headers, timeout=20)
+            
+            try:
+                response_data = response.json()
+            except Exception:
+                return {"error": "المزود لم يرسل رد JSON صالح", "details": response.text}
+                
+            # استخراج رابط الرياضة
+            game_url = response_data.get("url") or response_data.get("launch_url") or (response_data.get("data", {}).get("url"))
+            
+            if game_url:
+                return {"launch_url": game_url}
+            else:
+                return {"error": "المزود رفض الطلب", "details": response_data}
+            
+    except Exception as e:
+        print(f"❌ [ERROR IN LAUNCH SPORTSBOOK]: {str(e)}")
+        return {"error": str(e)}
     
 @app.post("/api/provider/launch-casino")
 async def launch_casino(request: Request):
