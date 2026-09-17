@@ -2419,7 +2419,7 @@ async def setup_owner():
     except Exception as e:
         return {"error": str(e), "traceback": traceback.format_exc()}
     
-    @app.get("/api/get-eurovirtuals-games")
+@app.get("/api/get-eurovirtuals-games")
 async def get_eurovirtuals_games():
     try:
         # الطريقة القديمة المعتمدة في الفا لجلب الألعاب من المزود
