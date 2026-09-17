@@ -316,7 +316,7 @@ def verify_nexus_ip(request: Request):
     if forwarded_for:
         client_ip = forwarded_for.split(",")[0].strip()
     else:
-        client_ip = request.client.host
+        client_ip = request.client.host if request.client else "127.0.0.1"
     return client_ip
 
 # --- التوجيه الذكي اليدوي لإجبار الروابط القديمة على العمل بالروابط النظيفة ---

@@ -1266,25 +1266,40 @@
             let allLiveGames = [];
 
             function filterLiveGames(providerCode) {
-                currentLiveProvider = providerCode;
+    const grid = document.getElementById("live-games-grid");
+    if (!grid || !window.allLoadedLiveGames) return;
 
-                // تفريغ مربع البحث تلقائياً عند تغيير المزود
-                const searchInput = document.getElementById('live-casino-search');
-                if (searchInput) searchInput.value = '';
-                currentLiveSearch = '';
+    // فلترة الألعاب بناءً على اسم المزود
+    let filteredGames = window.allLoadedLiveGames;
+    
+    if (providerCode !== 'All') {
+        filteredGames = window.allLoadedLiveGames.filter(game => {
+            const currentProv = game.provider_code || game.provider || '';
+            return currentProv === providerCode;
+        });
+    }
 
-                // تحديد الزر المضغوط وتلوينه بالأزرق، وإعادة البقية للون الداكن
-                document.querySelectorAll('.live-provider-btn').forEach(btn => {
-                    const onclickText = btn.getAttribute('onclick') || '';
-                    if (onclickText.includes(`'${providerCode}'`)) {
-                        btn.className = "live-provider-btn bg-blue-600 text-white px-4 py-2 rounded-lg whitespace-nowrap font-bold text-sm transition-transform active:scale-95";
-                    } else {
-                        btn.className = "live-provider-btn bg-[#1a1c24] border border-[#2b2d35] hover:border-blue-500 text-white px-4 py-2 rounded-lg whitespace-nowrap text-sm transition-transform active:scale-95";
-                    }
-                });
+    // في حال عدم وجود ألعاب للمزود
+    if (filteredGames.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-8 text-center text-gray-500 font-bold text-xs">Aucun jeu trouvé pour ce fournisseur.</div>';
+        return;
+    }
 
-                renderLiveCasino();
-            }
+    // إعادة رسم الألعاب المفلطرة بنفس التصميم
+    grid.innerHTML = filteredGames.map(game => {
+        const imageUrl = game.banner || game.thumb || game.image || game.img || game.logo || '';
+        const gameName = game.game_name || game.name || game.title || 'Table en Direct';
+        const gameCode = game.game_code || game.uuid || game.id;
+        const pCode = game.provider_code || game.provider || '';
+
+        return `
+            <div class="bg-betCard border border-gray-700 rounded overflow-hidden cursor-pointer hover:border-betGreen transition relative group" onclick="launchGame('${pCode}', '${gameCode}')">
+                <img src="${imageUrl}" alt="${gameName}" class="w-full h-32 object-cover group-hover:opacity-50 transition" onerror="this.src='https://via.placeholder.com/300x200/1e1e1e/ffffff?text=Live+Casino'">
+                <div class="p-2"><h3 class="text-white font-bold text-[10px] truncate">${gameName}</h3></div>
+            </div>
+        `;
+    }).join('');
+}
 
             function renderLiveCasino() {
                 const grid = document.getElementById('live-games-grid');
@@ -1323,55 +1338,66 @@
             }
 
             async function openLiveCasino() {
-                const grid = document.getElementById('live-games-grid');
-                if (grid) grid.innerHTML = '<div class="col-span-full text-blue-400 text-center py-10">Chargement des jeux live...</div>';
-
-                try {
-                    const liveProviderCodes = ['PP_LIVE_PRO', 'EVO_LIVE', 'EZUGI_LIVE', 'VIVO_LIVE'];
-
-                    const fetchPromises = liveProviderCodes.map(code =>
-                        fetch(`${BACKEND_URL}/api/get-providers`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ provider_code: code })
-                        })
-                            .then(res => res.json())
-                            .then(data => {
-                                let gamesArray = data.games || data.data || [];
-                                // حقن كود المزود يدوياً لضمان الفلترة
-                                return gamesArray.map(g => {
-                                    g._provider_code_filter = code;
-                                    return g;
-                                });
-                            })
-                            .catch(err => {
-                                console.warn(`Erreur: ${code}`, err);
-                                return [];
-                            })
-                    );
-
-                    const results = await Promise.all(fetchPromises);
-
-                    allLiveGames = [];
-                    results.forEach(gamesArray => {
-                        allLiveGames = allLiveGames.concat(gamesArray);
-                    });
-
-                    // تفريغ مربع البحث من أي إكمال تلقائي للمتصفح
-                    setTimeout(() => {
-                        const searchInput = document.getElementById('live-casino-search');
-                        if (searchInput) searchInput.value = '';
-                        currentLiveSearch = '';
-                    }, 100);
-
-                    // استدعاء الفلتر الافتراضي لعرض كل الألعاب
-                    filterLiveGames('All');
-
-                } catch (e) {
-                    console.error("Erreur Live Casino:", e);
-                    if (grid) grid.innerHTML = '<div class="col-span-full text-red-500 text-center py-10">Erreur de chargement</div>';
+    const grid = document.getElementById("live-games-grid");
+    if (!grid) return;
+    
+    // إظهار أيقونة التحميل
+    grid.innerHTML = '<div class="col-span-full py-12 text-center"><i class="fas fa-circle-notch fa-spin text-3xl text-[#2bd999]"></i><p class="mt-3 text-gray-400 font-bold text-xs">Chargement des tables en direct...</p></div>';
+    
+    const liveProviders = ['PP_LIVE_PRO', 'EVO_LIVE', 'EZUGI_LIVE', 'VIVO_LIVE'];
+    let allLiveGames = [];
+    
+    // 1. جلب البيانات بالترتيب (Sequential Fetch) لتفادي خطأ 520 وانهيار السيرفر
+    for (let provider of liveProviders) {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/get-providers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provider_code: provider })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.games && Array.isArray(data.games)) {
+                    allLiveGames = allLiveGames.concat(data.games);
                 }
             }
+        } catch (error) {
+            console.warn(`Erreur de chargement pour ${provider}:`, error);
+        }
+    }
+    
+    // 2. تطبيق كود "قلب الألعاب" الخاص بكم بأمان لتجنب خطأ TypeError
+    if (allLiveGames.length > 0) {
+        allLiveGames.reverse();
+    }
+    
+    // حفظ الألعاب للفلترة
+    window.allLoadedLiveGames = allLiveGames;
+    
+    // 3. عرض الألعاب (تأكد أن تستخدم اسم دالة العرض الخاصة بك هنا)
+    if (typeof renderLiveGames === "function") {
+        renderLiveGames(allLiveGames);
+    } else if (typeof displayGames === "function") {
+        displayGames(allLiveGames, "live-games-grid");
+    } else {
+        // عرض افتراضي إذا لم توجد دالة عرض محددة
+        grid.innerHTML = allLiveGames.map(game => {
+    // استخراج البيانات مهما كان المسمى القادم من المزود
+    const imageUrl = game.banner || game.thumb || game.image || game.img || game.logo || '';
+    const gameName = game.game_name || game.name || game.title || 'Table en Direct';
+    const gameCode = game.game_code || game.uuid || game.id;
+    const providerCode = game.provider_code || game.provider || '';
+
+    return `
+        <div class="bg-betCard border border-gray-700 rounded overflow-hidden cursor-pointer hover:border-betGreen transition relative group" onclick="launchGame('${providerCode}', '${gameCode}')">
+            <img src="${imageUrl}" alt="${gameName}" class="w-full h-32 object-cover group-hover:opacity-50 transition" onerror="this.src='https://via.placeholder.com/300x200/1e1e1e/ffffff?text=Live+Casino'">
+            <div class="p-2"><h3 class="text-white font-bold text-[10px] truncate">${gameName}</h3></div>
+        </div>
+    `;
+}).join('');
+}
+}
 
             async function initVirtualsLobby() {
                 const grid = document.getElementById('virtuals-games-grid');
