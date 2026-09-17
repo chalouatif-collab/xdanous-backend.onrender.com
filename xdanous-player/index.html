@@ -2493,58 +2493,44 @@
         const modalBalDisplay = document.getElementById('modal-balance');
         if (modalBalDisplay) modalBalDisplay.innerText = formattedBalance;
     }
-    async function initVirtualsLobby2() {
-        const grid = document.getElementById('virtuals2-games-grid');
-        if (grid) grid.innerHTML = '<div class="col-span-full text-yellow-500 text-center py-10">Chargement des jeux à tester...</div>';
+    async function initVirtualsLobby() {
+    const grid = document.getElementById('virtuals-games-grid');
+    if (grid) grid.innerHTML = '<div class="col-span-full text-blue-400 text-center py-10">Chargement de tous les jeux... 🚀</div>';
 
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/get-eurovirtuals-games`);
-            const data = await res.json();
-            let games = data.games || data.data || data || [];
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/get-eurovirtuals-games`);
+        const data = await res.json();
+        let games = data.games || data.data || data || [];
 
-            // قائمة الألعاب التي "تعمل" (لن نعرضها هنا)
-            const workingGamesUUIDs = [
-                "9542d915-1e76-4897-baf8-da867e9e504a", "9fa4f900-0ac6-a795-9e42-c3775578aa4f", "a02d0edf-4afd-d62a-e005-edbc01a4c538",
-                "b7a2f4e3-95b4-4f83-8e27-91c4b7f6dabc", "3098bdda-d5da-d548-ce14-eb646a79b590", "f3d77a4e-71a4-4c9c-8f63-83f4b52f16b1",
-                "8420c302-05df-1636-3344-1550b01f53d8", "e758a994-19a7-c557-cbdb-037aeeb68933", "e92f58d5-42a9-a3ad-8e85-8bf75396daf2",
-                "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002", "123e4567-e89b-12d3-a456-426614174003",
-                "e88411fe-6ea6-5904-b410-9b1a6c4e4c0e", "2b281ca2-753c-50af-b105-c90fe98638c7", "2b5ecf43-dd1b-5ed8-b20c-a87a3d061571",
-                "a4ee684c-4fc7-5618-b20d-ccc60efc7a64", "0fa1c2b3-137c-94da-909b-d7250608fcb6", "ed019bee-6393-64af-0046-377cb36a4bd9",
-                "6a1373d6-4286-62c7-daae-c86be86ea2fb", "da559e73-26a2-c4d4-26d5-842456cf98b2", "fc732415-bd48-870a-4a10-fc49095e82f2",
-                "3c2a9f66-2e3d-4c2a-8a1e-775a79bb38a2", "9f0a1692-8fbf-8400-b284-d47b74357100", "ad8a8686-3f24-11f1-b390-42010a69900b",
-                "ad8bf72b-3f24-11f1-b390-42010a69900b", "5e711cf5-3f2c-11f1-b390-42010a69900b", "c8c1a65d-2f89-92a5-0372-66cb2f856a62",
-                "1df14d9c-79d8-11f1-9d45-42010a699010", "1df1a2a8-79d8-11f1-9d45-42010a699010", "f94e798c-84dc-11f1-9d45-42010a699010",
-                "cbe3293f-af9a-ecad-0cbd-acaae3f8ff86", "9f2c7a1e-6b4d-4c8f-91a3-d0e5b7c2f846", "a3f9d7b2-4f1c-4b98-8e4d-7b1e3a0a11d2",
-                "550e8400-e29b-41d4-a716-446655440000", "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"
-            ];
+        if (games.length === 0) {
+            if (grid) grid.innerHTML = '<div class="col-span-full text-gray-500 text-center py-10">Aucun jeu trouvé.</div>';
+            return;
+        }
 
-            // ⚠️ العكس: الاحتفاظ فقط بالألعاب التي لم تعمل
-            const brokenGames = games.filter(g => {
-                const uuid = g.uuid || g.game_uuid || g.id || g.game_code;
-                return !workingGamesUUIDs.includes(uuid);
-            });
+        // 🌟 عرض كافة الألعاب مباشرة بدون أي فلتر مقيد (نفس طريقة ألفا بعد إزالة الفلتر)
+        if (grid) grid.innerHTML = games.map(g => {
+            const uuid = g.uuid || g.game_uuid || g.id || g.game_code;
+            const safeName = escapeHTML(g.game_name || g.name || "Virtual Game");
+            const img = g.banner || g.image || g.thumb || 'https://placehold.co/400x400/180A2B/FFF?text=Game';
 
-            if (grid) grid.innerHTML = brokenGames.map(g => {
-                const uuid = g.uuid || g.game_uuid || g.id || g.game_code;
-                const safeName = escapeHTML(g.game_name || g.name || "Test Game");
-
-                return `
-            <div onclick="launchSpecificVirtualGame('${uuid}')" class="bg-[#0f1117] border border-yellow-500/50 rounded-xl cursor-pointer group transition-all overflow-hidden shadow-lg shadow-black/50">
+            return `
+            <div onclick="launchSpecificVirtualGame('${uuid}')" class="bg-[#0f1117] border border-[#2b2d35] rounded-xl cursor-pointer group hover:-translate-y-1 transition-all overflow-hidden shadow-lg shadow-black/50">
                 <div class="relative w-full aspect-square overflow-hidden bg-black/50">
-                    <img src="${g.banner || g.image || 'https://placehold.co/400x400/180A2B/FFF'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" alt="${safeName}">
-                    <div class="absolute inset-0 bg-black/80 flex items-center justify-center flex-col transition-all">
-                        <span class="text-white text-[8px] text-center w-full px-1 break-all mb-2">${uuid}</span>
-                        <span class="bg-yellow-500 text-black text-[10px] font-bold px-4 py-2 rounded-full shadow-lg">TESTER</span>
+                    <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" alt="${safeName}">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                        <span class="bg-blue-500 text-white text-[10px] font-bold px-4 py-2 rounded-full shadow-lg">JOUER</span>
                     </div>
                 </div>
-                <div class="p-2 text-[10px] text-yellow-400 font-bold truncate text-center">${safeName}</div>
+                <div class="p-2 text-[10px] text-white font-bold truncate text-center">${safeName}</div>
             </div>
             `;
-            }).join('');
-        } catch (e) {
-            if (grid) grid.innerHTML = '<div class="col-span-full text-red-500 text-center py-10">Erreur de chargement</div>';
-        }
+        }).join('');
+
+    } catch (e) {
+        console.error("Erreur:", e);
+        if (grid) grid.innerHTML = '<div class="col-span-full text-red-500 text-center py-10">Erreur lors du chargement des jeux</div>';
     }
+}
 
     window.searchLiveGames = function () {
         const searchInput = document.getElementById('live-search-input');
