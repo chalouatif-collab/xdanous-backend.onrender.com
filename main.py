@@ -2418,3 +2418,24 @@ async def setup_owner():
         return {"message": "تم تنظيف النظام بالكامل، وتم إنشاء حساب الأونر (fethi) بنجاح!"}
     except Exception as e:
         return {"error": str(e), "traceback": traceback.format_exc()}
+    
+    @app.get("/api/get-eurovirtuals-games")
+async def get_eurovirtuals_games():
+    try:
+        # الطريقة القديمة المعتمدة في الفا لجلب الألعاب من المزود
+        payload = {
+            "method": "game_list",
+            "agent_code": AGENT_CODE,
+            "agent_token": AGENT_TOKEN,
+            "provider_code": "EUROVIRTUALS" # أو اسم المزود حسب إعداداتك القديمة
+        }
+        
+        headers = {"Content-Type": "application/json"}
+        endpoint = PROVIDER_ENDPOINT.rstrip('/')
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(endpoint, json=payload, headers=headers, timeout=20)
+            data = response.json()
+            return data
+    except Exception as e:
+        return {"error": str(e), "games": []}
