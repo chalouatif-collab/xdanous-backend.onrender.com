@@ -205,6 +205,8 @@ app.add_middleware(
         "http://localhost:5500", 
         "http://127.0.0.1:5500",  
         "https://xdanous-backend-onrender-com.onrender.com" 
+        "xdanous.net",
+        "https://xdanous.net",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -1231,7 +1233,7 @@ async def launch_casino(request: Request):
             "provider_code": data.get("provider_code"),
             "game_code": data.get("game_code"),
             "lang": "fr",
-            "lobby_url": "https://xdanous-player-frontend.onrender.com"
+            "lobby_url": "https://xdanous-backend-onrender-com.onrender.com"
         }
         
         headers = {"Content-Type": "application/json"}
@@ -2072,7 +2074,7 @@ async def launch_sportsbook(request: Request):
                 "session_id": f"sess_{uuid.uuid4().hex[:10]}",
                 "player_id": provider_user_code, 
                 "player_name": provider_user_code,
-                "return_url": "https://xdanous-player-frontend.onrender.com"
+                "return_url": "https://xdanous-backend-onrender-com.onrender.com",
             }
             
             headers = get_smpl_headers_and_sign(payload)
@@ -2100,7 +2102,7 @@ async def launch_sportsbook(request: Request):
                 "game_code": str(data.get("game_code", "SPORTSBOOK")),
                 "user_code": provider_user_code, 
                 "lang": "fr",
-                "lobby_url": "https://xdanous-player-frontend.onrender.com"
+                "lobby_url": "https://xdanous-backend-onrender-com.onrender.com"
             }
             
             headers = {"Content-Type": "application/json"}

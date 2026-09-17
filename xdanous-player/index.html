@@ -16,16 +16,16 @@
             theme: {
                 extend: {
                     colors: {
-                        'bet-dark': '#121212',
-                        'bet-main': '#1e1e1e',
-                        'bet-card': '#2a2a2a',
-                        'bet-green': '#2bd999',
-                        'bet-yellow': '#f4d330',
-                        'b365Green': '#126E51',
-                        'b365GreenDark': '#0e5740',
-                        'b365Bg': '#333333',
-                        'b365Panel': '#282828',
-                        'b365Border': '#444444'
+                        betDark: '#121212',
+                        betMain: '#1e1e1e',
+                        betCard: '#2a2a2a',
+                        betGreen: '#2bd999',
+                        betYellow: '#f4d330',
+                        b365Green: '#126E51',
+                        b365GreenDark: '#0e5740',
+                        b365Bg: '#333333',
+                        b365Panel: '#282828',
+                        b365Border: '#444444'
                     },
                     fontFamily: {
                         sans: ['Roboto', 'sans-serif'],
@@ -36,21 +36,23 @@
     </script>
 
     <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        body {
-            background-color: #1e1e1e;
-            color: #ffffff;
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .hover-icon-green:hover i { color: #2bd999; }
-
         .player-view-section { display: none; }
         .player-view-section.block { display: block; animation: fadeIn 0.2s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        .nav-item { padding: 10px 16px; font-weight: 700; cursor: pointer; color: #ddd; white-space: nowrap; transition: 0.2s; border-bottom: 2px solid transparent; }
+        .nav-item:hover { color: #fff; }
+        .nav-item.active { color: #fff; border-bottom: 2px solid #fff; }
+        
         .b365-input {
             width: 100%;
             background-color: #1e1e1e;
@@ -63,12 +65,11 @@
         }
         .b365-input:focus { border-color: #2bd999; }
         
-        .b365-btn-green { background-color: #2bd999; color: #121212; font-weight: bold; border-radius: 2px; transition: background 0.2s; }
-        .b365-btn-green:hover { background-color: #126E51; color: #fff; }
+        .hover-icon-green:hover i { color: #2bd999; }
     </style>
 </head>
 
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="antialiased flex flex-col min-h-screen">
 
     <header class="w-full flex flex-col z-50 shrink-0">
         <div class="bg-[#121212] text-gray-400 text-[11px] h-6 flex justify-between items-center px-4 md:px-8 border-b border-gray-800">
@@ -82,44 +83,41 @@
             </div>
         </div>
 
-        <div class="bg-bet-dark border-b border-gray-800 flex items-center justify-between px-4 h-14">
+        <div class="bg-betDark h-14 md:h-16 flex justify-between items-center px-4 md:px-8 border-b border-gray-800">
             <div class="flex items-center gap-8">
-                <div class="text-2xl font-black italic tracking-tighter cursor-pointer flex items-center" onclick="switchSection('accueil')">
-                    <span class="text-white">x</span><span class="text-bet-yellow">danous</span>
+                <div class="text-xl md:text-2xl font-black italic tracking-tighter cursor-pointer flex items-center" onclick="switchSection('accueil')">
+                    <span class="text-white">X</span><span class="text-red-600">danous</span>
                 </div>
                 
                 <nav class="hidden md:flex items-center h-full">
-                    <button onclick="switchSection('accueil')" class="text-bet-green border-b-2 border-bet-green h-14 flex items-center px-3 text-sm font-bold bg-transparent">Tous les Sports</button>
-                    <button onclick="openSportsbookForProvider('nexus')" class="text-gray-200 hover:text-white h-14 flex items-center px-3 text-sm font-bold transition bg-transparent">En direct</button>
-                    <button onclick="switchSection('casino'); initCasinoLobby();" class="text-gray-200 hover:text-white h-14 flex items-center px-3 text-sm font-bold transition bg-transparent">Casino</button>
+                    <button onclick="switchSection('accueil')" class="text-betGreen border-b-2 border-betGreen h-16 flex items-center px-3 text-sm font-bold bg-transparent">Tous les Sports</button>
+                    <button onclick="openSportsbookForProvider('nexus')" class="text-gray-200 hover:text-white h-16 flex items-center px-3 text-sm font-bold transition bg-transparent">En direct</button>
+                    <button onclick="switchSection('casino'); initCasinoLobby();" class="text-gray-200 hover:text-white h-16 flex items-center px-3 text-sm font-bold transition bg-transparent">Casino</button>
                 </nav>
             </div>
 
             <div class="flex items-center gap-3 md:gap-4 relative">
-                
                 <div id="auth-buttons-container" class="flex items-center gap-3">
-                    <button onclick="openLoginModal()" class="text-white hover:text-gray-300 text-xs font-bold py-1.5 px-2 transition">
-                        Se connecter
-                    </button>
+                    <button onclick="openLoginModal()" class="text-white hover:text-gray-200 text-xs md:text-sm font-bold py-1.5 px-2 transition">Se connecter</button>
                 </div>
 
-                <div id="top-user-profile" class="hidden items-center gap-4">
+                <div id="top-user-profile" class="hidden items-center gap-3 md:gap-4">
                     <div class="flex flex-col text-right cursor-pointer group" onclick="toggleProfileSidebar()">
-                        <span class="text-white font-bold text-sm leading-tight group-hover:text-bet-yellow transition"><span id="player-balance-val">0.00</span> TND</span>
-                        <span class="text-[10px] text-bet-green uppercase tracking-widest flex items-center gap-1 justify-end">Solde</span>
+                        <span class="text-white font-bold text-xs md:text-sm leading-tight group-hover:text-bet-yellow transition"><span id="player-balance-val">0.00</span> TND</span>
+                        <span class="text-[9px] md:text-[10px] text-betGreen uppercase tracking-widest flex items-center gap-1 justify-end">Solde</span>
                     </div>
-                    <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-white cursor-pointer border border-gray-600 hover:bg-gray-700 transition" onclick="toggleProfileSidebar()">
-                        <i class="fas fa-user text-xs"></i>
+                    <div class="w-7 h-7 md:w-8 md:h-8 bg-gray-800 rounded-full flex items-center justify-center text-white cursor-pointer border border-gray-600 hover:bg-gray-700 transition" onclick="toggleProfileSidebar()">
+                        <i class="fas fa-user text-[10px] md:text-xs"></i>
                     </div>
                 </div>
 
-                <div id="top-notification-bell" class="hidden relative cursor-pointer items-center justify-center w-8 h-8 rounded-full bg-gray-800 border border-gray-600 hover:text-white transition shrink-0" onclick="toggleNotificationsPanel()">
-                    <i class="fas fa-bell text-gray-200 text-xs"></i>
-                    <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden leading-none shadow-md">0</span>
+                <div id="top-notification-bell" class="hidden relative cursor-pointer items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-800 border border-gray-600 hover:text-white transition shrink-0" onclick="toggleNotificationsPanel()">
+                    <i class="fas fa-bell text-gray-200 text-[10px] md:text-xs"></i>
+                    <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] md:text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden leading-none shadow-md">0</span>
                 </div>
 
-                <div id="notifications-panel" class="absolute top-14 right-2 w-72 md:w-80 bg-bet-card border border-gray-700 rounded-sm shadow-2xl hidden flex-col z-[100] overflow-hidden">
-                    <div class="p-3 border-b border-gray-700 bg-bet-main flex justify-between items-center">
+                <div id="notifications-panel" class="absolute top-12 md:top-14 right-0 md:right-2 w-[280px] md:w-80 bg-betCard border border-gray-700 rounded-sm shadow-2xl hidden flex-col z-[100] overflow-hidden">
+                    <div class="p-3 border-b border-gray-700 bg-betMain flex justify-between items-center">
                         <h3 class="text-white font-bold text-sm">Notifications 🔔</h3>
                     </div>
                     <div id="notifs-list" class="max-h-[300px] overflow-y-auto no-scrollbar p-2 flex flex-col gap-1"></div>
@@ -127,22 +125,21 @@
             </div>
         </div>
 
-        <div class="w-full bg-bet-main py-1.5 overflow-hidden relative flex items-center text-xs border-b border-gray-800">
-            <div class="absolute left-0 top-0 bottom-0 z-20 bg-bet-main px-3 flex items-center font-bold text-white shadow-[2px_0_5px_rgba(0,0,0,0.5)]">
-                <span class="w-2 h-2 rounded-full bg-bet-green animate-pulse mr-2"></span> Gagnants
+        <div class="w-full bg-betMain py-1.5 overflow-hidden relative flex items-center text-xs border-b border-gray-800">
+            <div class="absolute left-0 top-0 bottom-0 z-20 bg-betMain px-3 flex items-center font-bold text-white shadow-[2px_0_5px_rgba(0,0,0,0.5)] text-[10px] md:text-xs">
+                <span class="w-2 h-2 rounded-full bg-betGreen animate-pulse mr-1 md:mr-2"></span> Gagnants
             </div>
-            <div class="flex-grow overflow-hidden flex items-center h-6 pl-24">
-                <div id="winners-ticker-track" class="flex gap-4 items-center cursor-pointer whitespace-nowrap text-gray-300" style="animation: marquee 35s linear infinite;"></div>
+            <div class="flex-grow overflow-hidden flex items-center h-6 pl-20 md:pl-24">
+                <div id="winners-ticker-track" class="flex gap-4 items-center cursor-pointer whitespace-nowrap text-gray-300 text-[10px] md:text-xs" style="animation: marquee 35s linear infinite;"></div>
             </div>
-            <style>@keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }</style>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
+    <main class="w-full max-w-[1600px] mx-auto flex-grow flex flex-col md:flex-row gap-2 p-2 pb-20 md:pb-2">
         
-        <aside class="w-64 bg-bet-dark flex-col overflow-y-auto no-scrollbar border-r border-gray-800 hidden lg:flex py-4">
-            <div class="mb-6">
-                <h3 class="text-bet-green font-bold px-4 mb-3 text-sm">Tendance</h3>
+        <aside class="hidden md:flex flex-col w-[220px] xl:w-[240px] shrink-0 space-y-2">
+            <div class="bg-betDark border border-gray-800 rounded-sm overflow-hidden py-2">
+                <h3 class="text-betGreen font-bold px-4 mb-3 text-sm">Tendance</h3>
                 <ul class="flex flex-col text-sm font-bold text-gray-200">
                     <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition" onclick="openSportsbookForProvider('nexus')">
                         <i class="fa-regular fa-futbol w-4 text-center"></i> Football à venir
@@ -153,247 +150,246 @@
                     <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition" onclick="openSportsbookForProvider('nexus')">
                         <i class="fa-solid fa-baseball-bat-ball w-4 text-center"></i> Tennis à venir
                     </li>
-                    <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition" onclick="openSportsbookForProvider('nexus')">
-                        <i class="fa-solid fa-horse-head w-4 text-center"></i> Prochaines courses
-                    </li>
                 </ul>
             </div>
-
-            <div>
-                <h3 class="text-bet-green font-bold px-4 mb-3 text-sm">A-Z Casino & Virtuels</h3>
-                <ul class="flex flex-col text-sm font-bold text-gray-200">
-                    <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition text-white" onclick="switchSection('casino'); initCasinoLobby();">
-                        <i class="fa-solid fa-dice w-4 text-center text-bet-green"></i> Casino Slots
-                    </li>
-                    <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition text-white" onclick="switchSection('live-casino'); openLiveCasino();">
-                        <i class="fa-solid fa-video w-4 text-center text-gray-400"></i> Casino Live
-                    </li>
-                    <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition text-white" onclick="switchSection('virtuals'); initVirtualsLobby();">
-                        <i class="fa-solid fa-gamepad w-4 text-center text-gray-400"></i> Sports Virtuels
-                    </li>
-                    <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition text-white" onclick="launchAviator()">
-                        <i class="fa-solid fa-plane-departure w-4 text-center text-bet-yellow"></i> Crash Games
-                    </li>
-                    <li class="px-4 py-2 hover:bg-gray-800 cursor-pointer hover-icon-green flex items-center gap-3 transition text-white" onclick="loadMiniJeux()">
-                        <i class="fa-solid fa-puzzle-piece w-4 text-center text-gray-400"></i> Mini Jeux
-                    </li>
+            
+            <div class="bg-betDark border border-gray-800 rounded-sm overflow-hidden py-2 mt-2">
+                <h3 class="text-betGreen font-bold px-4 mb-3 text-sm">Raccourcis Casino</h3>
+                <ul class="text-[12px]">
+                    <li class="p-2 border-b border-gray-800 hover:bg-gray-800 cursor-pointer text-[#ddd] flex items-center gap-2" onclick="switchSection('casino'); initCasinoLobby();"><i class="fas fa-play text-gray-400 text-[10px] w-4"></i> Machines à sous</li>
+                    <li class="p-2 border-b border-gray-800 hover:bg-gray-800 cursor-pointer text-[#ddd] flex items-center gap-2" onclick="switchSection('live-casino'); openLiveCasino();"><i class="fas fa-play text-gray-400 text-[10px] w-4"></i> Croupiers en direct</li>
+                    <li class="p-2 hover:bg-gray-800 cursor-pointer text-[#ddd] flex items-center gap-2" onclick="switchSection('virtuals'); initVirtualsLobby();"><i class="fas fa-play text-gray-400 text-[10px] w-4"></i> Sports Virtuels</li>
                 </ul>
             </div>
         </aside>
 
-        <main class="flex-1 bg-bet-main overflow-y-auto no-scrollbar p-4 lg:p-6 w-full max-w-[1600px] mx-auto flex gap-4">
+        <div class="flex-grow flex flex-col min-w-0 space-y-4 w-full">
             
-            <div class="flex-grow flex flex-col min-w-0 space-y-4 w-full">
+            <div id="pane-accueil" class="player-view-section block w-full space-y-4">
                 
-                <div id="pane-accueil" class="player-view-section block w-full space-y-4">
-                    
-                    <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2 border-b border-gray-800">
-                        <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="openSportsbookForProvider('nexus')">
-                            <div class="w-12 h-12 rounded-full bg-bet-card border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
-                                <i class="fa-regular fa-futbol text-xl text-white"></i>
-                            </div>
-                            <span class="text-[11px] font-bold text-white">Football</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="openSportsbookForProvider('nexus')">
-                            <div class="w-12 h-12 rounded-full bg-bet-card border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
-                                <i class="fa-solid fa-baseball-bat-ball text-xl text-bet-yellow"></i>
-                            </div>
-                            <span class="text-[11px] font-bold text-white">Tennis</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="openSportsbookForProvider('nexus')">
-                            <div class="w-12 h-12 rounded-full bg-bet-card border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
-                                <i class="fa-solid fa-basketball text-xl text-orange-400"></i>
-                            </div>
-                            <span class="text-[11px] font-bold text-white">Basketball</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="switchSection('casino'); initCasinoLobby();">
-                            <div class="w-12 h-12 rounded-full bg-bet-card border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
-                                <i class="fa-solid fa-dice text-xl text-bet-green"></i>
-                            </div>
-                            <span class="text-[11px] font-bold text-white">Casino</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="switchSection('live-casino'); openLiveCasino();">
-                            <div class="w-12 h-12 rounded-full bg-bet-card border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
-                                <i class="fa-solid fa-video text-xl text-red-500"></i>
-                            </div>
-                            <span class="text-[11px] font-bold text-white">Live Casino</span>
-                        </div>
-                        <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="switchSection('virtuals'); initVirtualsLobby();">
-                            <div class="w-12 h-12 rounded-full bg-bet-card border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
-                                <i class="fa-solid fa-gamepad text-xl text-blue-400"></i>
-                            </div>
-                            <span class="text-[11px] font-bold text-white">Virtuels</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                        <div class="bg-gradient-to-r from-[#003823] to-[#005c3d] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between min-h-[160px] cursor-pointer" onclick="switchSection('casino'); initCasinoLobby();">
-                            <div class="z-10 w-2/3">
-                                <span class="text-[10px] font-bold text-white uppercase tracking-wider mb-1 block">Nouveau Jeux</span>
-                                <h2 class="text-2xl font-black text-white leading-tight mb-4">DÉCOUVREZ LE<br>CASINO EN DIRECT</h2>
-                                <button class="bg-bet-yellow text-black font-extrabold text-xs px-4 py-2 rounded">Jouer maintenant</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-bet-card border border-gray-700 rounded-xl p-5 relative overflow-hidden flex flex-col justify-between min-h-[160px] cursor-pointer" onclick="openSportsbookForProvider('nexus')">
-                            <div class="z-10 w-2/3">
-                                <span class="text-bet-green text-xs font-black uppercase mb-1 block tracking-wider">REGARDEZ & PARIEZ</span>
-                                <h2 class="text-xl font-black text-white leading-tight mb-2">SUR PLUSIEURS<br>SPORTS</h2>
-                                <p class="text-bet-green text-xs font-black uppercase">TOUTE L'ANNÉE</p>
-                            </div>
-                        </div>
-
-                        <div class="bg-bet-card border border-gray-700 rounded-xl p-5 relative overflow-hidden flex flex-col justify-between min-h-[160px] cursor-pointer" onclick="launchAviator()">
-                            <div class="z-10 w-2/3">
-                                <span class="text-bet-yellow text-xs font-black uppercase mb-1 block tracking-wider">CRASH GAMES</span>
-                                <h2 class="text-lg font-black text-white leading-tight mb-2">MULTIPLIEZ VOS GAINS<br>EN QUELQUES SECONDES</h2>
-                                <p class="text-bet-yellow text-xs font-black uppercase">DÉCOLLEZ MAINTENANT</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="embedded-sportsbook-container" class="w-full min-h-[600px] bg-bet-card border border-gray-700 rounded-sm relative overflow-hidden">
-                        <div id="sports-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-bet-card z-10">
-                            <i class="fas fa-circle-notch fa-spin text-bet-yellow text-3xl mb-3"></i>
-                            <p class="text-gray-400 font-bold text-xs uppercase tracking-widest">Chargement des événements...</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-bet-card border border-gray-700 rounded-sm p-4 mt-4">
-                        <div class="text-white font-bold text-lg border-b border-gray-700 pb-2 mb-4 flex items-center gap-2">
-                            <i class="fas fa-star text-bet-yellow"></i> Sélection du Jour
-                        </div>
-                        <div id="games-of-the-day-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"></div>
-                    </div>
-
-                    <div id="dynamic-featured-providers" class="flex flex-col gap-4 w-full mt-4"></div>
-                    
-                    <div id="promo-slider-container" class="hidden"><div id="promo-slider"></div></div>
-                </div>
-
-                <div id="pane-casino" class="player-view-section hidden w-full space-y-4">
-                    <div class="bg-bet-card p-4 border border-gray-700 rounded-sm flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <h2 class="text-white font-black text-xl flex items-center gap-2"><i class="fas fa-slot-machine text-bet-green"></i> Casino</h2>
-                        
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <div class="relative w-full sm:w-64">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
-                                <input type="text" id="game-search-input" onkeyup="filterGames()" placeholder="Rechercher un jeu..." class="b365-input pl-10 py-2 text-sm font-bold text-white bg-bet-main border-gray-700 rounded-full">
-                            </div>
-                            
-                            <div class="relative min-w-[160px]">
-                                <button onclick="toggleProviderDropdown()" class="w-full bg-bet-main border border-gray-700 px-4 py-2 text-sm text-white font-bold flex items-center justify-between rounded-full hover:border-gray-500 transition">
-                                    <span id="current-provider-label">Fournisseurs</span>
-                                    <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
-                                </button>
-                                <div id="provider-dropdown" class="absolute right-0 top-full mt-2 w-full sm:w-72 bg-bet-card border border-gray-700 shadow-2xl hidden flex-col z-50 rounded-md overflow-hidden">
-                                    <div class="p-2 border-b border-gray-700 bg-bet-main">
-                                        <input type="text" id="provider-search-input" onkeyup="filterProviders()" placeholder="Filtrer un fournisseur..." class="b365-input py-1.5 px-3 text-sm rounded">
-                                    </div>
-                                    <div id="provider-dropdown-list" class="max-h-[350px] overflow-y-auto no-scrollbar p-1 flex flex-col"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-bet-main pt-2">
-                        <div id="games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 pb-6"></div>
+                <div class="mb-2 md:mb-4 max-w-3xl">
+                    <div class="bg-[#2a2a2a] rounded-full flex items-center px-4 py-2 border border-gray-700 focus-within:border-gray-500 transition">
+                        <i class="fa-solid fa-magnifying-glass text-gray-400 mr-3"></i>
+                        <input type="text" placeholder="Rechercher..." class="bg-transparent border-none outline-none text-white font-bold text-sm w-full placeholder-gray-400">
                     </div>
                 </div>
 
-                <div id="pane-live-casino" class="player-view-section hidden w-full space-y-4">
-                    <div class="bg-bet-card p-4 border border-gray-700 rounded-sm flex flex-col md:flex-row justify-between md:items-center gap-4">
-                        <h2 class="text-white font-black text-xl flex items-center gap-2"><i class="fas fa-video text-red-500"></i> Croupiers en Direct</h2>
-                        <div class="relative w-full md:w-64">
-                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
-                            <input type="text" id="live-search-input" oninput="searchLiveGames()" placeholder="Rechercher une table..." class="b365-input pl-10 py-2 text-sm font-bold text-white bg-bet-main border-gray-700 rounded-full">
+                <div class="flex gap-3 md:gap-4 overflow-x-auto no-scrollbar mb-2 md:mb-4 pb-2 border-b border-gray-800">
+                    <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="openSportsbookForProvider('nexus')">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-betCard border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
+                            <i class="fa-regular fa-futbol text-lg md:text-xl text-white"></i>
+                        </div>
+                        <span class="text-[10px] md:text-[11px] font-bold text-white">Football</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="openSportsbookForProvider('nexus')">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-betCard border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
+                            <i class="fa-solid fa-baseball-bat-ball text-lg md:text-xl text-bet-yellow"></i>
+                        </div>
+                        <span class="text-[10px] md:text-[11px] font-bold text-white">Tennis</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="openSportsbookForProvider('nexus')">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-betCard border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
+                            <i class="fa-solid fa-basketball text-lg md:text-xl text-orange-400"></i>
+                        </div>
+                        <span class="text-[10px] md:text-[11px] font-bold text-white">Basketball</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="switchSection('casino'); initCasinoLobby();">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-betCard border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
+                            <i class="fa-solid fa-dice text-lg md:text-xl text-betGreen"></i>
+                        </div>
+                        <span class="text-[10px] md:text-[11px] font-bold text-white">Casino</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="switchSection('live-casino'); openLiveCasino();">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-betCard border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
+                            <i class="fa-solid fa-video text-lg md:text-xl text-red-500"></i>
+                        </div>
+                        <span class="text-[10px] md:text-[11px] font-bold text-white text-center leading-tight">Live Casino</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-2 cursor-pointer min-w-[60px] group" onclick="switchSection('virtuals'); initVirtualsLobby();">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-betCard border border-gray-700 flex justify-center items-center group-hover:bg-gray-700 transition">
+                            <i class="fa-solid fa-gamepad text-lg md:text-xl text-blue-400"></i>
+                        </div>
+                        <span class="text-[10px] md:text-[11px] font-bold text-white">Virtuels</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4">
+                    <div class="bg-gradient-to-r from-[#003823] to-[#005c3d] rounded-xl p-4 md:p-5 relative overflow-hidden flex flex-col justify-between min-h-[140px] md:min-h-[160px] cursor-pointer" onclick="switchSection('casino'); initCasinoLobby();">
+                        <div class="z-10 w-2/3">
+                            <span class="text-[9px] md:text-[10px] font-bold text-white uppercase tracking-wider mb-1 block">Nouveau Jeux</span>
+                            <h2 class="text-lg md:text-2xl font-black text-white leading-tight mb-3 md:mb-4">DÉCOUVREZ LE<br>CASINO EN DIRECT</h2>
+                            <button class="bg-bet-yellow text-black font-extrabold text-[10px] md:text-xs px-3 md:px-4 py-1.5 md:py-2 rounded">Jouer maintenant</button>
                         </div>
                     </div>
 
-                    <div id="live-providers-bar" class="flex flex-wrap gap-2 bg-bet-card p-3 border border-gray-700 rounded-sm">
-                        <button onclick="filterLiveGames('All')" class="live-provider-btn bg-bet-green text-bet-dark px-4 py-2 text-sm font-bold rounded-full transition">Tout</button>
-                        <button onclick="filterLiveGames('PP_LIVE_PRO')" class="live-provider-btn bg-bet-main border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 px-4 py-2 text-sm font-bold rounded-full transition">Pragmatic Live</button>
-                        <button onclick="filterLiveGames('EVO_LIVE')" class="live-provider-btn bg-bet-main border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 px-4 py-2 text-sm font-bold rounded-full transition">Evolution</button>
-                        <button onclick="filterLiveGames('EZUGI_LIVE')" class="live-provider-btn bg-bet-main border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 px-4 py-2 text-sm font-bold rounded-full transition">Ezugi</button>
-                        <button onclick="filterLiveGames('VIVO_LIVE')" class="live-provider-btn bg-bet-main border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 px-4 py-2 text-sm font-bold rounded-full transition">Vivo Gaming</button>
+                    <div class="bg-betCard border border-gray-700 rounded-xl p-4 md:p-5 relative overflow-hidden flex flex-col justify-between min-h-[140px] md:min-h-[160px] cursor-pointer" onclick="openSportsbookForProvider('nexus')">
+                        <div class="z-10 w-2/3">
+                            <span class="text-betGreen text-[9px] md:text-xs font-black uppercase mb-1 block tracking-wider">REGARDEZ & PARIEZ</span>
+                            <h2 class="text-base md:text-xl font-black text-white leading-tight mb-2">SUR PLUSIEURS<br>SPORTS</h2>
+                            <p class="text-betGreen text-[9px] md:text-xs font-black uppercase">TOUTE L'ANNÉE</p>
+                        </div>
                     </div>
 
-                    <div class="bg-bet-main pt-2">
-                        <div id="live-games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 pb-6"></div>
+                    <div class="bg-betCard border border-gray-700 rounded-xl p-4 md:p-5 relative overflow-hidden flex flex-col justify-between min-h-[140px] md:min-h-[160px] cursor-pointer" onclick="launchAviator()">
+                        <div class="z-10 w-full md:w-2/3">
+                            <span class="text-bet-yellow text-[9px] md:text-xs font-black uppercase mb-1 block tracking-wider">CRASH GAMES</span>
+                            <h2 class="text-base md:text-lg font-black text-white leading-tight mb-2">MULTIPLIEZ VOS GAINS<br>EN QUELQUES SECONDES</h2>
+                            <p class="text-bet-yellow text-[9px] md:text-xs font-black uppercase">DÉCOLLEZ MAINTENANT</p>
+                        </div>
                     </div>
                 </div>
 
-                <div id="pane-virtuals" class="player-view-section hidden w-full space-y-4">
-                    <div class="bg-bet-card p-4 border border-gray-700 rounded-sm">
-                        <h2 class="text-white font-black text-xl flex items-center gap-2"><i class="fas fa-gamepad text-blue-400"></i> Sports Virtuels</h2>
-                    </div>
-                    <div class="bg-bet-main pt-2">
-                        <div id="virtuals-games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 pb-6"></div>
+                <div id="embedded-sportsbook-container" class="w-full min-h-[500px] md:min-h-[600px] bg-betCard border border-gray-700 rounded-sm relative overflow-hidden">
+                    <div id="sports-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-betCard z-10">
+                        <i class="fas fa-circle-notch fa-spin text-bet-yellow text-3xl mb-3"></i>
+                        <p class="text-gray-400 font-bold text-[10px] md:text-xs uppercase tracking-widest">Chargement des événements...</p>
                     </div>
                 </div>
+
+                <div class="bg-betCard border border-gray-700 rounded-sm p-3 md:p-4 mt-4">
+                    <div class="text-white font-bold text-base md:text-lg border-b border-gray-700 pb-2 mb-3 md:mb-4 flex items-center gap-2">
+                        <i class="fas fa-star text-bet-yellow"></i> Sélection du Jour
+                    </div>
+                    <div id="games-of-the-day-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3"></div>
+                </div>
+
+                <div id="dynamic-featured-providers" class="flex flex-col gap-3 md:gap-4 w-full mt-4"></div>
                 
-                <div id="pane-virtuals2" class="player-view-section hidden w-full space-y-4">
-                    <div class="bg-bet-card p-4 border border-gray-700 rounded-sm">
-                        <h2 class="text-white font-black text-xl flex items-center gap-2"><i class="fas fa-flask text-yellow-500"></i> Tests & Mini-Jeux</h2>
-                    </div>
-                    <div class="bg-bet-main pt-2">
-                        <div id="virtuals2-games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 pb-6"></div>
-                    </div>
-                </div>
-
+                <div id="promo-slider-container" class="hidden"><div id="promo-slider"></div></div>
             </div>
 
-            <aside class="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 space-y-4">
+            <div id="pane-casino" class="player-view-section hidden w-full space-y-4">
+                <div class="bg-betCard p-3 md:p-4 border border-gray-700 rounded-sm flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                    <h2 class="text-white font-black text-lg md:text-xl flex items-center gap-2"><i class="fas fa-slot-machine text-betGreen"></i> Casino</h2>
+                    
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-48">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
+                            <input type="text" id="game-search-input" onkeyup="filterGames()" placeholder="Rechercher un jeu..." class="b365-input pl-10 py-1.5 md:py-2 text-xs md:text-sm font-bold text-white bg-betMain border-gray-700 rounded-full">
+                        </div>
+                        
+                        <div class="relative min-w-[140px] md:min-w-[160px]">
+                            <button onclick="toggleProviderDropdown()" class="w-full bg-betMain border border-gray-700 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-white font-bold flex items-center justify-between rounded-full hover:border-gray-500 transition">
+                                <span id="current-provider-label">Fournisseurs</span>
+                                <i class="fas fa-chevron-down text-gray-500 text-[10px] md:text-xs"></i>
+                            </button>
+                            <div id="provider-dropdown" class="absolute right-0 top-full mt-2 w-full sm:w-72 bg-betCard border border-gray-700 shadow-2xl hidden flex-col z-50 rounded-md overflow-hidden">
+                                <div class="p-2 border-b border-gray-700 bg-betMain">
+                                    <input type="text" id="provider-search-input" onkeyup="filterProviders()" placeholder="Filtrer..." class="b365-input py-1.5 px-3 text-xs md:text-sm rounded">
+                                </div>
+                                <div id="provider-dropdown-list" class="max-h-[300px] overflow-y-auto no-scrollbar p-1 flex flex-col"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="bg-bet-card border border-gray-700 rounded-sm flex flex-col overflow-hidden shadow-lg">
-                    <div class="bg-gray-800 text-white font-black p-3 text-sm text-center border-b border-gray-700 uppercase tracking-widest">Fiche de pari</div>
-                    <div class="p-8 text-center text-gray-400 text-xs font-bold leading-loose">
-                        <i class="fa-solid fa-receipt text-3xl text-gray-600 mb-3 block"></i>
-                        Votre fiche de pari est vide.<br>Sélectionnez des cotes pour commencer.
+                <div class="bg-betMain pt-2">
+                    <div id="games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-3 pb-6"></div>
+                </div>
+            </div>
+
+            <div id="pane-live-casino" class="player-view-section hidden w-full space-y-4">
+                <div class="bg-betCard p-3 md:p-4 border border-gray-700 rounded-sm flex flex-col md:flex-row justify-between md:items-center gap-3">
+                    <h2 class="text-white font-black text-lg md:text-xl flex items-center gap-2"><i class="fas fa-video text-red-500"></i> Croupiers en Direct</h2>
+                    <div class="relative w-full md:w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"></i>
+                        <input type="text" id="live-search-input" oninput="searchLiveGames()" placeholder="Rechercher une table..." class="b365-input pl-10 py-1.5 md:py-2 text-xs md:text-sm font-bold text-white bg-betMain border-gray-700 rounded-full">
                     </div>
-                    <div class="p-3 border-t border-gray-700 bg-bet-main flex justify-between items-center font-bold text-xs">
-                        <span class="text-gray-400">Mise Totale</span>
-                        <span class="text-white text-sm">0.00 TND</span>
-                    </div>
-                    <button class="bg-gray-700 text-gray-400 font-black py-3 mx-3 mb-3 rounded text-xs cursor-not-allowed uppercase">Placer le pari</button>
                 </div>
 
-                <div class="bg-bet-card border border-gray-700 rounded-sm overflow-hidden p-4 shadow-lg">
-                    <h3 class="text-white font-black text-sm uppercase mb-4 flex items-center gap-2 border-b border-gray-700 pb-2"><i class="fas fa-coins text-bet-yellow"></i> Jackpots Globaux</h3>
-                    <div class="flex flex-col gap-3">
-                        <div class="bg-bet-main border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-bet-green shadow">
-                            <span class="text-[11px] text-gray-400 font-black tracking-widest">GRAND</span>
-                            <span id="jackpot-grand" class="text-white font-black text-base">1,500.00 TND</span>
-                        </div>
-                        <div class="bg-bet-main border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-bet-yellow shadow">
-                            <span class="text-[11px] text-gray-400 font-black tracking-widest">MAJOR</span>
-                            <span id="jackpot-major" class="text-white font-bold text-sm">750.00 TND</span>
-                        </div>
-                        <div class="bg-bet-main border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-purple-500 shadow">
-                            <span class="text-[11px] text-gray-400 font-black tracking-widest">MINOR</span>
-                            <span id="jackpot-minor" class="text-white font-bold text-sm">250.00 TND</span>
-                        </div>
-                        <div class="bg-bet-main border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-blue-500 shadow">
-                            <span class="text-[11px] text-gray-400 font-black tracking-widest">MINI</span>
-                            <span id="jackpot-mini" class="text-white font-bold text-sm">50.00 TND</span>
-                        </div>
+                <div id="live-providers-bar" class="flex flex-wrap gap-2 bg-betCard p-2 md:p-3 border border-gray-700 rounded-sm overflow-x-auto no-scrollbar">
+                    <button onclick="filterLiveGames('All')" class="live-provider-btn bg-betGreen text-betDark px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-sm font-bold rounded-full transition whitespace-nowrap">Tout</button>
+                    <button onclick="filterLiveGames('PP_LIVE_PRO')" class="live-provider-btn bg-betMain border border-gray-700 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-sm font-bold rounded-full transition whitespace-nowrap">Pragmatic Live</button>
+                    <button onclick="filterLiveGames('EVO_LIVE')" class="live-provider-btn bg-betMain border border-gray-700 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-sm font-bold rounded-full transition whitespace-nowrap">Evolution</button>
+                    <button onclick="filterLiveGames('EZUGI_LIVE')" class="live-provider-btn bg-betMain border border-gray-700 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-sm font-bold rounded-full transition whitespace-nowrap">Ezugi</button>
+                    <button onclick="filterLiveGames('VIVO_LIVE')" class="live-provider-btn bg-betMain border border-gray-700 text-gray-300 hover:text-white px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-sm font-bold rounded-full transition whitespace-nowrap">Vivo</button>
+                </div>
+
+                <div class="bg-betMain pt-2">
+                    <div id="live-games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-3 pb-6"></div>
+                </div>
+            </div>
+
+            <div id="pane-virtuals" class="player-view-section hidden w-full space-y-4">
+                <div class="bg-betCard p-3 md:p-4 border border-gray-700 rounded-sm">
+                    <h2 class="text-white font-black text-lg md:text-xl flex items-center gap-2"><i class="fas fa-gamepad text-blue-400"></i> Sports Virtuels</h2>
+                </div>
+                <div class="bg-betMain pt-2">
+                    <div id="virtuals-games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-3 pb-6"></div>
+                </div>
+            </div>
+            
+            <div id="pane-virtuals2" class="player-view-section hidden w-full space-y-4">
+                <div class="bg-betCard p-3 md:p-4 border border-gray-700 rounded-sm">
+                    <h2 class="text-white font-black text-lg md:text-xl flex items-center gap-2"><i class="fas fa-flask text-yellow-500"></i> Tests & Mini-Jeux</h2>
+                </div>
+                <div class="bg-betMain pt-2">
+                    <div id="virtuals2-games-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 md:gap-3 pb-6"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <aside class="hidden lg:flex flex-col w-[260px] xl:w-[280px] shrink-0 space-y-4">
+            <div class="bg-[#1e1e1e] border border-gray-700 rounded-sm flex flex-col overflow-hidden shadow-lg">
+                <div class="bg-gray-800 text-white font-black p-3 text-sm text-center border-b border-gray-700 uppercase tracking-widest">Fiche de pari</div>
+                <div class="p-8 text-center text-gray-400 text-xs font-bold leading-loose">
+                    <i class="fa-solid fa-receipt text-3xl text-gray-600 mb-3 block"></i>
+                    Votre fiche de pari est vide.<br>Sélectionnez des cotes pour commencer.
+                </div>
+                <div class="p-3 border-t border-gray-700 bg-betMain flex justify-between items-center font-bold text-xs">
+                    <span class="text-gray-400">Mise Totale</span>
+                    <span class="text-white text-sm">0.00 TND</span>
+                </div>
+                <button class="bg-gray-700 text-gray-400 font-black py-3 mx-3 mb-3 rounded text-xs cursor-not-allowed uppercase">Placer le pari</button>
+            </div>
+
+            <div class="bg-betCard border border-gray-700 rounded-sm overflow-hidden p-4 shadow-lg">
+                <h3 class="text-white font-black text-sm uppercase mb-4 flex items-center gap-2 border-b border-gray-700 pb-2"><i class="fas fa-coins text-bet-yellow"></i> Jackpots Globaux</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="bg-betMain border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-betGreen shadow">
+                        <span class="text-[11px] text-gray-400 font-black tracking-widest">GRAND</span>
+                        <span id="jackpot-grand" class="text-white font-black text-base">1,500.00 TND</span>
+                    </div>
+                    <div class="bg-betMain border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-bet-yellow shadow">
+                        <span class="text-[11px] text-gray-400 font-black tracking-widest">MAJOR</span>
+                        <span id="jackpot-major" class="text-white font-bold text-sm">750.00 TND</span>
+                    </div>
+                    <div class="bg-betMain border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-purple-500 shadow">
+                        <span class="text-[11px] text-gray-400 font-black tracking-widest">MINOR</span>
+                        <span id="jackpot-minor" class="text-white font-bold text-sm">250.00 TND</span>
+                    </div>
+                    <div class="bg-betMain border border-gray-700 p-3 flex justify-between items-center rounded border-l-4 border-l-blue-500 shadow">
+                        <span class="text-[11px] text-gray-400 font-black tracking-widest">MINI</span>
+                        <span id="jackpot-mini" class="text-white font-bold text-sm">50.00 TND</span>
                     </div>
                 </div>
-            </aside>
+            </div>
+        </aside>
 
-        </main>
+    </main>
 
+    <!-- Mobile Bottom Nav -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-gray-800 flex justify-around items-center h-16 z-[500] shadow-[0_-2px_10px_rgba(0,0,0,0.5)]">
+        <button onclick="switchSection('accueil')" class="flex flex-col items-center justify-center w-full text-betGreen gap-1 transition">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">Accueil</span>
+        </button>
+        <button onclick="openSportsbookForProvider('nexus')" class="flex flex-col items-center justify-center w-full text-gray-400 hover:text-white transition gap-1">
+            <i class="fa-solid fa-play text-lg"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">Direct</span>
+        </button>
+        <button onclick="switchSection('casino'); initCasinoLobby();" class="flex flex-col items-center justify-center w-full text-gray-400 hover:text-white transition gap-1">
+            <i class="fa-solid fa-dice text-lg"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">Casino</span>
+        </button>
+        <button onclick="toggleProfileSidebar()" class="flex flex-col items-center justify-center w-full text-gray-400 hover:text-white transition gap-1">
+            <i class="fa-solid fa-bars text-lg"></i>
+            <span class="text-[9px] font-bold uppercase tracking-wider">Menu</span>
+        </button>
     </div>
 
-    <footer class="bg-[#121212] border-t border-gray-800 mt-auto py-8 text-center text-xs text-gray-500 px-4 relative z-10">
-        <div class="flex flex-wrap justify-center items-center gap-3 sm:gap-6 mb-6">
-            <span class="font-bold text-gray-400 uppercase tracking-widest text-[10px] mr-2">Paiements :</span>
-            <div class="px-4 py-1.5 bg-gray-800 border border-gray-700 rounded font-bold text-gray-300">D17</div>
-            <div class="px-4 py-1.5 bg-gray-800 border border-gray-700 rounded font-bold text-gray-300">USDT</div>
-            <div class="px-4 py-1.5 bg-gray-800 border border-gray-700 rounded font-bold text-gray-300">Ooredoo</div>
-            <div class="px-4 py-1.5 bg-gray-800 border border-gray-700 rounded font-bold text-gray-300">Orange</div>
-            <div class="px-4 py-1.5 bg-gray-800 border border-gray-700 rounded font-bold text-gray-300">Mandat</div>
-        </div>
+    <footer class="bg-[#121212] border-t border-gray-800 py-4 px-2 md:px-4 text-center"></footer>
 
         <div class="flex flex-wrap justify-center gap-6 mb-4 font-bold text-gray-400">
             <span class="hover:text-white cursor-pointer transition" onclick="openPolicyModal('termes')">Aide</span>
@@ -401,132 +397,132 @@
             <span class="hover:text-white cursor-pointer transition" onclick="openPolicyModal('confidentialite')">Politique de Confidentialité</span>
             <span class="hover:text-white cursor-pointer transition" onclick="openPolicyModal('responsable')">Jeu Responsable</span>
         </div>
-        <p class="max-w-4xl mx-auto mb-4 leading-relaxed text-[11px]">
+        <p class="max-w-4xl mx-auto mb-4 leading-relaxed text-[10px] md:text-[11px]">
             En accédant, continuant à utiliser ou en naviguant sur ce site, vous acceptez que nous utilisions certains cookies du navigateur pour améliorer votre expérience. XDanous n'utilise que des cookies qui amélioreront votre expérience et n'interféreront pas avec votre vie privée. Les jeux d'argent sont strictement interdits aux personnes de moins de 18 ans. Le gain et le retrait maximum autorisés par joueur sont limités à 30 000 TND par mois.
         </p>
-        <p class="font-bold flex items-center justify-center gap-2">
-            <i class="fas fa-shield-alt text-bet-green"></i> © 2001-2026 XDanous. Tous droits réservés.
+        <p class="font-bold flex items-center justify-center gap-2 text-[10px] md:text-xs">
+            <i class="fas fa-shield-alt text-betGreen"></i> © 2001-2026 XDanous. Tous droits réservés.
         </p>
     </footer>
 
     <!-- MODALS & OVERLAYS -->
     <div id="player-login-modal" class="fixed inset-0 z-[600] bg-black/80 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="w-full max-w-sm bg-bet-card border border-gray-700 rounded-lg p-6 relative shadow-2xl">
+        <div class="w-full max-w-sm bg-betCard border border-gray-700 rounded-lg p-5 md:p-6 relative shadow-2xl">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition"><i class="fas fa-times text-lg"></i></button>
-            <h2 class="text-white text-xl font-black mb-6 text-center tracking-wide">CONNEXION</h2>
+            <h2 class="text-white text-lg md:text-xl font-black mb-5 md:mb-6 text-center tracking-wide">CONNEXION</h2>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-gray-400 text-xs font-bold mb-1 ml-1 uppercase">Nom d'utilisateur</label>
-                    <input type="text" id="p-auth-username" placeholder="Entrez votre identifiant" class="b365-input text-sm font-bold rounded bg-bet-main border-gray-600 focus:border-bet-green">
+                    <label class="block text-gray-400 text-[10px] md:text-xs font-bold mb-1 ml-1 uppercase">Nom d'utilisateur</label>
+                    <input type="text" id="p-auth-username" placeholder="Entrez votre identifiant" class="b365-input text-xs md:text-sm font-bold rounded bg-betMain border-gray-600 focus:border-betGreen">
                 </div>
                 <div>
-                    <label class="block text-gray-400 text-xs font-bold mb-1 ml-1 uppercase">Mot de passe</label>
-                    <input type="password" id="p-auth-password" placeholder="Entrez votre mot de passe" class="b365-input text-sm font-bold rounded bg-bet-main border-gray-600 focus:border-bet-green">
+                    <label class="block text-gray-400 text-[10px] md:text-xs font-bold mb-1 ml-1 uppercase">Mot de passe</label>
+                    <input type="password" id="p-auth-password" placeholder="Entrez votre mot de passe" class="b365-input text-xs md:text-sm font-bold rounded bg-betMain border-gray-600 focus:border-betGreen">
                 </div>
-                <button onclick="handlePlayerAuth()" class="w-full bg-bet-green text-bet-dark hover:bg-[#126E51] hover:text-white font-black py-3 mt-2 rounded transition uppercase tracking-wide">Se connecter</button>
+                <button onclick="handlePlayerAuth()" class="w-full bg-betGreen text-betDark hover:bg-[#126E51] hover:text-white font-black py-2.5 md:py-3 mt-2 rounded transition uppercase tracking-wide text-xs md:text-sm">Se connecter</button>
             </div>
         </div>
     </div>
 
     <div id="profile-overlay" onclick="toggleProfileSidebar()" class="fixed inset-0 bg-black/60 z-[590] hidden backdrop-blur-sm"></div>
-    <div id="profile-sidebar" class="fixed right-0 top-0 h-full w-80 bg-bet-card border-l border-gray-700 z-[600] shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
-        <div class="p-6 bg-[#121212] flex justify-between items-center border-b border-gray-800">
+    <div id="profile-sidebar" class="fixed right-0 top-0 h-full w-72 md:w-80 bg-betCard border-l border-gray-700 z-[600] shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-5 md:p-6 bg-[#121212] flex justify-between items-center border-b border-gray-800">
             <div class="text-white">
-                <h3 class="font-black text-lg uppercase tracking-wider" id="sidebar-username">USER</h3>
-                <p class="font-bold text-sm text-bet-yellow mt-1" id="sidebar-balance">0.00 TND</p>
+                <h3 class="font-black text-base md:text-lg uppercase tracking-wider" id="sidebar-username">USER</h3>
+                <p class="font-bold text-xs md:text-sm text-bet-yellow mt-1" id="sidebar-balance">0.00 TND</p>
             </div>
-            <button onclick="toggleProfileSidebar()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
+            <button onclick="toggleProfileSidebar()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times text-lg md:text-xl"></i></button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-4 space-y-2">
-            <h4 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-2 mt-2">Menu Joueur</h4>
-            <a href="javascript:void(0)" onclick="openHistoryModal()" class="flex items-center gap-4 text-gray-300 hover:text-white hover:bg-gray-800 p-4 rounded-lg transition text-sm font-bold">
-                <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center"><i class="fas fa-history text-bet-green"></i></div> Historique des paris
+        <div class="flex-1 overflow-y-auto p-3 md:p-4 space-y-1 md:space-y-2 pb-20 md:pb-4">
+            <h4 class="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-2 mt-2">Menu Joueur</h4>
+            <a href="javascript:void(0)" onclick="openHistoryModal()" class="flex items-center gap-3 md:gap-4 text-gray-300 hover:text-white hover:bg-gray-800 p-3 md:p-4 rounded-lg transition text-xs md:text-sm font-bold">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded bg-gray-800 flex items-center justify-center"><i class="fas fa-history text-betGreen text-xs md:text-sm"></i></div> Historique des paris
             </a>
-            <a href="javascript:void(0)" onclick="openTransactionsModal()" class="flex items-center gap-4 text-gray-300 hover:text-white hover:bg-gray-800 p-4 rounded-lg transition text-sm font-bold">
-                <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center"><i class="fas fa-exchange-alt text-bet-yellow"></i></div> Transactions
+            <a href="javascript:void(0)" onclick="openTransactionsModal()" class="flex items-center gap-3 md:gap-4 text-gray-300 hover:text-white hover:bg-gray-800 p-3 md:p-4 rounded-lg transition text-xs md:text-sm font-bold">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded bg-gray-800 flex items-center justify-center"><i class="fas fa-exchange-alt text-bet-yellow text-xs md:text-sm"></i></div> Transactions
             </a>
         </div>
         
-        <div class="p-6 bg-[#1e1e1e] border-t border-gray-800">
-            <button onclick="toggleProfileSidebar(); logoutPlayer();" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white hover:border-red-500 hover:bg-red-500/10 font-black py-3 rounded transition uppercase tracking-widest text-xs">
+        <div class="p-5 md:p-6 bg-[#1e1e1e] border-t border-gray-800 pb-24 md:pb-6">
+            <button onclick="toggleProfileSidebar(); logoutPlayer();" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:text-white hover:border-red-500 hover:bg-red-500/10 font-black py-2.5 md:py-3 rounded transition uppercase tracking-widest text-[10px] md:text-xs">
                 Déconnexion
             </button>
         </div>
     </div>
 
-    <div id="history-modal" class="fixed inset-0 z-[600] bg-black/80 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-bet-card border border-gray-700 rounded-lg w-full max-w-4xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
-            <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-[#121212]">
-                <h3 class="text-white font-black text-base uppercase tracking-wider"><i class="fas fa-history text-bet-green mr-2"></i> Historique des paris</h3>
-                <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times text-lg"></i></button>
+    <div id="history-modal" class="fixed inset-0 z-[600] bg-black/80 hidden items-center justify-center p-2 md:p-4 backdrop-blur-sm">
+        <div class="bg-betCard border border-gray-700 rounded-lg w-full max-w-4xl flex flex-col max-h-[85vh] md:max-h-[85vh] h-full md:h-auto shadow-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-3 md:p-4 border-b border-gray-700 bg-[#121212]">
+                <h3 class="text-white font-black text-sm md:text-base uppercase tracking-wider"><i class="fas fa-history text-betGreen mr-2"></i> Historique des paris</h3>
+                <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-white transition p-1"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <div class="p-0 overflow-y-auto flex-1 bg-bet-main">
-                <table class="w-full text-left text-sm border-collapse">
+            <div class="p-0 overflow-y-auto flex-1 bg-betMain">
+                <table class="w-full text-left text-[10px] md:text-sm border-collapse">
                     <thead>
-                        <tr class="text-gray-400 bg-gray-800 border-b border-gray-700 text-xs uppercase tracking-wider">
-                            <th class="p-4 font-bold">Date</th>
-                            <th class="p-4 font-bold">Jeu</th>
-                            <th class="p-4 font-bold text-center">Mise</th>
-                            <th class="p-4 font-bold text-right">Gain</th>
+                        <tr class="text-gray-400 bg-gray-800 border-b border-gray-700 text-[9px] md:text-xs uppercase tracking-wider">
+                            <th class="p-2 md:p-4 font-bold">Date</th>
+                            <th class="p-2 md:p-4 font-bold">Jeu</th>
+                            <th class="p-2 md:p-4 font-bold text-center">Mise</th>
+                            <th class="p-2 md:p-4 font-bold text-right">Gain</th>
                         </tr>
                     </thead>
                     <tbody id="history-table-body" class="text-gray-300 divide-y divide-gray-800"></tbody>
                 </table>
-                <div id="history-loader" class="py-12 text-center hidden"><i class="fas fa-circle-notch fa-spin text-bet-green text-3xl"></i></div>
-                <div id="history-empty" class="py-12 text-center hidden font-bold text-gray-500 text-sm">Aucun pari trouvé.</div>
+                <div id="history-loader" class="py-12 text-center hidden"><i class="fas fa-circle-notch fa-spin text-betGreen text-2xl md:text-3xl"></i></div>
+                <div id="history-empty" class="py-12 text-center hidden font-bold text-gray-500 text-xs md:text-sm">Aucun pari trouvé.</div>
             </div>
         </div>
     </div>
 
-    <div id="transactions-modal" class="fixed inset-0 z-[600] bg-black/80 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-bet-card border border-gray-700 rounded-lg w-full max-w-3xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
-            <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-[#121212]">
-                <h3 class="text-white font-black text-base uppercase tracking-wider"><i class="fas fa-exchange-alt text-bet-yellow mr-2"></i> Historique des Transactions</h3>
-                <button onclick="closeTransactionsModal()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times text-lg"></i></button>
+    <div id="transactions-modal" class="fixed inset-0 z-[600] bg-black/80 hidden items-center justify-center p-2 md:p-4 backdrop-blur-sm">
+        <div class="bg-betCard border border-gray-700 rounded-lg w-full max-w-3xl flex flex-col max-h-[85vh] h-full md:h-auto shadow-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-3 md:p-4 border-b border-gray-700 bg-[#121212]">
+                <h3 class="text-white font-black text-sm md:text-base uppercase tracking-wider"><i class="fas fa-exchange-alt text-bet-yellow mr-2"></i> Historique des Transactions</h3>
+                <button onclick="closeTransactionsModal()" class="text-gray-400 hover:text-white transition p-1"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <div class="p-0 overflow-y-auto flex-1 bg-bet-main">
-                <table class="w-full text-left text-sm border-collapse">
+            <div class="p-0 overflow-y-auto flex-1 bg-betMain">
+                <table class="w-full text-left text-[10px] md:text-sm border-collapse">
                     <thead>
-                        <tr class="text-gray-400 bg-gray-800 border-b border-gray-700 text-xs uppercase tracking-wider">
-                            <th class="p-4 font-bold">Date</th>
-                            <th class="p-4 font-bold">Type</th>
-                            <th class="p-4 font-bold">Méthode</th>
-                            <th class="p-4 font-bold text-center">Montant</th>
-                            <th class="p-4 font-bold text-right">Statut</th>
+                        <tr class="text-gray-400 bg-gray-800 border-b border-gray-700 text-[9px] md:text-xs uppercase tracking-wider">
+                            <th class="p-2 md:p-4 font-bold">Date</th>
+                            <th class="p-2 md:p-4 font-bold hidden sm:table-cell">Type</th>
+                            <th class="p-2 md:p-4 font-bold">Montant</th>
+                            <th class="p-2 md:p-4 font-bold text-right">Statut</th>
                         </tr>
                     </thead>
                     <tbody id="transactions-table-body" class="text-gray-300 divide-y divide-gray-800"></tbody>
                 </table>
-                <div id="transactions-loader" class="py-12 text-center hidden"><i class="fas fa-circle-notch fa-spin text-bet-green text-3xl"></i></div>
-                <div id="transactions-empty" class="py-12 text-center hidden font-bold text-gray-500 text-sm">Aucune transaction trouvée.</div>
+                <div id="transactions-loader" class="py-12 text-center hidden"><i class="fas fa-circle-notch fa-spin text-betGreen text-2xl md:text-3xl"></i></div>
+                <div id="transactions-empty" class="py-12 text-center hidden font-bold text-gray-500 text-xs md:text-sm">Aucune transaction trouvée.</div>
             </div>
         </div>
     </div>
 
-    <div id="policy-modal" class="fixed inset-0 z-[600] bg-black/80 hidden items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-bet-card border border-gray-700 rounded-lg w-full max-w-2xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
-            <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-[#121212]">
-                <h3 id="policy-modal-title" class="text-white font-black text-base uppercase tracking-wider">Titre</h3>
+    <div id="policy-modal" class="fixed inset-0 z-[600] bg-black/80 hidden items-center justify-center p-2 md:p-4 backdrop-blur-sm">
+        <div class="bg-betCard border border-gray-700 rounded-lg w-full max-w-2xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-3 md:p-4 border-b border-gray-700 bg-[#121212]">
+                <h3 id="policy-modal-title" class="text-white font-black text-sm md:text-base uppercase tracking-wider">Titre</h3>
                 <button onclick="closePolicyModal()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times text-lg"></i></button>
             </div>
-            <div id="policy-modal-body" class="p-6 overflow-y-auto text-sm text-gray-300 space-y-4 bg-bet-main leading-relaxed"></div>
+            <div id="policy-modal-body" class="p-4 md:p-6 overflow-y-auto text-xs md:text-sm text-gray-300 space-y-4 bg-betMain leading-relaxed"></div>
         </div>
     </div>
 
     <div id="casino-iframe-container" class="fixed inset-0 z-[700] bg-black hidden flex-col">
-        <div class="h-10 bg-[#121212] flex justify-between items-center px-4 border-b border-gray-800">
-            <span class="text-gray-400 font-black text-xs uppercase tracking-widest"><span class="text-white">x</span><span class="text-bet-yellow">danous</span> Games</span>
-            <button onclick="closeCasinoGame()" class="bg-gray-800 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded transition"><i class="fas fa-times mr-1"></i> Fermer le jeu</button>
+        <div class="h-10 md:h-12 bg-[#121212] flex justify-between items-center px-4 border-b border-gray-800 pt-safe">
+            <span class="text-gray-400 font-black text-[10px] md:text-xs uppercase tracking-widest"><span class="text-white">X</span><span class="text-red-600">danous</span> Games</span>
+            <button onclick="closeCasinoGame()" class="bg-gray-800 hover:bg-red-600 text-white text-[10px] md:text-xs font-bold px-3 py-1.5 md:py-2 rounded transition flex items-center"><i class="fas fa-times mr-1.5"></i> Fermer</button>
         </div>
         <iframe id="casino-iframe" class="w-full flex-grow border-0 bg-[#1e1e1e]"></iframe>
     </div>
 
-    <div id="toast-container" class="fixed top-5 right-5 z-[800] flex flex-col gap-2 w-full max-w-xs px-4"></div>
+    <div id="toast-container" class="fixed top-2 md:top-5 right-2 md:right-5 z-[800] flex flex-col gap-2 w-full max-w-[280px] md:max-w-xs px-2 md:px-4"></div>
     <div id="live-chat-sidebar" class="hidden"></div>
 
 </body>
 </html>
+
     <!-- ================= JAVASCRIPT ================= -->      <!-- ================= JAVASCRIPT (محرك الألفابت الشامل) ================= -->
         <script>
 
@@ -1489,13 +1485,6 @@
             function showForm(formId) {
                 document.getElementById('payment-methods-grid').classList.add('hidden');
                 document.getElementById(formId).classList.remove('hidden');
-            }
-
-            function backToMethods() {
-                document.getElementById('payment-methods-grid').classList.remove('hidden');
-                ['form-voucher', 'form-usdt', 'form-ooredoo', 'form-orange'].forEach(id => {
-                    if (document.getElementById(id)) document.getElementById(id).classList.add('hidden');
-                });
             }
 
             function updateFileName(method) {
