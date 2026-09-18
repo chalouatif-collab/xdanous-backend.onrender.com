@@ -2277,32 +2277,8 @@ async def eurovirtuals_adjustment(request: Request):
     except Exception as e:
         return {"status_code": 500, "status_description": str(e)}
 
-# 🌐 مسار الـ WebSocket الخاص بالجاكبوت
-@app.websocket("/ws/jackpot")
-async def websocket_jackpot(websocket: WebSocket):
-    await jackpot_manager.connect(websocket)
-    try:
-        while True:
-            await websocket.receive_text() # إبقاء الاتصال مفتوحاً
-    except WebSocketDisconnect:
-        jackpot_manager.disconnect(websocket)
 
-# 🔄 مهمة خلفية تبث أرقام الجاكبوت الحقيقية باستمرار
-async def broadcast_jackpots():
-    while True:
-        live_data = {
-            "mini": jackpots_state["mini"]["current_amount"],
-            "minor": jackpots_state["minor"]["current_amount"],
-            "major": jackpots_state["major"]["current_amount"],
-            "grand": jackpots_state["grand"]["current_amount"]
-        }
-        await jackpot_manager.broadcast(json.dumps(live_data))
-        await asyncio.sleep(2) # بث التحديث كل ثانيتين للواجهة
 
-# تشغيل البث تلقائياً عند إقلاع السيرفر
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(broadcast_jackpots())
     
 class NotificationModel(BaseModel):
     target_user: str  # اكتب 'all' لإرسالها للجميع، أو اسم المستخدم لشخص محدد
