@@ -2407,7 +2407,6 @@ class EVLaunchRequest(BaseModel):
 async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(get_current_user)):
     try:
         db = load_db()
-        # جلب بيانات اللاعب للتحقق وتمرير الرصيد
         target_user = next((u for u in db if str(u.get("username", "")).lower() == req.user_code.lower().strip()), None)
         
         if not target_user:
@@ -2421,7 +2420,7 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
             "language": "fr"
         }
         
-        # 2. إنشاء التوقيع (Signature) السري باستخدام دالتك الأمنية
+        # 2. إنشاء التوقيع (Signature) السري
         signature = hash_create(payload, EURO_API_KEY)
         
         headers = {
@@ -2435,7 +2434,14 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
         
         async with httpx.AsyncClient() as client:
             response = await client.post(endpoint, json=payload, headers=headers, timeout=20)
-            data = response.json()
+            
+            # 🌟 التعديل السحري: حماية الكود من الانهيار وقراءة الرد الحقيقي 🌟
+            try:
+                data = response.json()
+            except Exception as json_err:
+                # إذا رد إيفرتيال بنص عادي بدلاً من JSON، سنلتقطه هنا!
+                print(f"EuroVirtuals Raw Response: {response.text}")
+                return {"error": "إيفرتيال رد بنص غير متوقع", "details": response.text[:200]}
             
             if response.status_code == 200 and (data.get("launch_url") or data.get("url")):
                 return {"launch_url": data.get("launch_url") or data.get("url")}
