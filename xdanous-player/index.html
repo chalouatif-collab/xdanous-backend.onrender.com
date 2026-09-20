@@ -701,66 +701,31 @@
 
     async function fetchGamesFromServerSilent() {
         try {
-            // 🌟 القائمة الشاملة لأقوى مزودي EuroVirtuals (أكثر من 50 مزود) 🌟
-            const allProviders = [
-                'PRAGMATIC', 'HACKSAW', 'SPRIBE', 'PLAYNGO', 'EVOLUTION', 'EVO_LIVE', 
-                'NETENT', 'SMARTSOFT', 'AMUSNET', 'EGT', 'EVOPLAY', 'PGSOFT', 
-                'WAZDAN', 'QUICKSPIN', 'YGGDRASIL', 'PLAYTECH', 'BGAMING', 'BETSOFT', 
-                'ENDORPHINA', 'NOLIMIT', 'REDTIGER', 'RELAX', 'PUSHGAMING', 'PLATIPUS', 
-                'EZUGI', 'AMATIC', 'BOOMING', 'BOOONGO', 'CALETA', 'FUGASO', 'GAMZIX',
-                'HABANERO', 'IRON_DOG', 'KALAMBA', 'MASCOT', 'MICROGAMING', 'NOVOMATIC',
-                'PLAYSON', 'RETRO_GAMING', 'RUBYPLAY', 'STAKELOGIC', 'THUNDERKICK', 'TOMHORN',
-                'TVBET', 'VIVO', '1X2_GAMING', '3OAKS', '7MOJOS', 'AVIATRIX', 'BELATRA',
-                'CT_INTERACTIVE', 'FELIX_GAMING'
-            ];
+            // 🌟 السيرفر الخاص بك الآن يرسل كل الألعاب والمزودين بطلب واحد فقط! 🌟
+            const res = await fetch(`${BACKEND_URL}/api/get-eurovirtuals-games`);
+            const data = await res.json();
+            
+            let combinedGames = [];
+            
+            // استخراج البيانات بناءً على الرد
+            if (data.status === "success" && data.data) {
+                combinedGames = data.data;
+            } else if (Array.isArray(data)) {
+                combinedGames = data;
+            } else if (data.games) {
+                combinedGames = data.games;
+            }
 
-            // 1. استرجاع الألعاب والمزودين الذين تم فحصهم مسبقاً (الذاكرة v7 الجديدة)
-            let existingCache = JSON.parse(localStorage.getItem('ev_games_cache_v7') || '[]');
-            let checkedProviders = JSON.parse(localStorage.getItem('ev_checked_v7') || '[]');
-
-            // 2. تحديد المزودين الناقصين فقط (الذين لم نقم بفحصهم بعد)
-            const providersToFetch = allProviders.filter(p => !checkedProviders.includes(p));
-
-            if (providersToFetch.length > 0) {
-                console.log(`⏳ جارِ جلب ${providersToFetch.length} مزودين في الخلفية...`);
+            if (combinedGames.length > 0) {
+                // توحيد اسم المزود أياً كان الاسم الذي يعتمده إيفرتيال
+                combinedGames = combinedGames.map(g => ({
+                    ...g, 
+                    provider: g.provider || g.provider_name || g.provider_code || g.vendor || 'EV_Game'
+                }));
                 
-                for (let pCode of providersToFetch) {
-                    try {
-                        const res = await fetch(`${BACKEND_URL}/api/get-providers`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ provider_code: pCode })
-                        });
-                        
-                        if (res.ok) {
-                            const data = await res.json();
-                            let games = Array.isArray(data) ? data : (data.games || data.data || []);
-                            
-                            if (games.length > 0) {
-                                const newGames = games.map(g => ({...g, provider: pCode}));
-                                existingCache = existingCache.concat(newGames);
-                                window.allEVGamesCache = existingCache;
-                                
-                                // 🌟 الحفظ الفوري بعد نجاح كل مزود! (لن تضيع البيانات أبداً) 🌟
-                                localStorage.setItem('ev_games_cache_v7', JSON.stringify(existingCache));
-                                
-                                // تحديث الواجهة والقائمة المنسدلة بصمت ليظهر المزود الجديد فوراً
-                                updateUIQuietly();
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(`تجاوز المزود ${pCode} مؤقتاً`);
-                    }
-                    
-                    // تسجيل المزود بأنه "تم فحصه" (سواء وجد ألعاب أم لا) لكي لا نطلبه مجدداً
-                    checkedProviders.push(pCode);
-                    localStorage.setItem('ev_checked_v7', JSON.stringify(checkedProviders));
-
-                    // استراحة 600 ملي ثانية لحماية السيرفر تماماً والسماح له بالتنفس
-                    await new Promise(resolve => setTimeout(resolve, 600)); 
-                }
-            } else {
-                window.allEVGamesCache = existingCache;
+                window.allEVGamesCache = combinedGames;
+                // حفظها محلياً تحت اسم جديد
+                localStorage.setItem('ev_games_cache_final', JSON.stringify(combinedGames)); 
             }
             
             return window.allEVGamesCache;
@@ -769,12 +734,12 @@
             return window.allEVGamesCache;
         } finally {
             window.fetchPromise = null;
-            // إخفاء دوائر التحميل إذا كانت لا تزال ظاهرة
+            // تحديث الواجهات المعلقة فور وصول الألعاب
             if (document.getElementById('games-grid')?.innerHTML.includes('fa-spin')) initCasinoLobby();
             if (document.getElementById('live-games-grid')?.innerHTML.includes('fa-spin')) openLiveCasino();
+            if (document.getElementById('games-of-the-day-grid')?.innerHTML.includes('fa-spin')) loadGamesOfTheDay();
         }
     }
-
     // ================= دالة جديدة: تحديث الواجهة بصمت (ضعها تحت دالة fetchGamesFromServerSilent مباشرة) =================
     function updateUIQuietly() {
         // تحديث قائمة الكازينو المنسدلة فقط إذا كان اللاعب يرى "كل المزودين"

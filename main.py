@@ -2446,27 +2446,64 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
                 
     except Exception as e:
         return {"error": str(e)}
+import time
+
+# ==========================================
+# 🌍 محرك السحب الشامل المركزية (ذاكرة السيرفر)
+# ==========================================
+SERVER_GAMES_CACHE = []
+SERVER_CACHE_TIME = 0
+
 @app.get("/api/get-eurovirtuals-games")
 async def fetch_real_eurovirtuals_games():
+    global SERVER_GAMES_CACHE, SERVER_CACHE_TIME
+    current_time = time.time()
+    
+    # 1. إذا كانت الألعاب محفوظة في السيرفر ولم يمر عليها ساعتين، نرجعها فوراً (سرعة خيالية)
+    if SERVER_GAMES_CACHE and (current_time - SERVER_CACHE_TIME) < 7200:
+        return {"status": "success", "data": SERVER_GAMES_CACHE}
+
     try:
-        # الاتصال المباشر بقاعدة بيانات ألعاب EuroVirtuals بدلاً من Nexus
+        # 2. بناء الطلب الشامل لـ EuroVirtuals
+        payload = {} 
+        signature = hash_create(payload, EURO_API_KEY)
+        timestamp_now = str(int(time.time()))
+        
         headers = {
+            "Accept": "application/json",
             "Content-Type": "application/json",
-            "x-token-key": EURO_API_KEY
+            "x-api-key": EURO_API_KEY, 
+            "x-signature-key": signature,
+            "x-timestamp": timestamp_now
         }
         
-        endpoint = urllib.parse.urljoin(EURO_BASE_URL, "api/v1/games")
+        # 🌟 مسار جلب الألعاب القياسي (إذا كان مختلفاً في الدليل التقني، فقط قم بتغييره هنا)
+        endpoint = f"{EURO_BASE_URL.rstrip('/')}/v1/games" 
         
         async with httpx.AsyncClient() as client:
-            # أغلب مجمّعات الألعاب تستخدم GET أو POST لجلب القائمة
-            response = await client.get(endpoint, headers=headers, timeout=30)
+            # أغلب المنصات تقبل POST لجلب قائمة الألعاب
+            response = await client.post(endpoint, json=payload, headers=headers, timeout=40)
             
+            # إن رفض الـ POST أو أعطى 404، نجرب الـ GET أوتوماتيكياً
+            if response.status_code in [404, 405]:
+                response = await client.get(endpoint, headers=headers, timeout=40)
+            
+            try:
+                data = response.json()
+            except Exception:
+                return {"error": "رد غير متوقع من السيرفر", "details": response.text[:200]}
+
+            # 3. استخراج الألعاب وحفظها في ذاكرة السيرفر
             if response.status_code == 200:
-                return response.json()
-            else:
-                # إذا كان يعتمد على POST فارغ بدلاً من GET
-                response_post = await client.post(endpoint, json={}, headers=headers, timeout=30)
-                return response_post.json()
+                # البيانات قد تأتي داخل "data" أو "games" حسب نظامهم
+                games_list = data.get("data", []) or data.get("games", []) or (data if isinstance(data, list) else [])
                 
+                if isinstance(games_list, list) and len(games_list) > 0:
+                    SERVER_GAMES_CACHE = games_list
+                    SERVER_CACHE_TIME = current_time
+                    return {"status": "success", "data": SERVER_GAMES_CACHE}
+            
+            return {"error": "فشل جلب الألعاب", "details": data}
+            
     except Exception as e:
-        return {"error": str(e), "games": []}
+        return {"error": str(e)}
