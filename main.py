@@ -2414,31 +2414,30 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
         if not target_user:
             return {"error": "Joueur introuvable"}
 
-        # 1. بناء الطلب بالبيانات الإجبارية حسب الدليل التقني
+        # 1. بناء الطلب
         payload = {
             "player_id": target_user["username"],
             "player_name": target_user["username"],
-            "player_token": f"token_{target_user['username']}_{int(time.time())}", # توليد توكن جلسة فريد
+            "player_token": f"token_{target_user['username']}_{int(time.time())}", 
             "game_uuid": req.game_uuid,
             "currency": "TND",
             "balance": float(target_user.get("balance", 0.0)),
-            "demo": 0 # 0 تعني اللعب بالمال الحقيقي (Live Mode)
+            "demo": 0 
         }
         
-        # 2. إنشاء التوقيع (Signature)
+        # 2. إنشاء التوقيع باستخدام المفتاح السري الطويل (EURO_API_KEY)
         signature = hash_create(payload, EURO_API_KEY)
         timestamp_now = str(int(time.time()))
         
-        # 3. الهيدرز الجديدة تماماً كما وردت في الـ Documentation
+        # 3. الهيدرز: وضع EURO_APP_KEY في خانة x-api-key (هذا هو مفتاح الحل!)
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "x-api-key": EURO_API_KEY,
+            "x-api-key": EURO_APP_KEY, 
             "x-signature-key": signature,
             "x-timestamp": timestamp_now
         }
         
-        # 4. توجيه الطلب للمسار الصحيح
         endpoint = f"{EURO_BASE_URL.rstrip('/')}/v1/launch"
         
         async with httpx.AsyncClient() as client:
@@ -2447,10 +2446,8 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
             try:
                 data = response.json()
             except Exception as json_err:
-                print(f"EuroVirtuals Raw Response: {response.text}")
                 return {"error": "إيفرتيال رد بنص غير متوقع", "details": response.text[:200]}
             
-            # 5. استخراج رابط اللعبة حسب شكل الرد في الدليل
             if response.status_code == 200 and data.get("status_code") == 200:
                 game_url = data.get("data", {}).get("url")
                 if game_url:
