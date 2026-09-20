@@ -2398,7 +2398,7 @@ async def setup_owner():
 import time
 
 # ==========================================
-# 🚀 محرك EuroVirtuals (BetKraft) المطابق للدليل الرسمي
+# 🚀 اختبار المفاتيح (وضع الديمو)
 # ==========================================
 
 class EVLaunchRequest(BaseModel):
@@ -2408,34 +2408,23 @@ class EVLaunchRequest(BaseModel):
 @app.post("/api/provider/launch-eurovirtuals")
 async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(get_current_user)):
     try:
-        db = load_db()
-        target_user = next((u for u in db if str(u.get("username", "")).lower() == req.user_code.lower().strip()), None)
-        
-        if not target_user:
-            return {"error": "Joueur introuvable"}
-
-        # 1. بناء الطلب
+        # 1. بناء طلب مبسط جداً لوضع الديمو (حسب الدليل التقني لا نحتاج رصيد أو اسم)
         payload = {
-            "player_id": target_user["username"],
-            "player_name": target_user["username"],
-            "player_token": f"token_{target_user['username']}_{int(time.time())}", 
             "game_uuid": req.game_uuid,
             "currency": "TND",
-            "balance": float(target_user.get("balance", 0.0)),
-            "demo": 0 
+            "demo": 1 # 👈 1 تعني وضع الديمو للتأكد من صلاحية المفاتيح
         }
         
-        # 2. إنشاء التوقيع باستخدام المفتاح السري 
+        # 2. التوقيع باستخدام المفتاح السري الطويل
         signature = hash_create(payload, EURO_API_KEY)
-        timestamp_now = str(int(time.time()))
         
-        # 3. 🌟 إرسال EURO_API_KEY الحقيقي بدلاً من APP_KEY 🌟
+        # 3. الهيدرز: نعود لاستخدام EURO_APP_KEY لأنه يطابق شكل XXXXXXXX-XXXX...
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "x-api-key": EURO_API_KEY,  # 👈 التعديل الحاسم هنا!
+            "x-api-key": EURO_APP_KEY, 
             "x-signature-key": signature,
-            "x-timestamp": timestamp_now
+            "x-timestamp": str(int(time.time()))
         }
         
         endpoint = f"{EURO_BASE_URL.rstrip('/')}/v1/launch"
@@ -2445,8 +2434,8 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
             
             try:
                 data = response.json()
-            except Exception as json_err:
-                return {"error": "إيفرتيال رد بنص غير متوقع", "details": response.text[:200]}
+            except Exception:
+                return {"error": "رد غير متوقع", "details": response.text[:200]}
             
             if response.status_code == 200 and data.get("status_code") == 200:
                 game_url = data.get("data", {}).get("url")
@@ -2456,9 +2445,7 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
             return {"error": "رفض إيفرتيال الطلب", "details": data}
                 
     except Exception as e:
-        print(f"Error launching EV game: {e}")
         return {"error": str(e)}
-    
 @app.get("/api/get-eurovirtuals-games")
 async def fetch_real_eurovirtuals_games():
     try:
