@@ -2395,23 +2395,78 @@ async def setup_owner():
     except Exception as e:
         return {"error": str(e), "traceback": traceback.format_exc()}
     
-@app.get("/api/get-eurovirtuals-games")
-async def get_eurovirtuals_games():
+# ==========================================
+# 🚀 محرك EuroVirtuals (BetKraft) المستقل بالكامل
+# ==========================================
+
+class EVLaunchRequest(BaseModel):
+    user_code: str
+    game_uuid: str
+
+@app.post("/api/provider/launch-eurovirtuals")
+async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(get_current_user)):
     try:
-        # الطريقة القديمة المعتمدة في الفا لجلب الألعاب من المزود
+        db = load_db()
+        # جلب بيانات اللاعب للتحقق وتمرير الرصيد
+        target_user = next((u for u in db if str(u.get("username", "")).lower() == req.user_code.lower().strip()), None)
+        
+        if not target_user:
+            return {"error": "Joueur introuvable"}
+
+        # 1. بناء الطلب حسب المعايير الأمنية لـ EuroVirtuals
         payload = {
-            "method": "game_list",
-            "agent_code": AGENT_CODE,
-            "agent_token": AGENT_TOKEN,
-            "provider_code": "EUROVIRTUALS" # أو اسم المزود حسب إعداداتك القديمة
+            "player_id": target_user["username"],
+            "currency": "TND",
+            "game_uuid": req.game_uuid,
+            "language": "fr"
         }
         
-        headers = {"Content-Type": "application/json"}
-        endpoint = PROVIDER_ENDPOINT.rstrip('/')
+        # 2. إنشاء التوقيع (Signature) السري باستخدام دالتك الأمنية
+        signature = hash_create(payload, EURO_API_KEY)
+        
+        headers = {
+            "Content-Type": "application/json",
+            "x-token-key": EURO_API_KEY,
+            "x-signature-key": signature
+        }
+        
+        # 3. توجيه الطلب إلى سيرفرات EuroVirtuals المباشرة
+        endpoint = urllib.parse.urljoin(EURO_BASE_URL, "api/v1/game/launch") 
         
         async with httpx.AsyncClient() as client:
             response = await client.post(endpoint, json=payload, headers=headers, timeout=20)
             data = response.json()
-            return data
+            
+            if response.status_code == 200 and (data.get("launch_url") or data.get("url")):
+                return {"launch_url": data.get("launch_url") or data.get("url")}
+            else:
+                return {"error": "رفض إيفرتيال الطلب", "details": data}
+                
+    except Exception as e:
+        print(f"Error launching EV game: {e}")
+        return {"error": str(e)}
+
+@app.get("/api/get-eurovirtuals-games")
+async def fetch_real_eurovirtuals_games():
+    try:
+        # الاتصال المباشر بقاعدة بيانات ألعاب EuroVirtuals بدلاً من Nexus
+        headers = {
+            "Content-Type": "application/json",
+            "x-token-key": EURO_API_KEY
+        }
+        
+        endpoint = urllib.parse.urljoin(EURO_BASE_URL, "api/v1/games")
+        
+        async with httpx.AsyncClient() as client:
+            # أغلب مجمّعات الألعاب تستخدم GET أو POST لجلب القائمة
+            response = await client.get(endpoint, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                # إذا كان يعتمد على POST فارغ بدلاً من GET
+                response_post = await client.post(endpoint, json={}, headers=headers, timeout=30)
+                return response_post.json()
+                
     except Exception as e:
         return {"error": str(e), "games": []}
