@@ -2425,15 +2425,15 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
             "demo": 0 
         }
         
-        # 2. إنشاء التوقيع باستخدام المفتاح السري الطويل (EURO_API_KEY)
+        # 2. إنشاء التوقيع باستخدام المفتاح السري 
         signature = hash_create(payload, EURO_API_KEY)
         timestamp_now = str(int(time.time()))
         
-        # 3. الهيدرز: وضع EURO_APP_KEY في خانة x-api-key (هذا هو مفتاح الحل!)
+        # 3. 🌟 إرسال EURO_API_KEY الحقيقي بدلاً من APP_KEY 🌟
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "x-api-key": EURO_APP_KEY, 
+            "x-api-key": EURO_API_KEY,  # 👈 التعديل الحاسم هنا!
             "x-signature-key": signature,
             "x-timestamp": timestamp_now
         }
@@ -2458,6 +2458,7 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
     except Exception as e:
         print(f"Error launching EV game: {e}")
         return {"error": str(e)}
+    
 @app.get("/api/get-eurovirtuals-games")
 async def fetch_real_eurovirtuals_games():
     try:
