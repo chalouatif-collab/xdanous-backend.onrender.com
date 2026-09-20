@@ -1423,26 +1423,23 @@ async def launch_casino(request: Request):
         }
         headers = {"Content-Type": "application/json"}
         endpoint = PROVIDER_ENDPOINT.rstrip('/')
-        response = requests.post(endpoint, json=payload, headers=headers)
         
-        try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(endpoint, json=payload, headers=headers, timeout=20)
             response_data = response.json()
-        except Exception:
-            return {"error": "المزود لم يرْسل رد JSON صالح", "details": response.text}
             
-        if response.status_code == 200:
-            game_url = response_data.get("url") or response_data.get("launch_url") or (response_data.get("data", {}).get("url"))
-            if game_url:
-                return {"launch_url": game_url}
+            if response.status_code == 200:
+                game_url = response_data.get("url") or response_data.get("launch_url") or (response_data.get("data", {}).get("url"))
+                if game_url:
+                    return {"launch_url": game_url}
+                else:
+                    return {"error": "لم يتم العثور على رابط اللعبة", "details": response_data}
             else:
-                return {"error": "لم يتم العثور على رابط اللعبة", "details": response_data}
-        else:
-            return {"error": "المزود رفض الطلب", "details": response_data}
-            
+                return {"error": "المزود رفض الطلب", "details": response_data}
+                
     except Exception as e:
         return {"error": str(e)}
-
-
+    
 # ==========================================
 # الجدار الأمني الثاني: حماية لوحة المالك
 # ==========================================
