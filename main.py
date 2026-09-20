@@ -2395,8 +2395,10 @@ async def setup_owner():
     except Exception as e:
         return {"error": str(e), "traceback": traceback.format_exc()}
     
+import time
+
 # ==========================================
-# 🚀 محرك EuroVirtuals (BetKraft) المستقل بالكامل
+# 🚀 محرك EuroVirtuals (BetKraft) المطابق للدليل الرسمي
 # ==========================================
 
 class EVLaunchRequest(BaseModel):
@@ -2412,46 +2414,53 @@ async def launch_eurovirtuals(req: EVLaunchRequest, current_user: str = Depends(
         if not target_user:
             return {"error": "Joueur introuvable"}
 
-        # 1. بناء الطلب حسب المعايير الأمنية لـ EuroVirtuals
+        # 1. بناء الطلب بالبيانات الإجبارية حسب الدليل التقني
         payload = {
             "player_id": target_user["username"],
-            "currency": "TND",
+            "player_name": target_user["username"],
+            "player_token": f"token_{target_user['username']}_{int(time.time())}", # توليد توكن جلسة فريد
             "game_uuid": req.game_uuid,
-            "language": "fr"
+            "currency": "TND",
+            "balance": float(target_user.get("balance", 0.0)),
+            "demo": 0 # 0 تعني اللعب بالمال الحقيقي (Live Mode)
         }
         
-        # 2. إنشاء التوقيع (Signature) السري
+        # 2. إنشاء التوقيع (Signature)
         signature = hash_create(payload, EURO_API_KEY)
+        timestamp_now = str(int(time.time()))
         
+        # 3. الهيدرز الجديدة تماماً كما وردت في الـ Documentation
         headers = {
+            "Accept": "application/json",
             "Content-Type": "application/json",
-            "x-token-key": EURO_API_KEY,
-            "x-signature-key": signature
+            "x-api-key": EURO_API_KEY,
+            "x-signature-key": signature,
+            "x-timestamp": timestamp_now
         }
         
-        # 3. توجيه الطلب إلى سيرفرات EuroVirtuals المباشرة
-        endpoint = urllib.parse.urljoin(EURO_BASE_URL, "api/v1/game/launch") 
+        # 4. توجيه الطلب للمسار الصحيح
+        endpoint = f"{EURO_BASE_URL.rstrip('/')}/v1/launch"
         
         async with httpx.AsyncClient() as client:
             response = await client.post(endpoint, json=payload, headers=headers, timeout=20)
             
-            # 🌟 التعديل السحري: حماية الكود من الانهيار وقراءة الرد الحقيقي 🌟
             try:
                 data = response.json()
             except Exception as json_err:
-                # إذا رد إيفرتيال بنص عادي بدلاً من JSON، سنلتقطه هنا!
                 print(f"EuroVirtuals Raw Response: {response.text}")
                 return {"error": "إيفرتيال رد بنص غير متوقع", "details": response.text[:200]}
             
-            if response.status_code == 200 and (data.get("launch_url") or data.get("url")):
-                return {"launch_url": data.get("launch_url") or data.get("url")}
-            else:
-                return {"error": "رفض إيفرتيال الطلب", "details": data}
+            # 5. استخراج رابط اللعبة حسب شكل الرد في الدليل
+            if response.status_code == 200 and data.get("status_code") == 200:
+                game_url = data.get("data", {}).get("url")
+                if game_url:
+                    return {"launch_url": game_url}
+            
+            return {"error": "رفض إيفرتيال الطلب", "details": data}
                 
     except Exception as e:
         print(f"Error launching EV game: {e}")
         return {"error": str(e)}
-
 @app.get("/api/get-eurovirtuals-games")
 async def fetch_real_eurovirtuals_games():
     try:

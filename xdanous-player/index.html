@@ -1039,12 +1039,12 @@
             </div>`;
     }
 
-    // المحرك الأساسي لفتح الألعاب (بالرابط المعتمد في سيرفرك)
+   // المحرك الأساسي لفتح ألعاب إيفرتيال (EuroVirtuals) حصراً
     async function launchSpecificVirtualGame(providerCode, gameCode) {
         if (!playerSession) return openLoginModal();
         try {
-            // نستخدم الرابط الموجود فعلياً في سيرفرك
-            const res = await fetch(`${BACKEND_URL}/api/provider/launch-casino`, {
+            // 🌟 توجيه الطلب إلى رابط إيفرتيال الجديد في الباك إند بدلاً من الكازينو القديم 🌟
+            const res = await fetch(`${BACKEND_URL}/api/provider/launch-eurovirtuals`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${localStorage.getItem('player_token')}`, 
@@ -1052,8 +1052,7 @@
                 },
                 body: JSON.stringify({ 
                     user_code: playerSession.username, 
-                    game_code: gameCode,
-                    provider_code: providerCode // إضافة اسم المزود هنا هو الحل السحري!
+                    game_uuid: gameCode // السيرفر الجديد لإيفرتيال يحتاج المتغير بهذا الاسم
                 })
             });
 
@@ -1068,6 +1067,11 @@
         } catch (e) {
             showNotification("Erreur réseau", "error");
         }
+    }
+
+    // دالة احتياطية لتوجيه أي أزرار قديمة إلى المحرك الجديد لإيفرتيال
+    function playCasinoGame(providerCode, gameCode) {
+        launchSpecificVirtualGame(providerCode, gameCode);
     }
 
     // دالة احتياطية لتوجيه أي أزرار قديمة إلى المحرك الجديد
