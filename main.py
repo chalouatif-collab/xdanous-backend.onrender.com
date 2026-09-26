@@ -1191,3 +1191,49 @@ async def get_user_notifications(current_user: str = Depends(get_current_user)):
             user_notifs.append({**n, "is_read": is_read})
             
     return {"unread": unread_count, "notifications": user_notifs[::-1][:15]}
+
+@app.post("/api/provider/launch-sportsbook")
+async def launch_sportsbook(request: Request):
+    try:
+        data = await request.json()
+        
+        # استخراج وتصحيح كود المزود ليتوافق مع API
+        provider_code = str(data.get("provider_code", "SPORTSBOOK")).upper()
+        if provider_code == "NEXUS":
+            provider_code = "SPORTSBOOK"
+            
+        user_code = str(data.get("user_code", "test_user"))
+        
+        payload = {
+            "method": "game_launch",
+            "agent_code": AGENT_CODE,
+            "agent_token": AGENT_TOKEN,
+            "provider_code": provider_code, 
+            "game_code": "SPORTSBOOK",  # كود الرياضة الثابت المعتمد من المزود
+            "user_code": user_code,
+            "lang": "fr",
+            "lobby_url": "https://www.xdanous.net/"
+        }
+        
+        headers = {"Content-Type": "application/json"}
+        endpoint = PROVIDER_ENDPOINT.rstrip('/')
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(endpoint, json=payload, headers=headers, timeout=20)
+            
+            try:
+                response_data = response.json()
+            except Exception:
+                return {"error": "المزود لم يرسل رد JSON صالح", "details": response.text}
+                
+            # جلب الرابط من أي مسار محتمل في رد السيرفر
+            game_url = response_data.get("url") or response_data.get("launch_url") or response_data.get("data", {}).get("url")
+            
+            if game_url:
+                return {"launch_url": game_url}
+            else:
+                return {"error": "المزود رفض تشغيل قسم الرياضة", "details": response_data}
+                
+    except Exception as e:
+        print(f"❌ Error launching sportsbook: {str(e)}")
+        return {"error": str(e)}
