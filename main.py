@@ -318,6 +318,7 @@ async def resettle_ticket(req: ResettleTicketRequest, current_user: str = Depend
         target_user["balance"] = float(target_user.get("balance", 0)) - win_amount
     elif old_status != "gagne" and req.new_status == "gagne":
         target_user["balance"] = float(target_user.get("balance", 0)) + win_amount
+        target_user["daily_withdrawals"] = float(target_user.get("daily_withdrawals", 0.0)) + win_amount
 
     ticket["status"] = req.new_status
     save_tickets_db(tickets_db)
@@ -482,6 +483,7 @@ async def approve_deposit(req: ApproveDepositRequest, current_user: str = Depend
         
         if target_user:
             target_user["balance"] = float(target_user.get("balance", 0)) + real_amount
+            target_user["daily_withdrawals"] = float(target_user.get("daily_withdrawals", 0.0)) + real_amount
             target_user["daily_deposits"] = float(target_user.get("daily_deposits", 0)) + real_amount
             save_db(db_users)
 
@@ -577,49 +579,63 @@ async def daily_cashback_system():
     while True:
         try:
             now = datetime.now()
-            if now.hour == 0 and now.minute < 10:
+            # 👈 التشغيل بدقة عند منتصف الليل ودقيقة واحدة (00:01)
+            if now.hour == 0 and now.minute == 1:
+                print("⏳ [Cashback] جاري حساب وتوزيع الكاش باك (10% من الخسائر الصافية)...")
+                
                 async with db_lock:
                     db = load_db()
                     changes_made = False
+                    
                     for u in db:
                         current_balance = float(u.get("balance", 0.0))
                         daily_deps = float(u.get("daily_deposits", 0.0))
-                        net_loss = daily_deps - current_balance 
+                        daily_withs = float(u.get("daily_withdrawals", 0.0))
                         
-                        if daily_deps > 0:
-                            if current_balance < 1.0 and net_loss > 0:
-                                cashback_amount = daily_deps * 0.10
-                                u["balance"] = round(current_balance + cashback_amount, 2)
-                                
-                                db_session = SessionLocal()
-                                try:
-                                    new_tx = Transaction(
-                                        admin_username="SYSTEM_CASHBACK",
-                                        target_username=u["username"],
-                                        action="cashback",
-                                        amount=cashback_amount,
-                                        date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                        tx_id=f"cb_{int(time.time())}"
-                                    )
-                                    db_session.add(new_tx)
-                                    db_session.commit()
-                                except Exception:
-                                    db_session.rollback()
-                                finally:
-                                    db_session.close()
+                        # 👈 المعادلة الدقيقة: الخسارة الصافية = الإيداعات - (السحوبات + الرصيد الحالي)
+                        net_loss = daily_deps - (daily_withs + current_balance) 
+                        
+                        # إذا كان هناك خسارة فعلية أكبر من الصفر
+                        if net_loss > 0:
+                            cashback_amount = round(net_loss * 0.10, 2) # 10% من الخسارة
+                            u["balance"] = round(current_balance + cashback_amount, 2)
                             
-                            u["daily_deposits"] = 0
-                            changes_made = True
-                            
+                            # توثيق الكاش باك في SQL
+                            db_session = SessionLocal()
+                            try:
+                                new_tx = Transaction(
+                                    admin_username="SYSTEM_CASHBACK",
+                                    target_username=u["username"],
+                                    action="cashback",
+                                    amount=cashback_amount,
+                                    date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                    tx_id=f"cb_{int(time.time())}"
+                                )
+                                db_session.add(new_tx)
+                                db_session.commit()
+                            except Exception:
+                                db_session.rollback()
+                            finally:
+                                db_session.close()
+                        
+                        # 👈 تصفير العدادات لليوم الجديد لجميع اللاعبين (سواء ربحوا أو خسروا)
+                        if "daily_deposits" in u: u["daily_deposits"] = 0.0
+                        if "daily_withdrawals" in u: u["daily_withdrawals"] = 0.0
+                        changes_made = True
+                        
                     if changes_made:
                         save_db(db)
-                await asyncio.sleep(3600)
+                        print("✅ [Cashback] تم توزيع الكاش باك وتصفير العدادات بنجاح!")
+                
+                # 👈 النوم لمدة 60 ثانية لتجاوز الدقيقة 00:01 ومنع تكرار العملية
+                await asyncio.sleep(60)
             else:
-                await asyncio.sleep(300)
+                # الفحص المستمر كل 30 ثانية
+                await asyncio.sleep(30)
         except Exception as e:
-            print(f"❌ [Cashback] حدث خطأ: {e}")
-            await asyncio.sleep(300) 
-
+            print(f"❌ [Cashback Error]: {e}")
+            await asyncio.sleep(30)
+            
 class LoginRequest(BaseModel): username: str; password: str
 class RegisterRequest(BaseModel): username: str; password: str; role: str; created_by: str; phone: str = ""
 class ConfigureAccountRequest(BaseModel): admin_username: str; target_username: str; rtp: int; is_blocked: int
@@ -734,6 +750,7 @@ async def update_balance(req: UpdateBalanceRequest, current_user: str = Depends(
             if float(target_user.get("balance", 0)) < amount: 
                 raise HTTPException(status_code=400, detail="Solde insuffisant")
             target_user["balance"] = round(float(target_user.get("balance", 0)) - amount, 2)
+            target_user["daily_withdrawals"] = float(target_user.get("daily_withdrawals", 0.0)) + amount
             if not is_global_admin:
                 admin_user["balance"] = round(float(admin_user.get("balance", 0)) + amount, 2)
 
@@ -1085,6 +1102,7 @@ async def seamless_wallet_handler(request: Request):
                 player_balance += win_money
 
             target_user["balance"] = player_balance
+            target_user["daily_withdrawals"] = float(target_user.get("daily_withdrawals", 0.0)) + bet_money
             save_db(db)
             return JSONResponse(content={"status": 1, "user_balance": round(player_balance, 2)})
 
