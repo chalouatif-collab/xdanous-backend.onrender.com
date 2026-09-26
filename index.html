@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COUTABET - Portail d'Administration</title>
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+            100% { transform: translateY(0px) scale(1); }
+        }
+        .animate-float { animation: float 8s ease-in-out infinite; }
+        .animate-float-delayed { animation: float 8s ease-in-out 4s infinite; }
+
+        .glass-card {
+            background: rgba(13, 27, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(251, 191, 36, 0.05) inset;
+        }
+
+        .cyber-input {
+            background: rgba(8, 16, 26, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            transition: all 0.3s ease;
+        }
+        .cyber-input:focus {
+            background: rgba(251, 191, 36, 0.05);
+            border-color: rgba(251, 191, 36, 0.8);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-[#121a2f] text-slate-200 min-h-screen font-sans flex items-center justify-center p-4 relative overflow-hidden">
+
+    <!-- Floating Background Orbs -->
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#fbbf24]/10 rounded-full blur-[100px] pointer-events-none animate-float"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#10b981]/10 rounded-full blur-[120px] pointer-events-none animate-float-delayed"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 w-full max-w-sm px-4 pointer-events-none"></div>
+
+    <main class="w-full max-w-md glass-card rounded-[2rem] p-8 relative z-10">
+        
+        <!-- Glowing Top Bar -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[#fbbf24] to-transparent opacity-50"></div>
+
+        <!-- COUTABET Logo Area -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#fbbf24] border-2 border-[#0d1b2a] shadow-[0_0_20px_rgba(251,191,36,0.4)] mb-4">
+                <i class="fas fa-futbol text-[#0d1b2a] text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-black text-white tracking-tighter uppercase">COUTA<span class="text-[#fbbf24]">BET</span></h1>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-[0.2em] font-bold">Portail d'Administration</p>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="step-1-login" class="space-y-5 text-sm font-bold transition-all duration-500 opacity-100 transform translate-x-0">
+            <div class="space-y-1.5">
+                <label class="text-gray-400 block px-1 text-xs uppercase tracking-wider">Identifiant</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-500"></i>
+                    </div>
+                    <input type="text" id="auth-username" placeholder="Nom d'utilisateur" class="cyber-input w-full pl-11 pr-4 py-3.5 rounded-xl text-white font-mono placeholder-gray-600">
+                </div>
+            </div>
+            
+            <div class="space-y-1.5">
+                <label class="text-gray-400 block px-1 text-xs uppercase tracking-wider">Mot de passe</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-500"></i>
+                    </div>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="cyber-input w-full pl-11 pr-4 py-3.5 rounded-xl text-white font-mono placeholder-gray-600">
+                </div>
+            </div>
+            
+            <button onclick="handleLogin()" id="btn-login" class="w-full relative group overflow-hidden rounded-xl p-4 bg-[#fbbf24] font-black text-black shadow-[0_0_20px_rgba(251,191,36,0.3)] hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] transition-all mt-4 hover:bg-yellow-400">
+                <span class="relative z-10 uppercase tracking-widest text-xs flex justify-center items-center gap-2">
+                    Authentification <i class="fas fa-sign-in-alt"></i>
+                </span>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        const BACKEND_URL = "https://coutabet-backend-server.onrender.com";
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            const toast = document.createElement('div');
+            
+            toast.className = `p-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] border backdrop-blur-md text-xs font-bold flex items-center gap-3 transform translate-x-full transition-all duration-300 ${type === 'success' ? 'bg-[#0d1b2a] border-[#10b981] text-[#10b981]' : 'bg-[#0d1b2a] border-red-500 text-red-500'}`;
+            
+            const icon = type === 'success' 
+                ? `<i class="fas fa-check-circle text-lg"></i>` 
+                : `<i class="fas fa-exclamation-circle text-lg"></i>`;
+            
+            toast.innerHTML = `${icon} <span class="tracking-wide text-white">${message}</span>`;
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function handleLogin() {
+            const usernameInput = document.getElementById('auth-username').value.trim();
+            const passwordInput = document.getElementById('auth-password').value;
+            const btn = document.getElementById('btn-login');
+            const btnText = btn.querySelector('span');
+            
+            if(!usernameInput || !passwordInput) return showNotification('Veuillez remplir tous les champs', 'error');
+
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="fas fa-circle-notch fa-spin text-lg"></i>';
+
+            try {
+                // ملاحظة: تأكد من أن الـ Backend لديك (في مسار /api/login) يُرجع الآن التوكن ومعلومات الحساب مباشرة
+                // بدلاً من إرجاع رسالة تطلب الـ 2FA.
+                const res = await fetch(`${BACKEND_URL}/api/login`, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ username: usernameInput, password: passwordInput }) 
+                });
+                
+                const finalData = await res.json();
+                
+                if (!res.ok) {
+                    btn.disabled = false;
+                    btnText.innerHTML = 'Authentification <i class="fas fa-sign-in-alt"></i>';
+                    return showNotification(finalData.detail || 'Identifiants incorrects', 'error');
+                }
+
+                // منع اللاعبين من الدخول للوحة الإدارة
+                if(finalData.role && finalData.role.toLowerCase() === 'player') {
+                    btn.disabled = false;
+                    btnText.innerHTML = 'Authentification <i class="fas fa-sign-in-alt"></i>';
+                    return showNotification('Accès interdit. Cette interface est réservée à l\'administration.', 'error');
+                }
+
+                // حفظ بيانات المستخدم والـ Token
+                localStorage.setItem('alpha_user', JSON.stringify(finalData));
+                if (finalData.access_token) {
+                    localStorage.setItem('token', finalData.access_token);
+                }
+                
+                showNotification('Connexion réussie !', 'success');
+                
+                // التوجيه للوحة المناسبة بناءً على الدور (Role)
+                setTimeout(() => {
+                    const role = finalData.role ? finalData.role.toLowerCase() : '';
+                    if (finalData.username === 'fethi' || role === 'owner') {
+                        window.location.href = '/panel/owner';
+                    } else if (role === 'super_admin') {
+                        window.location.href = '/panel/super_admin';
+                    } else if (role === 'admin') {
+                        window.location.href = '/panel/admin';
+                    } else if (role === 'shop') {
+                        window.location.href = '/panel/shop';
+                    } else if (role === 'manager') {
+                        window.location.href = '/panel/manager';
+                    } else {
+                        // كخيار افتراضي في حال عدم وجود Role محدد
+                        window.location.href = '/panel/admin';
+                    }
+                }, 800);
+
+            } catch(e){ 
+                btn.disabled = false;
+                btnText.innerHTML = 'Authentification <i class="fas fa-sign-in-alt"></i>';
+                showNotification('Erreur réseau. Serveur injoignable.', 'error'); 
+            }
+        }
+
+        // تفعيل الدخول عند الضغط على Enter
+        document.getElementById('auth-password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('auth-username').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') document.getElementById('auth-password').focus();
+        });
+    </script>
+</body>
+</html>
