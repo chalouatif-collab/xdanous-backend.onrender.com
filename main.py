@@ -646,6 +646,68 @@ class DeleteAccountRequest(BaseModel): admin_username: str; target_username: str
 class ProviderRequest(BaseModel): provider_code: str
 class ChangeMyPasswordRequest(BaseModel): username: str; new_password: str
 
+
+from fastapi import Query
+import jwt
+
+@app.get("/api/player/history")
+async def get_player_history(request: Request, history_type: str = Query(..., alias="type")):
+    try:
+        # 1. التحقق من توكن اللاعب (الأمان)
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Non autorisé")
+        
+        token = auth_header.split(" ")[1]
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if not username:
+            raise HTTPException(status_code=401, detail="Utilisateur non valide")
+
+        db_session = SessionLocal()
+        try:
+            # 2. فلترة السجلات حسب التبويب المطلوب
+            if history_type == "transactions":
+                # جلب الإيداعات، السحوبات، والكاش باك
+                txs = db_session.query(Transaction).filter(
+                    Transaction.target_username == username,
+                    Transaction.action.in_(["charge", "dépôt", "withdraw", "retrait", "withdraw_request", "cashback"])
+                ).order_by(Transaction.id.desc()).limit(50).all()
+                
+            elif history_type == "casino":
+                # جلب رهانات وأرباح الكازينو (التي تأتي من الـ Webhook)
+                txs = db_session.query(Transaction).filter(
+                    Transaction.target_username == username,
+                    Transaction.action.in_(["debit", "credit", "bet", "win", "rollback"])
+                ).order_by(Transaction.id.desc()).limit(50).all()
+                
+            elif history_type == "sports":
+                # جلب رهانات الرياضة
+                txs = db_session.query(Transaction).filter(
+                    Transaction.target_username == username,
+                    Transaction.action.in_(["sports_bet", "sports_win"])
+                ).order_by(Transaction.id.desc()).limit(50).all()
+            else:
+                txs = []
+
+            # 3. تجهيز البيانات لإرسالها للواجهة
+            results = []
+            for t in txs:
+                results.append({
+                    "id": t.id,
+                    "action": t.action,
+                    "amount": float(t.amount or 0),
+                    "date": str(t.date),
+                    "tx_id": str(getattr(t, "tx_id", "N/A"))
+                })
+                
+            return {"status": "success", "data": results}
+        finally:
+            db_session.close()
+            
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    
 @app.post("/api/register")
 @limiter.limit("1/minute")
 async def register_user(request: Request, req: RegisterRequest):
