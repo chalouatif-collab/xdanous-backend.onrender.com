@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COUTABET - Portail d'Administration</title>
+    <title>XDANOUS - Portail d'Administration</title>
     <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,12 +56,12 @@
         <!-- Glowing Top Bar -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-[#fbbf24] to-transparent opacity-50"></div>
 
-        <!-- COUTABET Logo Area -->
+        <!-- XDANOUS Logo Area -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#fbbf24] border-2 border-[#0d1b2a] shadow-[0_0_20px_rgba(251,191,36,0.4)] mb-4">
                 <i class="fas fa-futbol text-[#0d1b2a] text-3xl"></i>
             </div>
-            <h1 class="text-3xl font-black text-white tracking-tighter uppercase">COUTA<span class="text-[#fbbf24]">BET</span></h1>
+            <h1 class="text-3xl font-black text-white tracking-tighter uppercase">XDAN<span class="text-[#fbbf24]">OUS</span></h1>
             <p class="text-xs text-gray-400 mt-1 uppercase tracking-[0.2em] font-bold">Portail d'Administration</p>
         </div>
 
@@ -96,7 +96,7 @@
     </main>
 
     <script>
-        const BACKEND_URL = "https://coutabet-backend-server.onrender.com";
+        const BACKEND_URL = "https://xdanous-backend-onrender-com.onrender.com";
 
         function showNotification(message, type = 'success') {
             const container = document.getElementById('toast-container');
@@ -134,8 +134,6 @@
             btnText.innerHTML = '<i class="fas fa-circle-notch fa-spin text-lg"></i>';
 
             try {
-                // ملاحظة: تأكد من أن الـ Backend لديك (في مسار /api/login) يُرجع الآن التوكن ومعلومات الحساب مباشرة
-                // بدلاً من إرجاع رسالة تطلب الـ 2FA.
                 const res = await fetch(`${BACKEND_URL}/api/login`, { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
@@ -150,14 +148,12 @@
                     return showNotification(finalData.detail || 'Identifiants incorrects', 'error');
                 }
 
-                // منع اللاعبين من الدخول للوحة الإدارة
                 if(finalData.role && finalData.role.toLowerCase() === 'player') {
                     btn.disabled = false;
                     btnText.innerHTML = 'Authentification <i class="fas fa-sign-in-alt"></i>';
                     return showNotification('Accès interdit. Cette interface est réservée à l\'administration.', 'error');
                 }
 
-                // حفظ بيانات المستخدم والـ Token
                 localStorage.setItem('alpha_user', JSON.stringify(finalData));
                 if (finalData.access_token) {
                     localStorage.setItem('token', finalData.access_token);
@@ -165,7 +161,6 @@
                 
                 showNotification('Connexion réussie !', 'success');
                 
-                // التوجيه للوحة المناسبة بناءً على الدور (Role)
                 setTimeout(() => {
                     const role = finalData.role ? finalData.role.toLowerCase() : '';
                     if (finalData.username === 'fethi' || role === 'owner') {
@@ -179,7 +174,6 @@
                     } else if (role === 'manager') {
                         window.location.href = '/panel/manager';
                     } else {
-                        // كخيار افتراضي في حال عدم وجود Role محدد
                         window.location.href = '/panel/admin';
                     }
                 }, 800);
@@ -191,7 +185,6 @@
             }
         }
 
-        // تفعيل الدخول عند الضغط على Enter
         document.getElementById('auth-password').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') handleLogin();
         });
