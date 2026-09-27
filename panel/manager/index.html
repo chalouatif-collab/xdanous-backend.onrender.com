@@ -429,7 +429,8 @@
         }
 
         const BACKEND_URL = "https://xdanous-backend-onrender-com.onrender.com";
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
+if (!token) window.location.href = '/';
         if (!token) window.location.href = '/';
 
         let allUsers = [];
@@ -1168,15 +1169,15 @@
             if (btn) { btn.disabled = true; btn.innerText = '⏳'; }
 
             try {
-                const res = await fetch(`${BACKEND_URL}/api/register`, {
+                // التوجيه للمسار الآمن الجديد
+                const res = await fetch(`${BACKEND_URL}/api/admin/create-user`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify({
-                        username,
-                        password,
-                        role,
-                        created_by: user.username,
-                        phone
+                        username: username,
+                        password: password,
+                        role: role,
+                        phone: phone
                     })
                 });
 
