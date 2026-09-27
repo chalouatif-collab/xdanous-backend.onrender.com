@@ -310,6 +310,59 @@ class AdminCreateUserRequest(BaseModel):
     role: str
     phone: str = ""
 
+class AdminCreateUserRequest(BaseModel):
+    username: str
+    password: str
+    role: str
+    phone: str = ""
+
+@app.post("/api/admin/create-user")
+async def admin_create_user(req: AdminCreateUserRequest, current_user: str = Depends(get_admin_user)):
+    uname = req.username.lower().strip()
+    
+    # 1. منع استخدام أسماء محجوزة
+    if uname in ["fethi", "admin", "owner", "system", "boss", "super_admin"]:
+        raise HTTPException(status_code=400, detail="Ce nom d'utilisateur est réservé au système!")
+
+    db = load_db()
+    
+    # 2. التحقق من عدم تكرار اسم المستخدم
+    for u in db:
+        if u["username"] == uname:
+            raise HTTPException(status_code=400, detail="Nom d'utilisateur déjà pris")
+    
+    # 3. التحقق من صلاحيات المنشئ (المانجر أو الأدمن)
+    admin_user_obj = next((u for u in db if u["username"] == current_user), None)
+    current_role = admin_user_obj.get("role", "") if admin_user_obj else ""
+    
+    # إذا كان المستخدم "شوب"، نسمح له بإنشاء لاعبين فقط
+    if current_role == "shop" and req.role != "player":
+        raise HTTPException(status_code=403, detail="Les shops ne peuvent créer que des joueurs")
+        
+    hashed_pwd = hash_password(req.password)
+    new_id = max([int(u.get("id", 0)) for u in db]) + 1 if db else 1
+    
+    # 4. إنشاء الحساب وربطه بالمسؤول الذي قام بإنشائه تلقائياً
+    new_user = {
+        "id": new_id,
+        "username": uname, 
+        "password": hashed_pwd, 
+        "role": req.role, 
+        "balance": 0.00,
+        "rtp": 50, 
+        "is_blocked": 0, 
+        "created_by": current_user, 
+        "last_spin_date": "", 
+        "daily_deposits": 0.0,
+        "phone": req.phone
+    }
+    
+    db.append(new_user)
+    save_db(db)
+    log_admin_action(current_user, "CREATE_USER", f"Created {uname} with role {req.role}")
+    
+    return {"status": "success", "message": "Compte créé avec succès", "user_id": new_id}
+
 @app.post("/api/admin/create-user")
 async def admin_create_user(req: AdminCreateUserRequest, current_user: str = Depends(get_admin_user)):
     uname = req.username.lower().strip()
