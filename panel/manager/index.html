@@ -428,39 +428,39 @@
             );
         }
 
-        const BACKEND_URL = "https://xdanous-backend-onrender-com.onrender.com";
+       const BACKEND_URL = "https://xdanous-backend-onrender-com.onrender.com";
+
+        // 1. التقاط التوكن من الرابط إذا تم توجيهنا من الواجهة الرئيسية
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        if (urlToken) {
+            localStorage.setItem('admin_token', urlToken);
+            // مسح التوكن من الرابط فوراً لحمايته
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // 2. التحقق من وجود التوكن
         const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
-if (!token) window.location.href = '/';
-        if (!token) window.location.href = '/';
+        if (!token) window.location.href = 'https://xdanous.net';
 
-        let allUsers = [];
-        let allTransactionsCache = [];
-        let sessionData = localStorage.getItem('xdanous_user');
-        let user = sessionData ? JSON.parse(sessionData) : null;
+        // 3. فك تشفير التوكن لاستخراج اسم المستخدم ودوره ديناميكياً
+        let user = null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            user = {
+                username: payload.sub,
+                role: payload.role
+            };
+        } catch (e) {
+            localStorage.clear();
+            window.location.href = 'https://xdanous.net';
+        }
 
+        // 4. حارس الصلاحيات: طرد أي شخص ليس مانجر
         if (!user || user.role !== 'manager') {
             localStorage.clear();
-            window.location.href = '/';
+            window.location.href = 'https://xdanous.net';
         }
-
-        let secureSelectedUser = "";
-
-        function getAuthHeaders() {
-            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const el = document.getElementById('manager-username');
-            if (el) el.innerText = user.username;
-            loadNetworkData();
-            fetchAllTickets();
-        });
-
-        const translations = {
-            fr: { menu: "Menu", selected: "Sélection:", create: "👤 Créer un compte", user: "Nom d'utilisateur", pass: "Mot de passe", console: "📋 Console financière", credit: "Créditer", retirer: "Retirer", out: "Déconnexion" },
-            ar: { menu: "Menu", selected: "Sélection:", create: "👤 Créer un compte", user: "Nom d'utilisateur", pass: "Mot de passe", console: "📋 Console financière", credit: "Créditer", retirer: "Retirer", out: "Déconnexion" },
-            en: { menu: "Menu", selected: "Selected:", create: "👤 Create Account", user: "Username", pass: "Password", console: "📋 Financial Console", credit: "Charge", retirer: "Withdraw", out: "Logout" }
-        };
 
         function changeLanguage(lang) {
             document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
