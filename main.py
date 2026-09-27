@@ -177,28 +177,35 @@ def verify_password(plain_password, hashed_password):
 
 ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
-
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(hours=24)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+
+async def get_current_user_token(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload.get("sub")
-    except:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        username = payload.get("sub")
+        role = payload.get("role")
+        if not username or not role:
+            raise HTTPException(status_code=401, detail="Token invalide")
+        return {"username": username, "role": role}
+    except Exception:
+        raise HTTPException(status_code=401, detail="Non autorisé")
 
-async def get_admin_user(current_user: str = Depends(get_current_user)):
-    db = load_db()
-    user = next((u for u in db if u["username"] == current_user), None)
-    
-    if not user or user.get("role") not in ["owner","manager", "super_admin", "admin","shop"]:
-        raise HTTPException(status_code=403, detail="Access Denied: Admin privileges required")
-    
-    return current_user
+async def get_current_user(user: dict = Depends(get_current_user_token)):
+    # 🛑 حارس اللاعبين: يطرد أي حساب إداري يحاول دخول مسارات اللاعب
+    if user.get("role") != "player":
+        raise HTTPException(status_code=403, detail="Accès refusé : Espace réservé aux joueurs")
+    return user["username"]
+
+async def get_admin_user(user: dict = Depends(get_current_user_token)):
+    # 🛑 حارس الإدارة: يطرد أي لاعب عادي يحاول دخول مسارات أو لوحات الإدارة
+    admin_roles = ["admin", "super_admin", "manager", "owner", "shop"]
+    if user.get("role") not in admin_roles:
+        raise HTTPException(status_code=403, detail="Accès refusé : Espace d'administration")
+    return user["username"]
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -707,7 +714,46 @@ async def get_player_history(request: Request, history_type: str = Query(..., al
             
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+import jwt
+
+# يفترض أنك تستخدم هذا المتغير لاستخراج التوكن
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+def get_current_user_token(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        role: str = payload.get("role") # يجب أن يكون دور المستخدم مسجلاً في التوكن
+        
+        if username is None or role is None:
+            raise HTTPException(status_code=401, detail="Token invalide")
+            
+        return {"username": username, "role": role}
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Non autorisé")
+
+def require_player(user: dict = Depends(get_current_user_token)):
+    if user.get("role") != "player":
+        raise HTTPException(
+            status_code=403, 
+            detail="Accès refusé : Espace réservé aux joueurs"
+        )
+    return user
+
+def require_admin(user: dict = Depends(get_current_user_token)):
+    # قائمة بكل الأدوار الإدارية المسموح لها بدخول لوحات التحكم
+    admin_roles = ["admin", "super_admin", "manager", "owner", "shop"]
     
+    if user.get("role") not in admin_roles:
+        raise HTTPException(
+            status_code=403, 
+            detail="Accès refusé : Espace d'administration"
+        )
+    return user
+   
 @app.post("/api/register")
 @limiter.limit("1/minute")
 async def register_user(request: Request, req: RegisterRequest):
