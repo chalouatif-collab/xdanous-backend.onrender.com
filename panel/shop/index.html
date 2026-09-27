@@ -185,25 +185,18 @@
 
         <main class="flex-grow-1 overflow-y-auto p-2 p-md-4 no-scrollbar">
 
-            <div id="panel-shop-compte" class="shop-main-view d-flex flex-column gap-3">
-                
-                <div class="p-2 bg-card-custom rounded-3 border border-custom shadow-sm">
-                    <input type="text" id="search-input" oninput="renderFilteredUsers()" placeholder="🔍 Chercher un utilisateur..." class="form-control form-control-sm rounded-2">
-                </div>
-                
-                <section class="bg-card-custom border-custom rounded-3 p-3 shadow-sm">
-                    <h5 class="fw-bold text-light mb-2" style="font-size: 0.8rem;">🕹️ Créer un nouveau compte</h5>
-                    <div class="row g-2 mb-2">
-                        <div class="col-12 col-sm-6">
-                            <input type="text" id="new-user-name" placeholder="Nom du joueur" class="form-control form-control-sm">
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <input type="password" id="player-password" placeholder="Mot de passe" class="form-control form-control-sm">
-                        </div>
-                    </div>
-                    <button onclick="createPlayerAccount()" class="btn btn-emerald btn-sm w-100 py-1 rounded-2 shadow-sm" style="font-size: 0.75rem;">Créer</button>
-                </section>
-
+            <section class="bg-card-custom border-custom rounded-3 p-3 shadow-sm">
+    <h5 class="fw-bold text-light mb-2" style="font-size: 0.8rem;">Créer un nouveau compte</h5>
+    <div class="row g-2 mb-2">
+        <div class="col-12 col-sm-6">
+            <input type="text" id="new-player-username" placeholder="Nom du joueur" class="form-control form-control-sm border-custom bg-dark text-white">
+        </div>
+        <div class="col-12 col-sm-6">
+            <input type="password" id="new-player-password" placeholder="Mot de passe" class="form-control form-control-sm border-custom bg-dark text-white">
+        </div>
+    </div>
+    <button id="create-player-btn" onclick="createPlayerAccount(event)" class="btn btn-emerald btn-sm w-100 py-1 rounded-3">Créer le joueur</button>
+</section>
                 <section class="bg-card-custom border-custom rounded-3 overflow-hidden shadow-sm">
                     <div class="p-2 border-bottom border-custom" style="background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);">
                         <h5 class="fw-bold text-white mb-2" style="font-size: 0.75rem;">📋 Dépôt / Retrait</h5>
@@ -685,6 +678,69 @@
         setInterval(timerIncrement, 60000);
 
         document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // دالة إنشاء حساب لاعب جديد من لوحة الشوب
+    async function createPlayerAccount(event) {
+        // منع تحديث الصفحة إذا كانت الدالة مربوطة بنموذج (Form)
+        if (event) event.preventDefault();
+
+        // جلب القيم من الحقول (تأكد أن الـ IDs تتطابق مع حقول الإدخال لديك)
+        const usernameInput = document.getElementById('new-player-username').value.trim();
+        const passwordInput = document.getElementById('new-player-password').value.trim();
+        
+        // جلب التوكن الخاص بمدير الشوب (تأكد من اسم المفتاح لديك في localStorage)
+        const token = localStorage.getItem('admin_token') || localStorage.getItem('player_token');
+
+        if (!usernameInput || !passwordInput) {
+            showNotification("Veuillez remplir tous les champs (Nom d'utilisateur et Mot de passe).", "error");
+            return;
+        }
+
+        // تغيير نص الزر لإظهار حالة التحميل
+        const submitBtn = document.getElementById('create-player-btn');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Création...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/admin/create-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    username: usernameInput,
+                    password: passwordInput,
+                    role: 'player', // إجبار الدور على "لاعب" لأن الشوب لا يمكنه إنشاء إداريين
+                    phone: ''
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showNotification("Compte joueur créé avec succès !", "success");
+                
+                // إفراغ الحقول بعد النجاح
+                document.getElementById('new-player-username').value = '';
+                document.getElementById('new-player-password').value = '';
+                
+                // إغلاق النافذة المنبثقة وتحديث جدول اللاعبين إذا كانت الدوال موجودة لديك
+                if (typeof closeCreateModal === 'function') closeCreateModal();
+                if (typeof loadNetworkUsers === 'function') loadNetworkUsers();
+            } else {
+                showNotification(data.detail || data.message || "Erreur lors de la création", "error");
+            }
+        } catch (error) {
+            console.error("Erreur:", error);
+            showNotification("Erreur de connexion au serveur", "error");
+        } finally {
+            // إعادة الزر لحالته الطبيعية
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    }
     </script>
 </body>
 </html>
