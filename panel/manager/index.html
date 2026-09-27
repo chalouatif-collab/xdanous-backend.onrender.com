@@ -1178,7 +1178,6 @@
             if (btn) { btn.disabled = true; btn.innerText = '⏳'; }
 
             try {
-                // التوجيه للمسار الآمن الجديد
                 const res = await fetch(`${BACKEND_URL}/api/admin/create-user`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
@@ -1198,8 +1197,13 @@
                     if (passwordInput) passwordInput.value = '';
                     if (phoneInput) phoneInput.value = '';
 
+                    // 1. مسح حقل البحث لضمان عدم وجود فلترة تخفي الحساب الجديد
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) searchInput.value = '';
+
+                    // 2. تحديث قائمة المستخدمين فوراً وانتظار تحميلها
                     if (typeof loadNetworkData === 'function') {
-                        loadNetworkData();
+                        await loadNetworkData();
                     }
                 } else {
                     showNotification(`Erreur : ${data.detail || "Erreur lors de la création"}`, 'error');
