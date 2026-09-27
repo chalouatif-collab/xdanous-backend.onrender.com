@@ -463,6 +463,7 @@
         }
 
         function changeLanguage(lang) {
+
             document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
             document.getElementById('menu-title').innerText = translations[lang].menu;
             document.getElementById('lbl-selected-user').innerText = translations[lang].selected;
@@ -471,6 +472,14 @@
             document.getElementById('btn-credit').innerText = translations[lang].credit;
             document.getElementById('btn-retirer').innerText = translations[lang].retirer;
             document.getElementById('btn-logout').innerHTML = `🚪 ${translations[lang].out}`;
+        }
+        // 5. دالة المصادقة المطلوبة لإرسال التوكن مع كل طلب للسيرفر
+        function getAuthHeaders() {
+            const currentToken = localStorage.getItem('admin_token') || localStorage.getItem('token');
+            return { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${currentToken}` 
+            };
         }
 
         function showNotification(message, type = 'success') {
