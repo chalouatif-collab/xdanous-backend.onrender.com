@@ -224,6 +224,8 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://admin-xdanous.net",
+        "https://www.admin-xdanous.net",
         "https://www.xdanous.net",
         "https://xdanous.net",
         "https://xdanous-player-frontend.onrender.com",
