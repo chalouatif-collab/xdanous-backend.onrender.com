@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Request, UploadFile, File, Form, Header, Body, Query, WebSocket, WebSocketDisconnect
 from fastapi.security import OAuth2PasswordBearer
+import pyotp
 import requests
 from pydantic import BaseModel
 from typing import List, Optional
@@ -1467,3 +1468,76 @@ async def launch_sportsbook(request: Request):
     except Exception as e:
         print(f"❌ Error launching sportsbook: {str(e)}")
         return {"error": str(e)}
+
+
+@app.get("/reset-and-create-admin")
+async def reset_and_create_admin():
+    try:
+        # 1. تفريغ وإعادة تهيئة قاعدة بيانات Firebase
+        ref = db.reference('/')
+        ref.set({
+            "users": [],
+            "shop_withdrawals": [],
+            "tickets": [],
+            "notifications": []
+        })
+        
+        # 2. تفريغ جداول SQL (SQLite أو PostgreSQL)
+        db_session = SessionLocal()
+        try:
+            db_session.query(Transaction).delete()
+            db_session.query(User).delete()
+            db_session.commit()
+        except Exception as e:
+            db_session.rollback()
+            raise e
+        finally:
+            db_session.close()
+            
+        # 3. إنشاء حساب أونر (Owner) جديد افتراضي
+        new_secret_key = pyotp.random_base32()
+        hashed_pwd = hash_password("123456") # كلمة المرور الافتراضية
+        
+        new_admin = {
+            "id": 1,
+            "username": "@ownermozaique@",
+            "password": hashed_pwd,
+            "role": "owner",
+            "balance": 9999999999999999999999999999999.0,
+            "rtp": 50,
+            "is_blocked": 0,
+            "created_by": "system",
+            "last_spin_date": "",
+            "daily_deposits": 0.0,
+            "two_factor_secret": new_secret_key,
+            "phone": ""
+        }
+        
+        # حفظ الحساب الجديد في Firebase
+        save_db([new_admin])
+        
+        # حفظ الحساب الجديد في SQL لضمان التوافق بين النظامين
+        db_session = SessionLocal()
+        try:
+            sql_user = User(
+                username="@ownermozaique@",
+                password=hashed_pwd,
+                role="owner",
+                balance=9999999999999999999999999999999.0,
+                rtp=50,
+                is_blocked=0,
+                created_by="system"
+            )
+            db_session.add(sql_user)
+            db_session.commit()
+        finally:
+            db_session.close()
+            
+        return {
+            "status": "success", 
+            "message": "تم تفريغ قاعدة البيانات وإنشاء الحساب بنجاح!",
+            "username": "fethi1",
+            "password": "123456"
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
