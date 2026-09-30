@@ -349,66 +349,6 @@
             } catch(e) { console.error(e); }
         }
 
-       // دالة إنشاء حساب لاعب جديد من لوحة الشوب
-    async function createPlayerAccount(event) {
-        // منع تحديث الصفحة إذا كانت الدالة مربوطة بنموذج (Form)
-        if (event) event.preventDefault();
-
-        // جلب القيم من الحقول مع التأكد من مطابقة الـ IDs
-        const usernameInput = document.getElementById('new-player-username').value.trim();
-        const passwordInput = document.getElementById('new-player-password').value.trim();
-
-        if (!usernameInput || !passwordInput) {
-            showNotification("Veuillez remplir tous les champs (Nom d'utilisateur et Mot de passe).", "error");
-            return;
-        }
-
-        // تغيير نص الزر لإظهار حالة التحميل
-        const submitBtn = document.getElementById('create-player-btn');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Création...';
-        submitBtn.disabled = true;
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: usernameInput,
-                    password: passwordInput,
-                    role: 'player',
-                    created_by: shopSessionUser ? shopSessionUser.username : 'shop', // 👈 استخدام المتغير الصحيح الخاص والشامل للشوب
-                    phone: "00000000"
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                showNotification("Compte joueur créé avec succès !", "success");
-                
-                // إفراغ الحقول بعد النجاح
-                document.getElementById('new-player-username').value = '';
-                document.getElementById('new-player-password').value = '';
-                
-                // تحديث قائمة اللاعبين الخاصة بالشوب
-                if (typeof loadShopPlayersData === 'function') {
-                    await loadShopPlayersData();
-                }
-            } else {
-                showNotification(data.detail || data.message || "Erreur lors de la création", "error");
-            }
-        } catch (error) {
-            console.error("Erreur:", error);
-            showNotification("Erreur de connexion au serveur", "error");
-        } finally {
-            // إعادة الزر لحالته الطبيعية
-            submitBtn.innerHTML = originalBtnText;
-            submitBtn.disabled = false;
-        }
-    }
 
         async function changePlayerPasswordFromShop() {
             const targetPlayer = document.getElementById('target-player-name').value.trim().toLowerCase();
@@ -696,24 +636,20 @@
 
         //document.addEventListener('contextmenu', event => event.preventDefault());
 
-        // دالة إنشاء حساب لاعب جديد من لوحة الشوب
-    async function createPlayerAccount(event) {
-        // منع تحديث الصفحة إذا كانت الدالة مربوطة بنموذج (Form)
+       async function createPlayerAccount(event) {
+        // منع تحديث الصفحة
         if (event) event.preventDefault();
 
-        // جلب القيم من الحقول (تأكد أن الـ IDs تتطابق مع حقول الإدخال لديك)
+        // جلب القيم
         const usernameInput = document.getElementById('new-player-username').value.trim();
         const passwordInput = document.getElementById('new-player-password').value.trim();
-        
-        // جلب التوكن الخاص بمدير الشوب (تأكد من اسم المفتاح لديك في localStorage)
-        const token = localStorage.getItem('admin_token') || localStorage.getItem('player_token');
 
         if (!usernameInput || !passwordInput) {
-            showNotification("Veuillez remplir tous les champs (Nom d'utilisateur et Mot de passe).", "error");
+            showNotification("Veuillez remplir tous les champs.", "error");
             return;
         }
 
-        // تغيير نص الزر لإظهار حالة التحميل
+        // تغيير حالة الزر
         const submitBtn = document.getElementById('create-player-btn');
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Création...';
@@ -721,32 +657,32 @@
 
         try {
             const response = await fetch(`${BACKEND_URL}/api/register`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-        // ملاحظة: مسار /api/register لا يحتاج لتوكن Authorization في الباك اند، أو يمكنك إبقاؤه إذا رغبت
-    },
-    body: JSON.stringify({
-        username: usernameInput,
-        password: passwordInput,
-        role: 'player',
-        created_by: playerSession ? playerSession.username : 'shop', // 👈 إضافة اسم الشوب الحالي هنا لتجنب رفض الطلب
-        phone: ''
-    })
-});
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: usernameInput,
+                    password: passwordInput,
+                    role: 'player',
+                    created_by: shopSessionUser ? shopSessionUser.username : 'shop', // 👈 تم استخدام shopSessionUser هنا
+                    phone: "00000000"
+                })
+            });
 
             const data = await response.json();
 
             if (response.ok) {
                 showNotification("Compte joueur créé avec succès !", "success");
                 
-                // إفراغ الحقول بعد النجاح
+                // إفراغ الحقول
                 document.getElementById('new-player-username').value = '';
                 document.getElementById('new-player-password').value = '';
                 
-                // إغلاق النافذة المنبثقة وتحديث جدول اللاعبين إذا كانت الدوال موجودة لديك
-                if (typeof closeCreateModal === 'function') closeCreateModal();
-                if (typeof loadNetworkUsers === 'function') loadNetworkUsers();
+                // تحديث القائمة فوراً
+                if (typeof loadShopPlayersData === 'function') {
+                    await loadShopPlayersData();
+                }
             } else {
                 showNotification(data.detail || data.message || "Erreur lors de la création", "error");
             }
@@ -754,7 +690,7 @@
             console.error("Erreur:", error);
             showNotification("Erreur de connexion au serveur", "error");
         } finally {
-            // إعادة الزر لحالته الطبيعية
+            // إعادة الزر لشكله الطبيعي
             submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
         }
