@@ -703,19 +703,20 @@
         submitBtn.disabled = true;
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/admin/create-user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    username: usernameInput,
-                    password: passwordInput,
-                    role: 'player', // إجبار الدور على "لاعب" لأن الشوب لا يمكنه إنشاء إداريين
-                    phone: ''
-                })
-            });
+            const response = await fetch(`${BACKEND_URL}/api/register`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+        // ملاحظة: مسار /api/register لا يحتاج لتوكن Authorization في الباك اند، أو يمكنك إبقاؤه إذا رغبت
+    },
+    body: JSON.stringify({
+        username: usernameInput,
+        password: passwordInput,
+        role: 'player',
+        created_by: playerSession ? playerSession.username : 'shop', // 👈 إضافة اسم الشوب الحالي هنا لتجنب رفض الطلب
+        phone: ''
+    })
+});
 
             const data = await response.json();
 
