@@ -349,49 +349,66 @@
             } catch(e) { console.error(e); }
         }
 
-        async function createPlayerAccount() {
-            const usernameInput = document.getElementById('new-user-name');
-            const passwordInput = document.getElementById('player-password');
+       // دالة إنشاء حساب لاعب جديد من لوحة الشوب
+    async function createPlayerAccount(event) {
+        // منع تحديث الصفحة إذا كانت الدالة مربوطة بنموذج (Form)
+        if (event) event.preventDefault();
 
-            const username = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
-            const password = passwordInput ? passwordInput.value : '';
+        // جلب القيم من الحقول مع التأكد من مطابقة الـ IDs
+        const usernameInput = document.getElementById('new-player-username').value.trim();
+        const passwordInput = document.getElementById('new-player-password').value.trim();
 
-            if(!username || !password) {
-                showNotification('Remplir tous les champs !', 'error');
-                return;
-            }
-
-            const sessionData = localStorage.getItem('alpha_user');
-            const currentUser = sessionData ? JSON.parse(sessionData) : null;
-            const creatorUsername = currentUser ? currentUser.username : 'shop_admin';
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/register`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ 
-                        username: username, 
-                        password: password, 
-                        role: 'player', 
-                        created_by: creatorUsername,
-                        phone: "00000000"
-                    })
-                });
-                
-                const data = await res.json(); 
-
-                if(res.ok){
-                    showNotification('Compte créé avec succès !', 'success');
-                    usernameInput.value = '';
-                    passwordInput.value = '';
-                    await loadShopPlayersData();
-                } else {
-                    showNotification(data.detail || 'Erreur lors de la création', 'error');
-                }
-            } catch(e) {
-                showNotification('Erreur de connexion avec le serveur', 'error');
-            }
+        if (!usernameInput || !passwordInput) {
+            showNotification("Veuillez remplir tous les champs (Nom d'utilisateur et Mot de passe).", "error");
+            return;
         }
+
+        // تغيير نص الزر لإظهار حالة التحميل
+        const submitBtn = document.getElementById('create-player-btn');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Création...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: usernameInput,
+                    password: passwordInput,
+                    role: 'player',
+                    created_by: shopSessionUser ? shopSessionUser.username : 'shop', // 👈 استخدام المتغير الصحيح الخاص والشامل للشوب
+                    phone: "00000000"
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showNotification("Compte joueur créé avec succès !", "success");
+                
+                // إفراغ الحقول بعد النجاح
+                document.getElementById('new-player-username').value = '';
+                document.getElementById('new-player-password').value = '';
+                
+                // تحديث قائمة اللاعبين الخاصة بالشوب
+                if (typeof loadShopPlayersData === 'function') {
+                    await loadShopPlayersData();
+                }
+            } else {
+                showNotification(data.detail || data.message || "Erreur lors de la création", "error");
+            }
+        } catch (error) {
+            console.error("Erreur:", error);
+            showNotification("Erreur de connexion au serveur", "error");
+        } finally {
+            // إعادة الزر لحالته الطبيعية
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    }
 
         async function changePlayerPasswordFromShop() {
             const targetPlayer = document.getElementById('target-player-name').value.trim().toLowerCase();
