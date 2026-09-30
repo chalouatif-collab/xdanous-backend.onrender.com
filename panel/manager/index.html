@@ -506,6 +506,7 @@
                 if (res.ok) {
                     allUsers = await res.json();
                     renderFilteredUsers();
+                    let secureSelectedUser = "";
 
                     const myAccount = allUsers.find(u => u.username === user.username);
                     if (myAccount) {
