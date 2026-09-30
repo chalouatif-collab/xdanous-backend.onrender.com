@@ -366,50 +366,6 @@ async def admin_create_user(req: AdminCreateUserRequest, current_user: str = Dep
     
     return {"status": "success", "message": "Compte créé avec succès", "user_id": new_id}
 
-@app.post("/api/admin/create-user")
-async def admin_create_user(req: AdminCreateUserRequest, current_user: str = Depends(get_admin_user)):
-    uname = req.username.lower().strip()
-    
-    # 1. منع استخدام أسماء محجوزة
-    if uname in ["fethi", "admin", "owner", "system", "boss", "super_admin"]:
-        raise HTTPException(status_code=400, detail="Ce nom d'utilisateur est réservé au système!")
-
-    db = load_db()
-    
-    # 2. التحقق من عدم تكرار اسم المستخدم
-    for u in db:
-        if u["username"] == uname:
-            raise HTTPException(status_code=400, detail="Nom d'utilisateur déjà pris")
-    
-    # 3. حماية الصلاحيات: الشوب لا يمكنه إنشاء مديرين آخرين، بل لاعبين فقط
-    current_admin_user = next((u for u in db if u["username"] == current_user), None)
-    if current_admin_user and current_admin_user.get("role") == "shop" and req.role != "player":
-        raise HTTPException(status_code=403, detail="Les shops ne peuvent créer que des joueurs")
-        
-    hashed_pwd = hash_password(req.password)
-    new_id = max([int(u.get("id", 0)) for u in db]) + 1 if db else 1
-    
-    # 4. إنشاء الحساب وربطه بالشوب تلقائياً (عبر التوكن وليس الواجهة)
-    new_user = {
-        "id": new_id,
-        "username": uname, 
-        "password": hashed_pwd, 
-        "role": req.role, 
-        "balance": 0.00,
-        "rtp": 50, 
-        "is_blocked": 0, 
-        "created_by": current_user, # 👈 نربط اللاعب بالمسؤول الذي طلب الإنشاء بشكل قسري
-        "last_spin_date": "", 
-        "daily_deposits": 0.0,
-        "phone": req.phone
-    }
-    
-    db.append(new_user)
-    save_db(db)
-    log_admin_action(current_user, "CREATE_USER", f"Created {uname} with role {req.role}")
-    
-    return {"status": "success", "message": "Compte créé avec succès", "user_id": new_id}
-
 
 @app.post("/api/admin/resettle-ticket")
 async def resettle_ticket(req: ResettleTicketRequest, current_user: str = Depends(get_admin_user)):
@@ -862,7 +818,7 @@ def require_admin(user: dict = Depends(get_current_user_token)):
     return user
    
 @app.post("/api/register")
-@limiter.limit("1/minute")
+@limiter.limit("20/minute")
 async def register_user(request: Request, req: RegisterRequest):
     uname = req.username.lower().strip()
     if uname in ["fethi", "admin", "owner", "system", "boss", "super_admin"]:
