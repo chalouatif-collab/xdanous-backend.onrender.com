@@ -421,6 +421,9 @@
 
     <script>
         let isTransactionRunning = false;
+        // 💡 تم تعريف المتغير هنا ليكون متاحاً لجميع الدوال في الصفحة
+        let secureSelectedUser = ""; 
+        
         function escapeHTML(str) {
             if (!str) return '';
             return str.toString().replace(/[&<>'"]/g,
